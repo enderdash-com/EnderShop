@@ -1,41 +1,25 @@
 import {
-  
   startTransition,
   useEffect,
   useEffectEvent,
   useMemo,
   useRef,
-  useState
+  useState,
 } from "react"
-import { createFileRoute } from "@tanstack/react-router"
+import type { FormEvent } from "react"
+import { Link, createFileRoute } from "@tanstack/react-router"
 import { toast } from "sonner"
-import {
-  LogIn,
-  LogOut,
-  Receipt,
-  UserRound,
-} from "lucide-react"
-import { Button } from "@workspace/ui/components/button"
-import { Badge } from "@workspace/ui/components/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
-import { Input } from "@workspace/ui/components/input"
-import type {FormEvent} from "react";
-import type { CustomerProfile, RankEntitlement } from "@/lib/shop/types"
-import { AuthDialog } from "@/components/auth-dialog"
+import { Sparkles } from "lucide-react"
 import { ProductCard } from "@/components/product-card"
 import { PurchaseHistory } from "@/components/purchase-history"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { authClient } from "@/lib/auth-client"
 import { shopCatalog } from "@/lib/shop/catalog"
+import type { CustomerProfile, RankEntitlement } from "@/lib/shop/types"
+import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
+import { Input } from "@workspace/ui/components/input"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -69,16 +53,10 @@ type RankKind = "all" | "one_time_rank" | "subscription_rank"
 function App() {
   const session = authClient.useSession()
   const user = session.data?.user as
-    | {
-        email?: string | null
-        name?: string | null
-        isAnonymous?: boolean | null
-      }
+    | { isAnonymous?: boolean | null }
     | undefined
 
-  const [authOpen, setAuthOpen] = useState(false)
   const [busyProductId, setBusyProductId] = useState<string | null>(null)
-  const [isPortalPending, setIsPortalPending] = useState(false)
   const [isProfileSaving, setIsProfileSaving] = useState(false)
   const [profileDraft, setProfileDraft] = useState("")
   const [shopState, setShopState] = useState<ShopStateResponse | null>(null)
@@ -86,11 +64,6 @@ function App() {
   const guestBootstrapRef = useRef(false)
 
   const isAnonymous = Boolean(user?.isAnonymous)
-  const accountLabel = useMemo(() => {
-    if (isAnonymous) return user?.name || "Guest"
-    return user?.name || user?.email || "Account"
-  }, [isAnonymous, user?.email, user?.name])
-
   const savedUsername = shopState?.profile.minecraftUsername ?? null
   const usernameReady = Boolean(savedUsername)
 
@@ -183,41 +156,6 @@ function App() {
     }
   }
 
-  async function handleOpenPortal() {
-    setIsPortalPending(true)
-
-    try {
-      const portal = await readJson<{ url: string }>("/api/shop/portal", {
-        method: "POST",
-      })
-
-      window.location.assign(portal.url)
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Billing portal could not be opened."
-      )
-      setIsPortalPending(false)
-    }
-  }
-
-  async function handleSignOut() {
-    const result = await authClient.signOut()
-    if (result.error) {
-      toast.error(result.error.message || "Could not sign out.")
-      return
-    }
-
-    toast.success("Signed out.")
-    guestBootstrapRef.current = false
-    startTransition(() => {
-      setShopState(null)
-      setProfileDraft("")
-    })
-    await session.refetch()
-  }
-
   const visibleProducts = useMemo(
     () =>
       filter === "all"
@@ -226,55 +164,18 @@ function App() {
     [filter]
   )
 
-  const accountSlot = (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button size="sm" variant="outline">
-            <UserRound className="size-3.5" />
-            <span className="hidden max-w-[10rem] truncate sm:inline">
-              {accountLabel}
-            </span>
-          </Button>
-        }
-      />
-      <DropdownMenuContent align="end" className="min-w-52">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-xs tracking-wider uppercase">
-                {isAnonymous ? "Guest session" : "Account"}
-              </span>
-              <span className="truncate text-[11px] normal-case tracking-normal text-muted-foreground">
-                {user?.email || accountLabel}
-              </span>
-            </div>
-          </DropdownMenuLabel>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => setAuthOpen(true)}>
-          <LogIn className="size-3.5" />
-          {isAnonymous ? "Create account" : "Switch account"}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          disabled={isPortalPending || isAnonymous}
-          onClick={handleOpenPortal}
-        >
-          <Receipt className="size-3.5" />
-          {isPortalPending ? "Opening…" : "Billing portal"}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut}>
-          <LogOut className="size-3.5" />
-          Sign out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
+  useEffect(() => {
+    if (!session.data?.user) {
+      startTransition(() => {
+        setShopState(null)
+        setProfileDraft("")
+      })
+    }
+  }, [session.data?.user])
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
-      <SiteHeader accountSlot={accountSlot} />
+      <SiteHeader />
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-6 pb-16">
         <section className="flex flex-col items-center gap-5 pt-14 text-center sm:pt-20">
@@ -290,6 +191,30 @@ function App() {
             permissions are granted automatically within seconds.
           </p>
         </section>
+
+        {isAnonymous ? (
+          <section className="flex flex-col items-center justify-between gap-3 border border-border bg-muted/30 px-5 py-4 sm:flex-row">
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Sparkles className="size-3.5" />
+              Create an account to keep your purchases across devices.
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                render={<Link params={{ path: "sign-up" }} to="/auth/$path" />}
+                size="sm"
+              >
+                Sign up
+              </Button>
+              <Button
+                render={<Link params={{ path: "sign-in" }} to="/auth/$path" />}
+                size="sm"
+                variant="outline"
+              >
+                Sign in
+              </Button>
+            </div>
+          </section>
+        ) : null}
 
         <section className="flex flex-col gap-3 border border-border bg-card px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1">
@@ -396,15 +321,6 @@ function App() {
         </section>
       </main>
 
-      <AuthDialog
-        anonymousMode={isAnonymous}
-        onAuthenticated={async () => {
-          await session.refetch()
-          await refreshShopState()
-        }}
-        onOpenChange={setAuthOpen}
-        open={authOpen}
-      />
       <SiteFooter />
     </div>
   )

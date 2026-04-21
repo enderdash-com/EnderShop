@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SettingsPathRouteImport } from './routes/settings/$path'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalImprintRouteImport } from './routes/legal/imprint'
 import { Route as LegalCookiesRouteImport } from './routes/legal/cookies'
 import { Route as CheckoutSuccessRouteImport } from './routes/checkout/success'
 import { Route as CheckoutCancelRouteImport } from './routes/checkout/cancel'
+import { Route as AuthPathRouteImport } from './routes/auth/$path'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiShopProfileRouteImport } from './routes/api/shop/profile'
 import { Route as ApiShopPortalRouteImport } from './routes/api/shop/portal'
@@ -26,6 +28,11 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsPathRoute = SettingsPathRouteImport.update({
+  id: '/settings/$path',
+  path: '/settings/$path',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LegalTermsRoute = LegalTermsRouteImport.update({
@@ -56,6 +63,11 @@ const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
 const CheckoutCancelRoute = CheckoutCancelRouteImport.update({
   id: '/checkout/cancel',
   path: '/checkout/cancel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthPathRoute = AuthPathRouteImport.update({
+  id: '/auth/$path',
+  path: '/auth/$path',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
@@ -91,12 +103,14 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth/$path': typeof AuthPathRoute
   '/checkout/cancel': typeof CheckoutCancelRoute
   '/checkout/success': typeof CheckoutSuccessRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/imprint': typeof LegalImprintRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/settings/$path': typeof SettingsPathRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/shop/checkout': typeof ApiShopCheckoutRoute
   '/api/shop/entitlements': typeof ApiShopEntitlementsRoute
@@ -106,12 +120,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth/$path': typeof AuthPathRoute
   '/checkout/cancel': typeof CheckoutCancelRoute
   '/checkout/success': typeof CheckoutSuccessRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/imprint': typeof LegalImprintRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/settings/$path': typeof SettingsPathRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/shop/checkout': typeof ApiShopCheckoutRoute
   '/api/shop/entitlements': typeof ApiShopEntitlementsRoute
@@ -122,12 +138,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth/$path': typeof AuthPathRoute
   '/checkout/cancel': typeof CheckoutCancelRoute
   '/checkout/success': typeof CheckoutSuccessRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/imprint': typeof LegalImprintRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/settings/$path': typeof SettingsPathRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/shop/checkout': typeof ApiShopCheckoutRoute
   '/api/shop/entitlements': typeof ApiShopEntitlementsRoute
@@ -139,12 +157,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth/$path'
     | '/checkout/cancel'
     | '/checkout/success'
     | '/legal/cookies'
     | '/legal/imprint'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/settings/$path'
     | '/api/auth/$'
     | '/api/shop/checkout'
     | '/api/shop/entitlements'
@@ -154,12 +174,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth/$path'
     | '/checkout/cancel'
     | '/checkout/success'
     | '/legal/cookies'
     | '/legal/imprint'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/settings/$path'
     | '/api/auth/$'
     | '/api/shop/checkout'
     | '/api/shop/entitlements'
@@ -169,12 +191,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auth/$path'
     | '/checkout/cancel'
     | '/checkout/success'
     | '/legal/cookies'
     | '/legal/imprint'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/settings/$path'
     | '/api/auth/$'
     | '/api/shop/checkout'
     | '/api/shop/entitlements'
@@ -185,12 +209,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthPathRoute: typeof AuthPathRoute
   CheckoutCancelRoute: typeof CheckoutCancelRoute
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
   LegalCookiesRoute: typeof LegalCookiesRoute
   LegalImprintRoute: typeof LegalImprintRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  SettingsPathRoute: typeof SettingsPathRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiShopCheckoutRoute: typeof ApiShopCheckoutRoute
   ApiShopEntitlementsRoute: typeof ApiShopEntitlementsRoute
@@ -206,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/$path': {
+      id: '/settings/$path'
+      path: '/settings/$path'
+      fullPath: '/settings/$path'
+      preLoaderRoute: typeof SettingsPathRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/legal/terms': {
@@ -248,6 +281,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout/cancel'
       fullPath: '/checkout/cancel'
       preLoaderRoute: typeof CheckoutCancelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/$path': {
+      id: '/auth/$path'
+      path: '/auth/$path'
+      fullPath: '/auth/$path'
+      preLoaderRoute: typeof AuthPathRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/stripe/webhook': {
@@ -297,12 +337,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthPathRoute: AuthPathRoute,
   CheckoutCancelRoute: CheckoutCancelRoute,
   CheckoutSuccessRoute: CheckoutSuccessRoute,
   LegalCookiesRoute: LegalCookiesRoute,
   LegalImprintRoute: LegalImprintRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
+  SettingsPathRoute: SettingsPathRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiShopCheckoutRoute: ApiShopCheckoutRoute,
   ApiShopEntitlementsRoute: ApiShopEntitlementsRoute,

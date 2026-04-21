@@ -1,9 +1,9 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
-
+import { ThemeProvider } from "next-themes"
+import type { ReactNode } from "react"
 import appCss from "@workspace/ui/globals.css?url"
 import { Toaster } from "@workspace/ui/components/sonner"
-import type { ReactNode } from "react"
-import { ThemeProvider } from "@/components/theme-provider"
+import { Providers } from "@/components/providers"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -50,8 +50,10 @@ function RootDocument({ children }: { children: ReactNode }) {
           disableTransitionOnChange
           enableSystem
         >
-          {children}
-          <Toaster position="bottom-right" />
+          <Providers>
+            {children}
+            <Toaster position="bottom-right" />
+          </Providers>
         </ThemeProvider>
         <Scripts />
       </body>

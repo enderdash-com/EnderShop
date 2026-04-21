@@ -17,7 +17,7 @@
     "utils": "@workspace/ui/lib/utils",
     "ui": "@workspace/ui/components"
   },
-  "rtl": true,
+  "rtl": false,
   "menuColor": "default",
   "menuAccent": "subtle"
 }
