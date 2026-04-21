@@ -1,13 +1,14 @@
 "use client"
 
 import {
-  type useListDeviceSessions,
+  
   useSetActiveSession
 } from "@better-auth-ui/react"
 
 import { DropdownMenuItem } from "@workspace/ui/components/dropdown-menu"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { UserView } from "./user-view"
+import type {useListDeviceSessions} from "@better-auth-ui/react";
 
 export type DeviceSession = NonNullable<
   ReturnType<typeof useListDeviceSessions>["data"]

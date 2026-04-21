@@ -1,6 +1,6 @@
 import { useAuth, useDeleteUser, useListAccounts } from "@better-auth-ui/react"
 import { TriangleAlert } from "lucide-react"
-import { type SyntheticEvent, useState } from "react"
+import {  useState } from "react"
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -21,6 +21,7 @@ import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "@workspace/ui/lib/utils"
+import type {SyntheticEvent} from "react";
 
 export type DeleteUserProps = {
   className?: string

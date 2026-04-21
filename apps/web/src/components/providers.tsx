@@ -38,7 +38,7 @@ export function Providers({ children }: { children: ReactNode }) {
       deleteUser={{ enabled: true }}
       emailAndPassword={{ enabled: true, confirmPassword: true }}
       navigate={(options) => {
-        navigate({ to: options.to as RouterLinkProps["to"], replace: options.replace })
+        navigate({ to: options.to, replace: options.replace })
       }}
       redirectTo="/"
     >

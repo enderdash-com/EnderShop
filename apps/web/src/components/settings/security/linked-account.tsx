@@ -6,7 +6,6 @@ import {
   useUnlinkAccount
 } from "@better-auth-ui/react"
 import { getProviderName } from "@better-auth-ui/react/core"
-import type { Account, SocialProvider } from "better-auth"
 import { Link2, Link2Off, Plug } from "lucide-react"
 import { toast } from "sonner"
 
@@ -15,6 +14,7 @@ import { Card, CardContent } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "@workspace/ui/lib/utils"
+import type { Account, SocialProvider } from "better-auth"
 
 export type LinkedAccountProps = {
   account?: Account

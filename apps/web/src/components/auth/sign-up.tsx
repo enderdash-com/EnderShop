@@ -7,7 +7,7 @@ import {
 } from "@better-auth-ui/react"
 import { useDebouncer } from "@tanstack/react-pacer"
 import { Check, Eye, EyeOff, X } from "lucide-react"
-import { type SyntheticEvent, useState } from "react"
+import {  useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -29,7 +29,9 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "@workspace/ui/lib/utils"
 import { Label } from "@workspace/ui/components/label"
 import { MagicLinkButton } from "./magic-link-button"
-import { ProviderButtons, type SocialLayout } from "./provider-buttons"
+import { ProviderButtons  } from "./provider-buttons"
+import type {SyntheticEvent} from "react";
+import type {SocialLayout} from "./provider-buttons";
 
 export type SignUpProps = {
   className?: string

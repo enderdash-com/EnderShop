@@ -1,6 +1,6 @@
 import { useAuth, useResetPassword } from "@better-auth-ui/react"
 import { Eye, EyeOff } from "lucide-react"
-import { type SyntheticEvent, useEffect, useState } from "react"
+import {  useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@workspace/ui/components/button"
@@ -20,6 +20,7 @@ import {
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "@workspace/ui/lib/utils"
 import { Label } from "@workspace/ui/components/label"
+import type {SyntheticEvent} from "react";
 
 export type ResetPasswordProps = {
   className?: string

@@ -1,9 +1,9 @@
 import { useSession } from "@better-auth-ui/react"
-import type { User } from "better-auth"
 
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
 import { UserAvatar } from "./user-avatar"
+import type { User } from "better-auth"
 
 export type UserViewProps = {
   className?: string

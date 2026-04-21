@@ -1,8 +1,8 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { ThemeProvider } from "next-themes"
-import type { ReactNode } from "react"
 import appCss from "@workspace/ui/globals.css?url"
 import { Toaster } from "@workspace/ui/components/sonner"
+import type { ReactNode } from "react"
 import { Providers } from "@/components/providers"
 
 export const Route = createRootRoute({

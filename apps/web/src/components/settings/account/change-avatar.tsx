@@ -3,7 +3,7 @@
 import { useAuth, useSession, useUpdateUser } from "@better-auth-ui/react"
 import { fileToBase64 } from "@better-auth-ui/react/core"
 import { Trash2, Upload } from "lucide-react"
-import { type ChangeEvent, useRef, useState } from "react"
+import {  useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@workspace/ui/components/button"
@@ -16,6 +16,7 @@ import {
 import { Field } from "@workspace/ui/components/field"
 import { Label } from "@workspace/ui/components/label"
 import { Spinner } from "@workspace/ui/components/spinner"
+import type {ChangeEvent} from "react";
 import { UserAvatar } from "@/components/user/user-avatar"
 
 export type ChangeAvatarProps = {

@@ -1,17 +1,21 @@
 import Stripe from "stripe"
-import type { RankEntitlement } from "@/lib/shop/types"
+import type {
+  PurchaseRecord,
+  RankTier,
+  ShopProduct,
+} from "@/lib/shop/types"
 import { getShopProduct } from "@/lib/shop/catalog"
-import { grantRankEntitlement, revokeRankEntitlement } from "@/lib/server/fulfillment"
+import { fulfillProductPurchase, revokeUltraGroup } from "@/lib/server/fulfillment"
 import {
-  countActiveEntitlements,
-  findEntitlementBySubscriptionId,
+  isSubscriptionProduct,
+  resolveProductConfig,
+} from "@/lib/server/product-config"
+import {
   getCustomerProfile,
   recordStripeEvent,
   setStripeCustomerId,
-  updateEntitlementFulfillment,
-  upsertEntitlement,
 } from "@/lib/server/store"
-import { isSubscriptionKind, resolveProductConfig } from "@/lib/server/product-config"
+import { ULTRA_TIER_GROUPS } from "@/lib/server/shop-state"
 import { requireStringEnv } from "@/lib/server/worker-env"
 
 function requireEnv(name: string) {
@@ -30,153 +34,158 @@ function getOrigin(request: Request) {
 }
 
 function getMetadataString(
-  metadata: Record<string, string | null | undefined> | Stripe.Metadata | null | undefined,
+  metadata:
+    | Record<string, string | null | undefined>
+    | Stripe.Metadata
+    | null
+    | undefined,
   key: string
 ) {
   const value = metadata?.[key]
   return typeof value === "string" && value.length > 0 ? value : null
 }
 
-function getInvoiceSubscriptionId(invoice: Stripe.Invoice) {
-  const subscription = invoice.parent?.subscription_details?.subscription
-
-  if (typeof subscription === "string") {
-    return subscription
+function buildCheckoutMetadata(input: {
+  product: ShopProduct
+  userId: string
+  uuid: string
+  username: string
+}): Record<string, string> {
+  return {
+    minecraftUsername: input.username,
+    minecraftUuid: input.uuid,
+    productId: input.product.id,
+    productKind: input.product.kind,
+    tier: input.product.tier,
+    userId: input.userId,
   }
-
-  return subscription?.id ?? null
-}
-
-function getEntitlementErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error)
 }
 
 export async function createCheckoutSession(input: {
-  minecraftUsername: string
-  productId: string
+  product: ShopProduct
   request: Request
+  uuid: string
+  username: string
   user: { email?: string | null; id: string }
 }) {
   const stripe = getStripe()
-  const product = resolveProductConfig(input.productId)
-  const existingActiveCount = await countActiveEntitlements({
-    productId: input.productId,
-    userId: input.user.id,
-  })
-
-  if (existingActiveCount > 0) {
-    throw new Error("This rank is already active for your account.")
-  }
-
+  const config = resolveProductConfig(input.product.id)
   const profile = await getCustomerProfile(input.user.id)
-  const successUrl = `${getOrigin(input.request)}/checkout/success?session_id={CHECKOUT_SESSION_ID}`
-  const cancelUrl = `${getOrigin(input.request)}/checkout/cancel`
-  const metadata = {
-    minecraftUsername: input.minecraftUsername,
-    productId: input.productId,
+  const origin = getOrigin(input.request)
+  const metadata = buildCheckoutMetadata({
+    product: input.product,
     userId: input.user.id,
-  }
+    uuid: input.uuid,
+    username: input.username,
+  })
 
   const session = await stripe.checkout.sessions.create({
     allow_promotion_codes: true,
-    cancel_url: cancelUrl,
+    cancel_url: `${origin}/checkout/cancel`,
     client_reference_id: input.user.id,
     customer: profile.stripeCustomerId ?? undefined,
-    customer_creation: profile.stripeCustomerId
-      ? undefined
-      : product.product.kind === "one_time_rank"
-        ? "always"
-        : undefined,
+    customer_creation: profile.stripeCustomerId ? undefined : "always",
     customer_email:
       profile.stripeCustomerId || !input.user.email
         ? undefined
         : input.user.email,
     line_items: [
       {
-        price: product.priceId,
+        price: config.priceId,
         quantity: 1,
       },
     ],
     metadata,
-    mode: isSubscriptionKind(product.product.kind) ? "subscription" : "payment",
-    subscription_data: isSubscriptionKind(product.product.kind)
+    mode: isSubscriptionProduct(input.product) ? "subscription" : "payment",
+    subscription_data: isSubscriptionProduct(input.product)
       ? { metadata }
       : undefined,
-    success_url: successUrl,
+    success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
   })
 
   if (!session.url) {
     throw new Error("Stripe did not return a checkout URL.")
   }
 
-  return {
-    url: session.url,
-  }
+  return { url: session.url }
 }
 
-function normalizeSubscriptionStatus(status: Stripe.Subscription.Status) {
-  switch (status) {
-    case "active":
-    case "trialing":
-      return "active"
-    case "past_due":
-    case "unpaid":
-      return "past_due"
-    case "canceled":
-    case "incomplete_expired":
-      return "canceled"
-    default:
-      return "pending"
+export async function createBillingPortalSession(input: {
+  request: Request
+  userId: string
+}) {
+  const profile = await getCustomerProfile(input.userId)
+  if (!profile.stripeCustomerId) {
+    throw new Error("No billing account is linked to your account yet.")
   }
+
+  const stripe = getStripe()
+  const session = await stripe.billingPortal.sessions.create({
+    customer: profile.stripeCustomerId,
+    return_url: `${getOrigin(input.request)}/`,
+  })
+
+  return { url: session.url }
 }
 
-async function fulfillActiveEntitlement(entitlement: RankEntitlement) {
-  if (entitlement.fulfillmentStatus === "granted") {
-    return
-  }
+async function cancelActiveUltraSubscriptions(input: {
+  stripeCustomerId: string
+  except?: string | null
+  target: { uuid: string; username: string }
+}) {
+  const stripe = getStripe()
+  const { data } = await stripe.subscriptions.list({
+    customer: input.stripeCustomerId,
+    status: "active",
+    limit: 100,
+  })
 
-  try {
-    await grantRankEntitlement(entitlement)
-  } catch (error) {
-    await updateEntitlementFulfillment({
-      commandError: getEntitlementErrorMessage(error),
-      commandResult: "FAILED",
-      entitlementId: entitlement.id,
-      fulfillmentStatus: "error",
-    })
-  }
-}
+  for (const subscription of data) {
+    if (input.except && subscription.id === input.except) continue
+    const productKind = getMetadataString(subscription.metadata, "productKind")
+    if (productKind !== "ultra_subscription") continue
 
-async function revokeInactiveEntitlement(entitlement: RankEntitlement) {
-  if (entitlement.fulfillmentStatus === "revoked") {
-    return
-  }
+    const tier = getMetadataString(subscription.metadata, "tier") as
+      | RankTier
+      | null
 
-  try {
-    await revokeRankEntitlement(entitlement)
-  } catch (error) {
-    await updateEntitlementFulfillment({
-      commandError: getEntitlementErrorMessage(error),
-      commandResult: "FAILED",
-      entitlementId: entitlement.id,
-      fulfillmentStatus: "error",
-    })
+    try {
+      await stripe.subscriptions.cancel(subscription.id, {
+        invoice_now: false,
+        prorate: false,
+      })
+    } catch (error) {
+      console.warn(
+        `[stripe] Failed to cancel ultra subscription ${subscription.id}:`,
+        error
+      )
+    }
+
+    if (tier) {
+      try {
+        await revokeUltraGroup({ target: input.target, tier })
+      } catch (error) {
+        console.warn(
+          `[luckperms] Failed to remove ultra group ${ULTRA_TIER_GROUPS[tier]} for ${input.target.uuid}:`,
+          error
+        )
+      }
+    }
   }
 }
 
 async function applyCheckoutSession(session: Stripe.Checkout.Session) {
   const productId = getMetadataString(session.metadata, "productId")
   const userId = getMetadataString(session.metadata, "userId")
-  const minecraftUsername = getMetadataString(session.metadata, "minecraftUsername")
+  const uuid = getMetadataString(session.metadata, "minecraftUuid")
+  const username = getMetadataString(session.metadata, "minecraftUsername")
 
-  if (!productId || !userId || !minecraftUsername) {
+  if (!productId || !userId || !uuid || !username) {
     return
   }
 
   const product = getShopProduct(productId)
-  if (!product) {
-    return
-  }
+  if (!product) return
 
   if (typeof session.customer === "string") {
     await setStripeCustomerId({
@@ -185,107 +194,53 @@ async function applyCheckoutSession(session: Stripe.Checkout.Session) {
     })
   }
 
-  const entitlement = await upsertEntitlement({
-    fulfillmentStatus: product.kind === "one_time_rank" ? "pending" : "pending",
-    minecraftUsername,
-    productId,
-    productKind: product.kind,
-    status: "active",
-    stripeCheckoutSessionId: session.id,
-    stripeCustomerId:
-      typeof session.customer === "string" ? session.customer : null,
-    stripePaymentIntentId:
-      typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : null,
-    stripeSubscriptionId:
-      typeof session.subscription === "string" ? session.subscription : null,
-    userId,
+  const stripeCustomerId =
+    typeof session.customer === "string" ? session.customer : null
+
+  if (
+    (product.kind === "base_rank" || product.kind === "rank_upgrade") &&
+    stripeCustomerId
+  ) {
+    await cancelActiveUltraSubscriptions({
+      stripeCustomerId,
+      target: { uuid, username },
+    })
+  }
+
+  await fulfillProductPurchase({
+    productId: product.id,
+    target: { uuid, username },
   })
-
-  if (!entitlement) {
-    return
-  }
-
-  await fulfillActiveEntitlement(entitlement)
-}
-
-async function applyInvoicePaid(invoice: Stripe.Invoice) {
-  const invoiceSubscriptionId = getInvoiceSubscriptionId(invoice)
-  if (!invoiceSubscriptionId) {
-    return
-  }
-
-  const stripe = getStripe()
-  const subscription = await stripe.subscriptions.retrieve(invoiceSubscriptionId)
-  const metadata = subscription.metadata
-  const productId = getMetadataString(metadata, "productId")
-  const userId = getMetadataString(metadata, "userId")
-  const minecraftUsername = getMetadataString(metadata, "minecraftUsername")
-
-  if (!productId || !userId || !minecraftUsername) {
-    return
-  }
-
-  const product = getShopProduct(productId)
-  if (!product) {
-    return
-  }
-
-  const entitlement = await upsertEntitlement({
-    fulfillmentStatus: "pending",
-    minecraftUsername,
-    productId,
-    productKind: product.kind,
-    status: normalizeSubscriptionStatus(subscription.status),
-    stripeCustomerId:
-      typeof invoice.customer === "string" ? invoice.customer : null,
-    stripeInvoiceId: invoice.id,
-    stripeSubscriptionId: subscription.id,
-    userId,
-  })
-
-  if (!entitlement) {
-    return
-  }
-
-  if (normalizeSubscriptionStatus(subscription.status) === "active") {
-    await fulfillActiveEntitlement(entitlement)
-  }
 }
 
 async function applySubscriptionState(subscription: Stripe.Subscription) {
-  const entitlement = await findEntitlementBySubscriptionId(subscription.id)
-  if (!entitlement) {
-    return
-  }
+  const productKind = getMetadataString(subscription.metadata, "productKind")
+  if (productKind !== "ultra_subscription") return
 
-  const nextStatus = normalizeSubscriptionStatus(subscription.status)
+  const tier = getMetadataString(subscription.metadata, "tier") as
+    | RankTier
+    | null
+  const uuid = getMetadataString(subscription.metadata, "minecraftUuid")
+  const username = getMetadataString(subscription.metadata, "minecraftUsername")
 
-  const nextEntitlement = await upsertEntitlement({
-    fulfillmentStatus: entitlement.fulfillmentStatus,
-    minecraftUsername: entitlement.minecraftUsername,
-    productId: entitlement.productId,
-    productKind: entitlement.productKind,
-    status: nextStatus,
-    stripeCustomerId:
-      typeof subscription.customer === "string" ? subscription.customer : null,
-    stripeSubscriptionId: subscription.id,
-    userId:
-      getMetadataString(subscription.metadata, "userId") ?? entitlement.userId,
-  })
+  if (!tier || !uuid || !username) return
 
-  if (!nextEntitlement) {
-    return
-  }
+  const status = subscription.status
+  const shouldRevoke =
+    status === "canceled" ||
+    status === "incomplete_expired" ||
+    status === "past_due" ||
+    status === "unpaid"
 
-  if (nextStatus === "active") {
-    await fulfillActiveEntitlement(nextEntitlement)
-    return
-  }
-
-  if (nextStatus === "past_due" || nextStatus === "canceled") {
-    await revokeInactiveEntitlement(nextEntitlement)
+  if (shouldRevoke) {
+    try {
+      await revokeUltraGroup({ target: { uuid, username }, tier })
+    } catch (error) {
+      console.warn(
+        `[luckperms] Failed to remove ultra group on subscription state change:`,
+        error
+      )
+    }
   }
 }
 
@@ -296,7 +251,6 @@ export async function handleStripeWebhook(request: Request) {
   const webhookSecret = requireEnv("STRIPE_WEBHOOK_SECRET")
 
   let event: Stripe.Event
-
   try {
     event = await stripe.webhooks.constructEventAsync(
       payload,
@@ -308,7 +262,8 @@ export async function handleStripeWebhook(request: Request) {
   } catch (error) {
     return Response.json(
       {
-        error: error instanceof Error ? error.message : "Invalid webhook signature",
+        error:
+          error instanceof Error ? error.message : "Invalid webhook signature",
       },
       { status: 400 }
     )
@@ -327,21 +282,6 @@ export async function handleStripeWebhook(request: Request) {
     case "checkout.session.completed":
       await applyCheckoutSession(event.data.object)
       break
-    case "invoice.paid":
-      await applyInvoicePaid(event.data.object)
-      break
-    case "invoice.payment_failed": {
-      const invoice = event.data.object
-      const invoiceSubscriptionId = getInvoiceSubscriptionId(invoice)
-
-      if (invoiceSubscriptionId) {
-        const subscription = await stripe.subscriptions.retrieve(
-          invoiceSubscriptionId
-        )
-        await applySubscriptionState(subscription)
-      }
-      break
-    }
     case "customer.subscription.updated":
     case "customer.subscription.deleted":
       await applySubscriptionState(event.data.object)
@@ -353,22 +293,78 @@ export async function handleStripeWebhook(request: Request) {
   return Response.json({ received: true })
 }
 
-export async function createBillingPortalSession(input: {
-  request: Request
-  userId: string
-}) {
-  const profile = await getCustomerProfile(input.userId)
-  if (!profile.stripeCustomerId) {
-    throw new Error("No Stripe customer is linked to this account yet.")
-  }
-
-  const stripe = getStripe()
-  const session = await stripe.billingPortal.sessions.create({
-    customer: profile.stripeCustomerId,
-    return_url: `${getOrigin(input.request)}/`,
+function formatAmount(amount: number | null, currency: string | null) {
+  if (amount == null || !currency) return "—"
+  const formatter = new Intl.NumberFormat("en", {
+    currency: currency.toUpperCase(),
+    style: "currency",
   })
+  return formatter.format(amount / 100)
+}
 
-  return {
-    url: session.url,
+export async function listCustomerPurchases(
+  stripeCustomerId: string
+): Promise<Array<PurchaseRecord>> {
+  const stripe = getStripe()
+  const [sessions, subscriptions] = await Promise.all([
+    stripe.checkout.sessions.list({
+      customer: stripeCustomerId,
+      limit: 25,
+    }),
+    stripe.subscriptions.list({
+      customer: stripeCustomerId,
+      status: "all",
+      limit: 25,
+    }),
+  ])
+
+  const records: Array<PurchaseRecord> = []
+
+  for (const session of sessions.data) {
+    if (session.payment_status !== "paid" && session.status !== "complete") continue
+    const productId = getMetadataString(session.metadata, "productId")
+    if (!productId) continue
+    const product = getShopProduct(productId)
+    if (!product) continue
+    const createdAt = new Date(session.created * 1000).toISOString()
+    records.push({
+      id: session.id,
+      productId,
+      productName: product.name,
+      productKind: product.kind,
+      amountLabel: formatAmount(session.amount_total, session.currency),
+      status:
+        session.status === "complete"
+          ? session.payment_status === "paid"
+            ? "paid"
+            : "complete"
+          : session.status ?? "unknown",
+      createdAt,
+      minecraftUuid: getMetadataString(session.metadata, "minecraftUuid"),
+    })
   }
+
+  for (const subscription of subscriptions.data) {
+    const productId = getMetadataString(subscription.metadata, "productId")
+    if (!productId) continue
+    const product = getShopProduct(productId)
+    if (!product) continue
+    const createdAt = new Date(subscription.created * 1000).toISOString()
+    const item = subscription.items.data[0]
+    const amount = item?.price.unit_amount ?? null
+    const currency = item?.price.currency ?? null
+    records.push({
+      id: subscription.id,
+      productId,
+      productName: product.name,
+      productKind: product.kind,
+      amountLabel: `${formatAmount(amount, currency)} / mo`,
+      status: subscription.status,
+      createdAt,
+      minecraftUuid: getMetadataString(subscription.metadata, "minecraftUuid"),
+    })
+  }
+
+  records.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+  return records
 }

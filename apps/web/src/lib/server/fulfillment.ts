@@ -1,101 +1,54 @@
-import type { RankEntitlement } from "@/lib/shop/types"
-import { createFulfillmentLog, updateEntitlementFulfillment } from "@/lib/server/store"
+import type { RankTier } from "@/lib/shop/types"
 import { executeEnderDashConsoleCommand } from "@/lib/server/enderdash"
-import { resolveProductConfig } from "@/lib/server/product-config"
+import { renderCommand, resolveProductConfig } from "@/lib/server/product-config"
+import { ULTRA_TIER_GROUPS } from "@/lib/server/shop-state"
+import { requireStringEnv } from "@/lib/server/worker-env"
 
-function renderTemplate(
-  template: string,
-  input: { entitlementId: string; minecraftUsername: string; productId: string }
-) {
-  return template
-    .replaceAll("{{minecraftUsername}}", input.minecraftUsername)
-    .replaceAll("{{productId}}", input.productId)
-    .replaceAll("{{entitlementId}}", input.entitlementId)
+interface FulfillmentTarget {
+  uuid: string
+  username: string
+}
+
+function getTarget() {
+  return {
+    organizationId: requireStringEnv("ENDERDASH_ORGANIZATION_ID"),
+    serverId: requireStringEnv("ENDERDASH_SERVER_ID"),
+  }
 }
 
 async function runCommands(input: {
   commands: Array<string>
-  entitlement: RankEntitlement
-  phase: "grant" | "revoke"
+  target: FulfillmentTarget
 }) {
-  const product = resolveProductConfig(input.entitlement.productId)
-
+  const { organizationId, serverId } = getTarget()
   for (const template of input.commands) {
-    const command = renderTemplate(template, {
-      entitlementId: input.entitlement.id,
-      minecraftUsername: input.entitlement.minecraftUsername,
-      productId: input.entitlement.productId,
+    const command = renderCommand(template, input.target)
+    await executeEnderDashConsoleCommand({
+      command,
+      organizationId,
+      serverId,
     })
-
-    try {
-      const response = await executeEnderDashConsoleCommand({
-        command,
-        organizationId: product.target.organizationId,
-        serverId: product.target.serverId,
-      })
-
-      await createFulfillmentLog({
-        command,
-        entitlementId: input.entitlement.id,
-        outcome: "success",
-        phase: input.phase,
-        responseJson: JSON.stringify(response),
-      })
-
-      await updateEntitlementFulfillment({
-        commandError: null,
-        commandResult: response.commandResult,
-        entitlementId: input.entitlement.id,
-        fulfillmentStatus:
-          input.phase === "grant" ? "granted" : "revoked",
-      })
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-
-      await createFulfillmentLog({
-        command,
-        entitlementId: input.entitlement.id,
-        outcome: "error",
-        phase: input.phase,
-        responseJson: JSON.stringify({ error: message }),
-      })
-
-      await updateEntitlementFulfillment({
-        commandError: message,
-        commandResult: "FAILED",
-        entitlementId: input.entitlement.id,
-        fulfillmentStatus: "error",
-      })
-
-      throw error
-    }
   }
 }
 
-export async function grantRankEntitlement(entitlement: RankEntitlement) {
-  const product = resolveProductConfig(entitlement.productId)
+export async function fulfillProductPurchase(input: {
+  productId: string
+  target: FulfillmentTarget
+}) {
+  const config = resolveProductConfig(input.productId)
   await runCommands({
-    commands: product.commands.grantCommands,
-    entitlement,
-    phase: "grant",
+    commands: config.commands.grantCommands,
+    target: input.target,
   })
 }
 
-export async function revokeRankEntitlement(entitlement: RankEntitlement) {
-  const product = resolveProductConfig(entitlement.productId)
-  if (product.commands.revokeCommands.length === 0) {
-    await updateEntitlementFulfillment({
-      commandError: null,
-      commandResult: "SUCCESS",
-      entitlementId: entitlement.id,
-      fulfillmentStatus: "revoked",
-    })
-    return
-  }
-
+export async function revokeUltraGroup(input: {
+  tier: RankTier
+  target: FulfillmentTarget
+}) {
+  const group = ULTRA_TIER_GROUPS[input.tier]
   await runCommands({
-    commands: product.commands.revokeCommands,
-    entitlement,
-    phase: "revoke",
+    commands: [`lp user {{uuid}} parent remove ${group}`],
+    target: input.target,
   })
 }

@@ -6,7 +6,6 @@ import {
   useSession,
   useSetActiveSession
 } from "@better-auth-ui/react"
-import type { Session, User } from "better-auth"
 import { ArrowLeftRight, LogOut, MoreHorizontal } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@workspace/ui/components/button"
@@ -18,6 +17,7 @@ import {
   DropdownMenuTrigger
 } from "@workspace/ui/components/dropdown-menu"
 import { Spinner } from "@workspace/ui/components/spinner"
+import type { Session, User } from "better-auth"
 import { UserView } from "@/components/user/user-view"
 
 export type DeviceSession = {

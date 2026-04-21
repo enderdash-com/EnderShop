@@ -21,10 +21,6 @@ import { Route as CheckoutSuccessRouteImport } from './routes/checkout/success'
 import { Route as CheckoutCancelRouteImport } from './routes/checkout/cancel'
 import { Route as AuthPathRouteImport } from './routes/auth/$path'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
-import { Route as ApiShopProfileRouteImport } from './routes/api/shop/profile'
-import { Route as ApiShopPortalRouteImport } from './routes/api/shop/portal'
-import { Route as ApiShopEntitlementsRouteImport } from './routes/api/shop/entitlements'
-import { Route as ApiShopCheckoutRouteImport } from './routes/api/shop/checkout'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -87,26 +83,6 @@ const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   path: '/api/stripe/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiShopProfileRoute = ApiShopProfileRouteImport.update({
-  id: '/api/shop/profile',
-  path: '/api/shop/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiShopPortalRoute = ApiShopPortalRouteImport.update({
-  id: '/api/shop/portal',
-  path: '/api/shop/portal',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiShopEntitlementsRoute = ApiShopEntitlementsRouteImport.update({
-  id: '/api/shop/entitlements',
-  path: '/api/shop/entitlements',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiShopCheckoutRoute = ApiShopCheckoutRouteImport.update({
-  id: '/api/shop/checkout',
-  path: '/api/shop/checkout',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -126,10 +102,6 @@ export interface FileRoutesByFullPath {
   '/auth/': typeof AuthIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/shop/checkout': typeof ApiShopCheckoutRoute
-  '/api/shop/entitlements': typeof ApiShopEntitlementsRoute
-  '/api/shop/portal': typeof ApiShopPortalRoute
-  '/api/shop/profile': typeof ApiShopProfileRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -145,10 +117,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/shop/checkout': typeof ApiShopCheckoutRoute
-  '/api/shop/entitlements': typeof ApiShopEntitlementsRoute
-  '/api/shop/portal': typeof ApiShopPortalRoute
-  '/api/shop/profile': typeof ApiShopProfileRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
 }
 export interface FileRoutesById {
@@ -165,10 +133,6 @@ export interface FileRoutesById {
   '/auth/': typeof AuthIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/shop/checkout': typeof ApiShopCheckoutRoute
-  '/api/shop/entitlements': typeof ApiShopEntitlementsRoute
-  '/api/shop/portal': typeof ApiShopPortalRoute
-  '/api/shop/profile': typeof ApiShopProfileRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
 }
 export interface FileRouteTypes {
@@ -186,10 +150,6 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/settings/'
     | '/api/auth/$'
-    | '/api/shop/checkout'
-    | '/api/shop/entitlements'
-    | '/api/shop/portal'
-    | '/api/shop/profile'
     | '/api/stripe/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -205,10 +165,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/settings'
     | '/api/auth/$'
-    | '/api/shop/checkout'
-    | '/api/shop/entitlements'
-    | '/api/shop/portal'
-    | '/api/shop/profile'
     | '/api/stripe/webhook'
   id:
     | '__root__'
@@ -224,10 +180,6 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/settings/'
     | '/api/auth/$'
-    | '/api/shop/checkout'
-    | '/api/shop/entitlements'
-    | '/api/shop/portal'
-    | '/api/shop/profile'
     | '/api/stripe/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -244,10 +196,6 @@ export interface RootRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiShopCheckoutRoute: typeof ApiShopCheckoutRoute
-  ApiShopEntitlementsRoute: typeof ApiShopEntitlementsRoute
-  ApiShopPortalRoute: typeof ApiShopPortalRoute
-  ApiShopProfileRoute: typeof ApiShopProfileRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
 }
 
@@ -337,34 +285,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStripeWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/shop/profile': {
-      id: '/api/shop/profile'
-      path: '/api/shop/profile'
-      fullPath: '/api/shop/profile'
-      preLoaderRoute: typeof ApiShopProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/shop/portal': {
-      id: '/api/shop/portal'
-      path: '/api/shop/portal'
-      fullPath: '/api/shop/portal'
-      preLoaderRoute: typeof ApiShopPortalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/shop/entitlements': {
-      id: '/api/shop/entitlements'
-      path: '/api/shop/entitlements'
-      fullPath: '/api/shop/entitlements'
-      preLoaderRoute: typeof ApiShopEntitlementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/shop/checkout': {
-      id: '/api/shop/checkout'
-      path: '/api/shop/checkout'
-      fullPath: '/api/shop/checkout'
-      preLoaderRoute: typeof ApiShopCheckoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -388,10 +308,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiShopCheckoutRoute: ApiShopCheckoutRoute,
-  ApiShopEntitlementsRoute: ApiShopEntitlementsRoute,
-  ApiShopPortalRoute: ApiShopPortalRoute,
-  ApiShopProfileRoute: ApiShopProfileRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport

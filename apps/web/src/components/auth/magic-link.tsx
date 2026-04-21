@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth, useSignInMagicLink } from "@better-auth-ui/react"
-import { type SyntheticEvent, useState } from "react"
+import {  useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@workspace/ui/components/button"
@@ -19,7 +19,9 @@ import { cn } from "@workspace/ui/lib/utils"
 import { Label } from "@workspace/ui/components/label"
 import { MagicLinkButton } from "./magic-link-button"
 import { PasskeyButton } from "./passkey-button"
-import { ProviderButtons, type SocialLayout } from "./provider-buttons"
+import { ProviderButtons  } from "./provider-buttons"
+import type {SyntheticEvent} from "react";
+import type {SocialLayout} from "./provider-buttons";
 
 export type MagicLinkProps = {
   className?: string

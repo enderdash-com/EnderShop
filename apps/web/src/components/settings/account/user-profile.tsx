@@ -6,7 +6,7 @@ import {
 } from "@better-auth-ui/react"
 import { useDebouncer } from "@tanstack/react-pacer"
 import { Check, X } from "lucide-react"
-import { type SyntheticEvent, useEffect, useState } from "react"
+import {  useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@workspace/ui/components/button"
@@ -23,6 +23,7 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "@workspace/ui/lib/utils"
 import { ChangeAvatar } from "./change-avatar"
+import type {SyntheticEvent} from "react";
 
 export type UserProfileProps = {
   className?: string

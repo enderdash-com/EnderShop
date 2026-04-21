@@ -1,15 +1,15 @@
 "use client"
 
 import { useAuth } from "@better-auth-ui/react"
-import type { AuthView } from "@better-auth-ui/react/core"
 
 import { ForgotPassword } from "./forgot-password"
 import { MagicLink } from "./magic-link"
-import type { SocialLayout } from "./provider-buttons"
 import { ResetPassword } from "./reset-password"
 import { SignIn } from "./sign-in"
 import { SignOut } from "./sign-out"
 import { SignUp } from "./sign-up"
+import type { SocialLayout } from "./provider-buttons"
+import type { AuthView } from "@better-auth-ui/react/core"
 
 export type AuthProps = {
   className?: string

@@ -1,9 +1,10 @@
 import {
-  AuthProvider as AuthProviderPrimitive,
-  type AuthProviderProps
+  AuthProvider as AuthProviderPrimitive
+  
 } from "@better-auth-ui/react"
-
 import { ErrorToaster } from "./error-toaster"
+import type {AuthProviderProps} from "@better-auth-ui/react";
+
 
 /**
  * Provides an authentication context by rendering an auth provider with the sonner toast handler injected, forwarding remaining configuration and rendering `children` inside it.

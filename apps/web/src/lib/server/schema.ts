@@ -116,6 +116,7 @@ export const customerProfile = sqliteTable(
       .primaryKey()
       .references(() => user.id, { onDelete: "cascade" }),
     minecraftUsername: text("minecraft_username"),
+    minecraftUuid: text("minecraft_uuid"),
     stripeCustomerId: text("stripe_customer_id"),
     createdAt: text("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
@@ -123,51 +124,10 @@ export const customerProfile = sqliteTable(
     updatedAt: text("updated_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-  },
-  (table) => [index("customer_profile_stripe_customer_idx").on(table.stripeCustomerId)]
-)
-
-export const rankEntitlement = sqliteTable(
-  "rank_entitlement",
-  {
-    id: text("id").primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    productId: text("product_id").notNull(),
-    productKind: text("product_kind").notNull(),
-    minecraftUsername: text("minecraft_username").notNull(),
-    stripeCheckoutSessionId: text("stripe_checkout_session_id"),
-    stripePaymentIntentId: text("stripe_payment_intent_id"),
-    stripeCustomerId: text("stripe_customer_id"),
-    stripeSubscriptionId: text("stripe_subscription_id"),
-    stripeInvoiceId: text("stripe_invoice_id"),
-    status: text("status").notNull(),
-    fulfillmentStatus: text("fulfillment_status").notNull(),
-    commandResult: text("command_result"),
-    commandError: text("command_error"),
-    lastFulfilledAt: text("last_fulfilled_at"),
-    createdAt: text("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: text("updated_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    canceledAt: text("canceled_at"),
   },
   (table) => [
-    uniqueIndex("rank_entitlement_checkout_uidx").on(
-      table.stripeCheckoutSessionId
-    ),
-    uniqueIndex("rank_entitlement_payment_intent_uidx").on(
-      table.stripePaymentIntentId
-    ),
-    uniqueIndex("rank_entitlement_subscription_uidx").on(
-      table.stripeSubscriptionId
-    ),
-    index("rank_entitlement_user_id_idx").on(table.userId),
-    index("rank_entitlement_product_id_idx").on(table.productId),
-    index("rank_entitlement_status_idx").on(table.status),
+    index("customer_profile_stripe_customer_idx").on(table.stripeCustomerId),
+    index("customer_profile_minecraft_uuid_idx").on(table.minecraftUuid),
   ]
 )
 
@@ -179,31 +139,12 @@ export const stripeEvent = sqliteTable("stripe_event", {
     .notNull(),
 })
 
-export const fulfillmentLog = sqliteTable(
-  "fulfillment_log",
-  {
-    id: text("id").primaryKey(),
-    entitlementId: text("entitlement_id")
-      .notNull()
-      .references(() => rankEntitlement.id, { onDelete: "cascade" }),
-    phase: text("phase").notNull(),
-    command: text("command").notNull(),
-    outcome: text("outcome").notNull(),
-    responseJson: text("response_json"),
-    createdAt: text("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-  },
-  (table) => [index("fulfillment_log_entitlement_id_idx").on(table.entitlementId)]
-)
-
 export const userRelations = relations(user, ({ many, one }) => ({
   accounts: many(account),
   customerProfile: one(customerProfile, {
     fields: [user.id],
     references: [customerProfile.userId],
   }),
-  entitlements: many(rankEntitlement),
   sessions: many(session),
 }))
 
@@ -228,26 +169,9 @@ export const customerProfileRelations = relations(customerProfile, ({ one }) => 
   }),
 }))
 
-export const rankEntitlementRelations = relations(rankEntitlement, ({ many, one }) => ({
-  fulfillmentLogs: many(fulfillmentLog),
-  user: one(user, {
-    fields: [rankEntitlement.userId],
-    references: [user.id],
-  }),
-}))
-
-export const fulfillmentLogRelations = relations(fulfillmentLog, ({ one }) => ({
-  entitlement: one(rankEntitlement, {
-    fields: [fulfillmentLog.entitlementId],
-    references: [rankEntitlement.id],
-  }),
-}))
-
 export const schema = {
   account,
   customerProfile,
-  fulfillmentLog,
-  rankEntitlement,
   session,
   stripeEvent,
   user,

@@ -2,11 +2,12 @@
 
 import { providerIcons, useAuth, useSignInSocial } from "@better-auth-ui/react"
 import { getProviderName } from "@better-auth-ui/react/core"
-import type { SocialProvider } from "better-auth/social-providers"
-import { type ComponentProps, useState } from "react"
+import {  useState } from "react"
 
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
+import type {ComponentProps} from "react";
+import type { SocialProvider } from "better-auth/social-providers"
 
 export type ProviderButtonProps = {
   provider: SocialProvider

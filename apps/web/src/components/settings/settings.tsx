@@ -1,13 +1,13 @@
 "use client"
 
 import { useAuth, useAuthenticate } from "@better-auth-ui/react"
-import type { SettingsView } from "@better-auth-ui/react/core"
 import { useMemo } from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { cn } from "@workspace/ui/lib/utils"
 import { AccountSettings } from "./account/account-settings"
 import { SecuritySettings } from "./security/security-settings"
+import type { SettingsView } from "@better-auth-ui/react/core"
 
 export type SettingsProps = {
   className?: string

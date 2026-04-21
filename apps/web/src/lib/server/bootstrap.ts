@@ -59,67 +59,46 @@ const bootstrapSql = `
   CREATE TABLE IF NOT EXISTS customer_profile (
     user_id TEXT PRIMARY KEY NOT NULL REFERENCES user(id) ON DELETE CASCADE,
     minecraft_username TEXT,
+    minecraft_uuid TEXT,
     stripe_customer_id TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
   CREATE INDEX IF NOT EXISTS customer_profile_stripe_customer_idx
     ON customer_profile (stripe_customer_id);
-
-  CREATE TABLE IF NOT EXISTS rank_entitlement (
-    id TEXT PRIMARY KEY NOT NULL,
-    user_id TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
-    product_id TEXT NOT NULL,
-    product_kind TEXT NOT NULL,
-    minecraft_username TEXT NOT NULL,
-    stripe_checkout_session_id TEXT UNIQUE,
-    stripe_payment_intent_id TEXT UNIQUE,
-    stripe_customer_id TEXT,
-    stripe_subscription_id TEXT UNIQUE,
-    stripe_invoice_id TEXT,
-    status TEXT NOT NULL,
-    fulfillment_status TEXT NOT NULL,
-    command_result TEXT,
-    command_error TEXT,
-    last_fulfilled_at TEXT,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
-    canceled_at TEXT
-  );
-  CREATE INDEX IF NOT EXISTS rank_entitlement_user_id_idx
-    ON rank_entitlement (user_id);
-  CREATE INDEX IF NOT EXISTS rank_entitlement_product_id_idx
-    ON rank_entitlement (product_id);
-  CREATE INDEX IF NOT EXISTS rank_entitlement_status_idx
-    ON rank_entitlement (status);
+  CREATE INDEX IF NOT EXISTS customer_profile_minecraft_uuid_idx
+    ON customer_profile (minecraft_uuid);
 
   CREATE TABLE IF NOT EXISTS stripe_event (
     id TEXT PRIMARY KEY NOT NULL,
     type TEXT NOT NULL,
     processed_at TEXT NOT NULL
   );
-
-  CREATE TABLE IF NOT EXISTS fulfillment_log (
-    id TEXT PRIMARY KEY NOT NULL,
-    entitlement_id TEXT NOT NULL REFERENCES rank_entitlement(id) ON DELETE CASCADE,
-    phase TEXT NOT NULL,
-    command TEXT NOT NULL,
-    outcome TEXT NOT NULL,
-    response_json TEXT,
-    created_at TEXT NOT NULL
-  );
-  CREATE INDEX IF NOT EXISTS fulfillment_log_entitlement_id_idx
-    ON fulfillment_log (entitlement_id);
 `
 
 let bootstrapPromise: Promise<void> | null = null
 
 export async function ensureAppDatabase() {
   if (!bootstrapPromise) {
-    bootstrapPromise = getD1Database()
-      .exec(bootstrapSql)
-      .then(() => undefined)
+    bootstrapPromise = (async () => {
+      const db = getD1Database()
+      await db.exec(bootstrapSql)
+      await runMigrations(db)
+    })()
   }
 
   await bootstrapPromise
+}
+
+async function runMigrations(db: D1Database) {
+  const existing = await db
+    .prepare("PRAGMA table_info('customer_profile')")
+    .all<{ name: string }>()
+  const columns = new Set(existing.results.map((row) => row.name))
+
+  if (!columns.has("minecraft_uuid")) {
+    await db
+      .prepare("ALTER TABLE customer_profile ADD COLUMN minecraft_uuid TEXT")
+      .run()
+  }
 }

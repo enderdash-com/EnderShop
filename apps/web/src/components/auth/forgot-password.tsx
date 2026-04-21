@@ -1,5 +1,5 @@
 import { useAuth, useRequestPasswordReset } from "@better-auth-ui/react"
-import { type SyntheticEvent, useState } from "react"
+import {  useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@workspace/ui/components/button"
@@ -14,6 +14,7 @@ import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "@workspace/ui/lib/utils"
 import { Label } from "@workspace/ui/components/label"
+import type {SyntheticEvent} from "react";
 
 export type ForgotPasswordProps = {
   className?: string
