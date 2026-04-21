@@ -1,8 +1,9 @@
-import type { ReactNode } from "react"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 
 import appCss from "@workspace/ui/globals.css?url"
 import { Toaster } from "@workspace/ui/components/sonner"
+import type { ReactNode } from "react"
+import { ThemeProvider } from "@/components/theme-provider"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -17,6 +18,11 @@ export const Route = createRootRoute({
       {
         title: "EnderShop",
       },
+      {
+        name: "description",
+        content:
+          "Buy Minecraft ranks and perks. Permissions are granted automatically, usually within seconds.",
+      },
     ],
     links: [
       {
@@ -30,13 +36,23 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
-    <html dir="rtl" lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body className="bg-background text-foreground antialiased">
-        {children}
-        <Toaster position="bottom-left" />
+      <body
+        className="bg-background text-foreground antialiased"
+        suppressHydrationWarning
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          disableTransitionOnChange
+          enableSystem
+        >
+          {children}
+          <Toaster position="bottom-right" />
+        </ThemeProvider>
         <Scripts />
       </body>
     </html>

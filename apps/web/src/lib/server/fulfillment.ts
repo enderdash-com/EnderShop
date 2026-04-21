@@ -14,7 +14,7 @@ function renderTemplate(
 }
 
 async function runCommands(input: {
-  commands: string[]
+  commands: Array<string>
   entitlement: RankEntitlement
   phase: "grant" | "revoke"
 }) {

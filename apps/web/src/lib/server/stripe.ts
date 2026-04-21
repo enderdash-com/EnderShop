@@ -1,6 +1,6 @@
 import Stripe from "stripe"
-import { getShopProduct } from "@/lib/shop/catalog"
 import type { RankEntitlement } from "@/lib/shop/types"
+import { getShopProduct } from "@/lib/shop/catalog"
 import { grantRankEntitlement, revokeRankEntitlement } from "@/lib/server/fulfillment"
 import {
   countActiveEntitlements,
@@ -325,13 +325,13 @@ export async function handleStripeWebhook(request: Request) {
 
   switch (event.type) {
     case "checkout.session.completed":
-      await applyCheckoutSession(event.data.object as Stripe.Checkout.Session)
+      await applyCheckoutSession(event.data.object)
       break
     case "invoice.paid":
-      await applyInvoicePaid(event.data.object as Stripe.Invoice)
+      await applyInvoicePaid(event.data.object)
       break
     case "invoice.payment_failed": {
-      const invoice = event.data.object as Stripe.Invoice
+      const invoice = event.data.object
       const invoiceSubscriptionId = getInvoiceSubscriptionId(invoice)
 
       if (invoiceSubscriptionId) {
@@ -344,7 +344,7 @@ export async function handleStripeWebhook(request: Request) {
     }
     case "customer.subscription.updated":
     case "customer.subscription.deleted":
-      await applySubscriptionState(event.data.object as Stripe.Subscription)
+      await applySubscriptionState(event.data.object)
       break
     default:
       break

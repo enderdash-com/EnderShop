@@ -1,7 +1,5 @@
-import type { FormEvent } from "react"
 import { useMemo, useState, useTransition } from "react"
 import { toast } from "sonner"
-import { authClient } from "@/lib/auth-client"
 import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
@@ -23,6 +21,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs"
+import type { FormEvent } from "react"
+import { authClient } from "@/lib/auth-client"
 
 interface AuthDialogProps {
   anonymousMode: boolean

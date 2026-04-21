@@ -1,35 +1,46 @@
 import {
-  type FormEvent,
+  
   startTransition,
   useEffect,
   useEffectEvent,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { toast } from "sonner"
+import {
+  LogIn,
+  LogOut,
+  Receipt,
+  UserRound,
+} from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import { Input } from "@workspace/ui/components/input"
+import type {FormEvent} from "react";
+import type { CustomerProfile, RankEntitlement } from "@/lib/shop/types"
 import { AuthDialog } from "@/components/auth-dialog"
 import { ProductCard } from "@/components/product-card"
 import { PurchaseHistory } from "@/components/purchase-history"
 import { SiteFooter } from "@/components/site-footer"
+import { SiteHeader } from "@/components/site-header"
 import { authClient } from "@/lib/auth-client"
 import { shopCatalog } from "@/lib/shop/catalog"
-import type { CustomerProfile, RankEntitlement } from "@/lib/shop/types"
-import { Button } from "@workspace/ui/components/button"
-import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
-import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
-import { Badge } from "@workspace/ui/components/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
-import { Separator } from "@workspace/ui/components/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 
 export const Route = createFileRoute("/")({ component: App })
 
 interface ShopStateResponse {
-  entitlements: RankEntitlement[]
+  entitlements: Array<RankEntitlement>
   profile: CustomerProfile
 }
 
@@ -51,43 +62,37 @@ async function readJson<T>(input: RequestInfo | URL, init?: RequestInit) {
   return body
 }
 
-function formatAccountLabel(input: {
-  email: string | null | undefined
-  isAnonymous: boolean | null | undefined
-  name: string | null | undefined
-}) {
-  if (input.isAnonymous) {
-    return input.name || "Guest session"
-  }
+const FEATURED_PRODUCT_ID = "legend-lifetime"
 
-  return input.name || input.email || "Account"
-}
+type RankKind = "all" | "one_time_rank" | "subscription_rank"
 
 function App() {
   const session = authClient.useSession()
+  const user = session.data?.user as
+    | {
+        email?: string | null
+        name?: string | null
+        isAnonymous?: boolean | null
+      }
+    | undefined
+
   const [authOpen, setAuthOpen] = useState(false)
   const [busyProductId, setBusyProductId] = useState<string | null>(null)
   const [isPortalPending, setIsPortalPending] = useState(false)
   const [isProfileSaving, setIsProfileSaving] = useState(false)
   const [profileDraft, setProfileDraft] = useState("")
   const [shopState, setShopState] = useState<ShopStateResponse | null>(null)
+  const [filter, setFilter] = useState<RankKind>("all")
   const guestBootstrapRef = useRef(false)
 
-  const accountLabel = useMemo(
-    () =>
-      formatAccountLabel({
-        email: session.data?.user.email,
-        isAnonymous: (session.data?.user as { isAnonymous?: boolean } | undefined)
-          ?.isAnonymous,
-        name: session.data?.user.name,
-      }),
-    [session.data?.user]
-  )
+  const isAnonymous = Boolean(user?.isAnonymous)
+  const accountLabel = useMemo(() => {
+    if (isAnonymous) return user?.name || "Guest"
+    return user?.name || user?.email || "Account"
+  }, [isAnonymous, user?.email, user?.name])
 
-  const profileWarning =
-    shopState && !shopState.profile.minecraftUsername
-      ? "Add a Minecraft username before starting checkout. Fulfillment commands need a player target."
-      : null
+  const savedUsername = shopState?.profile.minecraftUsername ?? null
+  const usernameReady = Boolean(savedUsername)
 
   const refreshShopState = useEffectEvent(async () => {
     if (!session.data?.user) {
@@ -101,9 +106,7 @@ function App() {
   })
 
   const ensureAnonymousSession = useEffectEvent(async () => {
-    if (guestBootstrapRef.current) {
-      return
-    }
+    if (guestBootstrapRef.current) return
 
     guestBootstrapRef.current = true
 
@@ -114,50 +117,41 @@ function App() {
       return
     }
 
-    toast.success("Guest session ready.")
     await session.refetch()
   })
 
   useEffect(() => {
-    if (session.isPending || session.data?.user) {
-      return
-    }
-
+    if (session.isPending || session.data?.user) return
     void ensureAnonymousSession()
   }, [ensureAnonymousSession, session.data?.user, session.isPending])
 
   useEffect(() => {
-    if (!session.data?.user) {
-      return
-    }
-
+    if (!session.data?.user) return
     void refreshShopState()
-  }, [refreshShopState, session.data?.user?.id])
+  }, [refreshShopState, session.data?.user.id])
 
   async function handleProfileSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const next = profileDraft.trim()
+    if (!next) {
+      toast.error("Enter a Minecraft username first.")
+      return
+    }
+
     setIsProfileSaving(true)
 
     try {
       const profile = await readJson<CustomerProfile>("/api/shop/profile", {
-        body: JSON.stringify({
-          minecraftUsername: profileDraft,
-        }),
+        body: JSON.stringify({ minecraftUsername: next }),
         method: "PATCH",
       })
 
       setShopState((current) =>
         current
-          ? {
-              ...current,
-              profile,
-            }
-          : {
-              entitlements: [],
-              profile,
-            }
+          ? { ...current, profile }
+          : { entitlements: [], profile }
       )
-      toast.success("Minecraft profile saved.")
+      toast.success(`Linked to ${next}.`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Profile save failed.")
     } finally {
@@ -166,6 +160,12 @@ function App() {
   }
 
   async function handleCheckout(productId: string) {
+    if (!usernameReady) {
+      toast.error("Add your Minecraft username first.")
+      document.getElementById("minecraft-username")?.focus()
+      return
+    }
+
     setBusyProductId(productId)
 
     try {
@@ -218,247 +218,186 @@ function App() {
     await session.refetch()
   }
 
+  const visibleProducts = useMemo(
+    () =>
+      filter === "all"
+        ? shopCatalog
+        : shopCatalog.filter((product) => product.kind === filter),
+    [filter]
+  )
+
+  const accountSlot = (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button size="sm" variant="outline">
+            <UserRound className="size-3.5" />
+            <span className="hidden max-w-[10rem] truncate sm:inline">
+              {accountLabel}
+            </span>
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end" className="min-w-52">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-xs tracking-wider uppercase">
+                {isAnonymous ? "Guest session" : "Account"}
+              </span>
+              <span className="truncate text-[11px] normal-case tracking-normal text-muted-foreground">
+                {user?.email || accountLabel}
+              </span>
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setAuthOpen(true)}>
+          <LogIn className="size-3.5" />
+          {isAnonymous ? "Create account" : "Switch account"}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={isPortalPending || isAnonymous}
+          onClick={handleOpenPortal}
+        >
+          <Receipt className="size-3.5" />
+          {isPortalPending ? "Opening…" : "Billing portal"}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleSignOut}>
+          <LogOut className="size-3.5" />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+
   return (
-    <div className="min-h-svh bg-background">
-      <div className="border-b border-border/70 bg-card/70">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 py-4">
-          <div className="flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center border border-foreground bg-foreground text-background text-sm font-semibold tracking-[0.28em] uppercase">
-              ES
-            </div>
-            <div className="flex flex-col">
-              <span className="font-heading text-xl font-semibold tracking-[0.18em] uppercase">
-                EnderShop
-              </span>
-              <span className="text-sm text-muted-foreground">
-                Stripe checkout, anonymous accounts, and EnderDash fulfillment.
-              </span>
-            </div>
+    <div className="flex min-h-svh flex-col bg-background">
+      <SiteHeader accountSlot={accountSlot} />
+
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-6 pb-16">
+        <section className="flex flex-col items-center gap-5 pt-14 text-center sm:pt-20">
+          <span className="inline-flex items-center gap-2 border border-border bg-muted/60 px-3 py-1 text-[10px] font-semibold tracking-[0.3em] text-muted-foreground uppercase">
+            <span className="size-1.5 bg-foreground/60" />
+            Official server shop
+          </span>
+          <h1 className="max-w-3xl font-heading text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+            Unlock perks. Support the server.
+          </h1>
+          <p className="max-w-xl text-balance text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Pick a rank, pay with your preferred method, and your in-game
+            permissions are granted automatically within seconds.
+          </p>
+        </section>
+
+        <section className="flex flex-col gap-3 border border-border bg-card px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-semibold tracking-[0.3em] text-muted-foreground uppercase">
+              {usernameReady ? "Delivering to" : "Set your player"}
+            </span>
+            <span className="font-heading text-base tracking-wide">
+              {usernameReady ? savedUsername : "Enter your Minecraft username"}
+            </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Avatar size="lg">
-              <AvatarFallback>{accountLabel.slice(0, 1)}</AvatarFallback>
-            </Avatar>
-            <div className="hidden min-w-0 flex-col text-right sm:flex">
-              <span className="truncate text-sm font-medium">{accountLabel}</span>
-              <span className="truncate text-xs text-muted-foreground">
-                {session.data?.user.email ||
-                  ((session.data?.user as { isAnonymous?: boolean } | undefined)
-                    ?.isAnonymous
-                    ? "Anonymous checkout session"
-                    : "Initializing session")}
-              </span>
-            </div>
+          <form
+            className="flex w-full items-center gap-2 sm:w-auto"
+            onSubmit={handleProfileSave}
+          >
+            <Input
+              className="h-10 w-full min-w-0 sm:w-60"
+              id="minecraft-username"
+              onChange={(event) => setProfileDraft(event.target.value)}
+              placeholder="SteveAdmin"
+              value={profileDraft}
+            />
             <Button
-              onClick={() => setAuthOpen(true)}
-              variant={
-                (session.data?.user as { isAnonymous?: boolean } | undefined)
-                  ?.isAnonymous
-                  ? "default"
-                  : "outline"
-              }
+              disabled={isProfileSaving || profileDraft.trim() === (savedUsername ?? "")}
+              type="submit"
+              variant={usernameReady ? "outline" : "default"}
             >
-              {(session.data?.user as { isAnonymous?: boolean } | undefined)
-                ?.isAnonymous
-                ? "Create account"
-                : "Switch account"}
+              {isProfileSaving ? "Saving…" : usernameReady ? "Update" : "Save"}
             </Button>
-          </div>
-        </div>
-      </div>
+          </form>
+        </section>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-6 xl:grid xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <main className="flex min-w-0 flex-col gap-6">
-          {profileWarning ? (
-            <Alert>
-              <AlertTitle>Profile incomplete</AlertTitle>
-              <AlertDescription>{profileWarning}</AlertDescription>
-            </Alert>
-          ) : null}
-
-          <Card className="border border-border/80">
-            <CardHeader className="border-b border-border/70">
-              <CardTitle>Rank catalog</CardTitle>
-              <CardDescription>
-                Sell permanent and recurring ranks from one storefront, then
-                hand fulfillment off to EnderDash.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-6">
-              <Tabs defaultValue="one-time">
-                <TabsList variant="line">
-                  <TabsTrigger value="one-time">One-time ranks</TabsTrigger>
-                  <TabsTrigger value="subscriptions">
-                    Rank subscriptions
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="one-time">
-                  <div className="grid gap-4 lg:grid-cols-2">
-                    {shopCatalog
-                      .filter((product) => product.kind === "one_time_rank")
-                      .map((product) => (
-                        <ProductCard
-                          key={product.id}
-                          busy={busyProductId === product.id}
-                          disabled={!shopState?.profile.minecraftUsername}
-                          onCheckout={handleCheckout}
-                          product={product}
-                        />
-                      ))}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="subscriptions">
-                  <div className="grid gap-4 lg:grid-cols-2">
-                    {shopCatalog
-                      .filter(
-                        (product) => product.kind === "subscription_rank"
-                      )
-                      .map((product) => (
-                        <ProductCard
-                          key={product.id}
-                          busy={busyProductId === product.id}
-                          disabled={!shopState?.profile.minecraftUsername}
-                          onCheckout={handleCheckout}
-                          product={product}
-                        />
-                      ))}
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-border/80">
-            <CardHeader className="border-b border-border/70">
-              <CardTitle>Purchase log</CardTitle>
-              <CardDescription>
-                Each completed Stripe event becomes an entitlement record, then
-                fulfillment runs through the configured console commands.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PurchaseHistory entitlements={shopState?.entitlements ?? []} />
-            </CardContent>
-          </Card>
-        </main>
-
-        <aside className="flex min-w-0 flex-col gap-6">
-          <Card className="border border-border/80">
-            <CardHeader className="border-b border-border/70">
-              <CardTitle>Player target</CardTitle>
-              <CardDescription>
-                EnderDash fulfillment uses this Minecraft username when it
-                renders console commands.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form className="flex flex-col gap-6" onSubmit={handleProfileSave}>
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="minecraft-username">
-                      Minecraft username
-                    </FieldLabel>
-                    <Input
-                      id="minecraft-username"
-                      onChange={(event) => setProfileDraft(event.target.value)}
-                      placeholder="SteveAdmin"
-                      value={profileDraft}
-                    />
-                    <FieldDescription>
-                      Use the exact name your server and LuckPerms commands
-                      expect.
-                    </FieldDescription>
-                  </Field>
-                </FieldGroup>
-
-                <Button disabled={isProfileSaving} type="submit">
-                  {isProfileSaving ? "Saving…" : "Save player profile"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-border/80">
-            <CardHeader className="border-b border-border/70">
-              <CardTitle>Account mode</CardTitle>
-              <CardDescription>
-                Start as a guest, then attach email credentials without losing
-                cart or purchase state.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-sm">Current state</span>
-                <Badge
-                  variant={
-                    (session.data?.user as { isAnonymous?: boolean } | undefined)
-                      ?.isAnonymous
-                      ? "secondary"
-                      : "default"
+        <section className="flex flex-col gap-6">
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="font-heading text-2xl font-semibold tracking-tight">
+                Ranks
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Lifetime or monthly. Cancel subscriptions anytime.
+              </p>
+            </div>
+            <div className="flex items-center gap-1 border border-border bg-card p-1 text-[10px] font-semibold tracking-[0.24em] uppercase">
+              {[
+                { key: "all" as const, label: "All" },
+                { key: "one_time_rank" as const, label: "Lifetime" },
+                { key: "subscription_rank" as const, label: "Monthly" },
+              ].map((option) => (
+                <button
+                  aria-pressed={filter === option.key}
+                  className={
+                    filter === option.key
+                      ? "bg-foreground px-3 py-1.5 text-background"
+                      : "px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
                   }
+                  key={option.key}
+                  onClick={() => setFilter(option.key)}
+                  type="button"
                 >
-                  {(session.data?.user as { isAnonymous?: boolean } | undefined)
-                    ?.isAnonymous
-                    ? "Guest"
-                    : "Full account"}
-                </Badge>
-              </div>
-              <Separator />
-              <div className="flex flex-col gap-3">
-                <Button onClick={() => setAuthOpen(true)} variant="outline">
-                  {(session.data?.user as { isAnonymous?: boolean } | undefined)
-                    ?.isAnonymous
-                    ? "Convert guest session"
-                    : "Open auth panel"}
-                </Button>
-                <Button
-                  disabled={isPortalPending}
-                  onClick={handleOpenPortal}
-                  variant="outline"
-                >
-                  {isPortalPending ? "Opening portal…" : "Open billing portal"}
-                </Button>
-                <Button onClick={handleSignOut} variant="ghost">
-                  Sign out
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <Card className="border border-border/80">
-            <CardHeader className="border-b border-border/70">
-              <CardTitle>Fulfillment path</CardTitle>
-              <CardDescription>
-                EnderShop keeps the purchase record, Stripe owns billing, and
-                EnderDash runs the grant or revoke commands.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4 text-sm text-muted-foreground">
-              <div className="border-b border-border/50 pb-4">
-                1. Anonymous or full account session starts in Better Auth.
-              </div>
-              <div className="border-b border-border/50 pb-4">
-                2. Stripe Checkout creates the payment or subscription.
-              </div>
-              <div className="border-b border-border/50 pb-4">
-                3. Webhooks upsert entitlements and call EnderDash.
-              </div>
-              <div>4. Console commands grant or revoke the configured rank.</div>
-            </CardContent>
-          </Card>
-        </aside>
-      </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {visibleProducts.map((product) => (
+              <ProductCard
+                busy={busyProductId === product.id}
+                disabled={!usernameReady}
+                featured={product.id === FEATURED_PRODUCT_ID}
+                key={product.id}
+                onCheckout={handleCheckout}
+                product={product}
+              />
+            ))}
+          </div>
+
+          {!usernameReady ? (
+            <p className="text-center text-xs tracking-wider text-muted-foreground uppercase">
+              Set a Minecraft username above to enable checkout.
+            </p>
+          ) : null}
+        </section>
+
+        <section className="flex flex-col gap-4">
+          <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="font-heading text-2xl font-semibold tracking-tight">
+                Your purchases
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Active ranks, subscriptions, and past orders on this account.
+              </p>
+            </div>
+            {shopState?.entitlements.length ? (
+              <Badge variant="secondary">
+                {shopState.entitlements.length} record
+                {shopState.entitlements.length === 1 ? "" : "s"}
+              </Badge>
+            ) : null}
+          </div>
+          <PurchaseHistory entitlements={shopState?.entitlements ?? []} />
+        </section>
+      </main>
 
       <AuthDialog
-        anonymousMode={
-          Boolean(
-            (session.data?.user as { isAnonymous?: boolean } | undefined)
-              ?.isAnonymous
-          )
-        }
+        anonymousMode={isAnonymous}
         onAuthenticated={async () => {
           await session.refetch()
           await refreshShopState()

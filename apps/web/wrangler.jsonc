@@ -3,6 +3,7 @@
   "name": "endershop",
   "compatibility_date": "2026-04-21",
   "compatibility_flags": ["nodejs_compat"],
+  "keep_vars": true,
   "main": "@tanstack/react-start/server-entry",
   "observability": {
     "enabled": true,

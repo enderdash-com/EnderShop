@@ -8,34 +8,68 @@ export const Route = createFileRoute("/legal/cookies")({
 function CookiePage() {
   return (
     <LegalPage
-      description="How EnderShop uses cookies and session storage in the storefront."
+      description="What cookies and similar technologies this storefront uses."
       title="Cookie Policy"
     >
-      <section className="flex flex-col gap-3">
-        <h2 className="font-medium text-foreground">1. Essential cookies</h2>
-        <p>
-          EnderShop uses Better Auth session cookies to keep users signed in and
-          to preserve guest-account state while purchases and profile updates are
-          being processed.
-        </p>
-      </section>
+      <blockquote>
+        <strong>Placeholder.</strong> You must replace this document with your
+        own Cookie Policy that accurately describes the cookies and similar
+        technologies your storefront uses. The text below is a generic
+        template and does not constitute legal advice.
+      </blockquote>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="font-medium text-foreground">2. Operational use</h2>
-        <p>
-          These cookies are used to authenticate requests, associate Stripe
-          checkout activity with the current account, and protect the store from
-          losing session state between page loads.
-        </p>
-      </section>
+      <h2>1. What cookies are</h2>
+      <p>
+        Cookies are small text files that are placed on your device when you
+        visit a website. They are widely used to make sites work, or work more
+        efficiently, as well as to provide information to the operators of the
+        site.
+      </p>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="font-medium text-foreground">3. Third-party payment flow</h2>
-        <p>
-          When you leave EnderShop for Stripe Checkout, Stripe may set its own
-          cookies under its domain according to Stripe&apos;s own policies.
-        </p>
-      </section>
+      <h2>2. Cookies we set</h2>
+      <p>
+        We try to keep our cookie use to a minimum. The cookies we rely on to
+        operate the Service are strictly necessary:
+      </p>
+      <ul>
+        <li>
+          <strong>Session cookie</strong> keeps you signed in and preserves
+          guest sessions so your cart and order context are not lost between
+          page loads;
+        </li>
+        <li>
+          <strong>Security cookie</strong> protects forms and account actions
+          from cross-site request forgery;
+        </li>
+        <li>
+          <strong>Preference cookie</strong> remembers small settings such as
+          your chosen color theme.
+        </li>
+      </ul>
+
+      <h2>3. Third-party cookies</h2>
+      <p>
+        When you leave the storefront to complete payment, the payment
+        provider may set its own cookies on its domain according to its own
+        cookie policy. We do not control those cookies.
+      </p>
+
+      <h2>4. Managing cookies</h2>
+      <p>
+        You can control or delete cookies through your browser settings. Note
+        that disabling strictly necessary cookies may break parts of the
+        Service, including sign-in and checkout.
+      </p>
+
+      <h2>5. Changes</h2>
+      <p>
+        If the cookies we use change in any meaningful way, we will update
+        this page.
+      </p>
+
+      <p>
+        <em>Last updated: replace with a real date.</em>
+      </p>
     </LegalPage>
   )
 }

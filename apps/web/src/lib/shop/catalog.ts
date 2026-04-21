@@ -1,45 +1,46 @@
 import type { ShopProduct } from "@/lib/shop/types"
 
-export const shopCatalog: ShopProduct[] = [
+export const shopCatalog: Array<ShopProduct> = [
   {
     id: "founder-lifetime",
     slug: "founder-lifetime",
-    name: "Founder Rank",
-    summary: "A permanent supporter rank with no renewal and no expiry.",
+    name: "Founder",
+    summary:
+      "A permanent supporter rank. One payment, yours forever.",
     kind: "one_time_rank",
-    priceLabel: "€19 once",
+    priceLabel: "€19",
     highlights: [
-      "Permanent rank grant",
-      "Ideal for one-off support campaigns",
-      "Fulfilled through EnderDash console execution",
+      "Permanent in-game rank",
+      "Supporter chat color and prefix",
+      "No renewals, no expiry",
     ],
   },
   {
     id: "legend-lifetime",
     slug: "legend-lifetime",
-    name: "Legend Rank",
+    name: "Legend",
     summary:
-      "A higher permanent rank for communities that want a premium one-time tier.",
+      "Our premium lifetime tier. All supporter perks plus bigger cosmetic and gameplay bonuses.",
     kind: "one_time_rank",
-    priceLabel: "€39 once",
+    priceLabel: "€39",
     highlights: [
-      "Permanent rank grant",
-      "Higher-value supporter tier",
-      "Single payment through Stripe Checkout",
+      "Everything in Founder",
+      "Exclusive cosmetics and chat effects",
+      "Priority slot when the server is full",
     ],
   },
   {
     id: "sentinel-monthly",
     slug: "sentinel-monthly",
-    name: "Sentinel Pass",
+    name: "Sentinel",
     summary:
-      "A recurring rank with automatic activation and cancellation-aware revocation.",
+      "A recurring rank that grants perks while active. Cancel anytime.",
     kind: "subscription_rank",
     priceLabel: "€6 / month",
     highlights: [
-      "Recurring Stripe subscription",
-      "Grant on activation",
-      "Revoke when the subscription stops being active",
+      "Active while subscribed",
+      "Exclusive monthly cosmetic",
+      "Cancel whenever you like",
     ],
   },
   {
@@ -47,13 +48,13 @@ export const shopCatalog: ShopProduct[] = [
     slug: "network-plus-monthly",
     name: "Network Plus",
     summary:
-      "A higher recurring rank for servers that want an ongoing premium membership tier.",
+      "Our top-tier monthly membership. Maximum perks across the whole network.",
     kind: "subscription_rank",
     priceLabel: "€12 / month",
     highlights: [
-      "Recurring premium rank",
-      "Customer portal support",
-      "Webhook-driven fulfillment sync",
+      "All premium perks",
+      "VIP queue on every server",
+      "Early access to new features",
     ],
   },
 ]

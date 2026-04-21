@@ -7,7 +7,7 @@ export interface ShopProduct {
   summary: string
   kind: ProductKind
   priceLabel: string
-  highlights: string[]
+  highlights: Array<string>
 }
 
 export interface CustomerProfile {

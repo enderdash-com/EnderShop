@@ -1,10 +1,10 @@
-import { getShopProduct } from "@/lib/shop/catalog"
 import type { ProductKind, ShopProduct } from "@/lib/shop/types"
+import { getShopProduct } from "@/lib/shop/catalog"
 import { requireStringEnv } from "@/lib/server/worker-env"
 
 interface ServerProductConfig {
-  grantCommands: string[]
-  revokeCommands: string[]
+  grantCommands: Array<string>
+  revokeCommands: Array<string>
   priceEnvVar: string
 }
 
