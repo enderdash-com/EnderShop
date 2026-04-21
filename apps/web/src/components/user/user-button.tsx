@@ -87,7 +87,7 @@ export function UserButton({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          size === "icon" && "rounded-full",
+          size === "icon" && "rounded-none",
           size === "icon" && className
         )}
       >

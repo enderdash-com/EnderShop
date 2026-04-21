@@ -28,6 +28,14 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+    changeEmail: {
+      enabled: true,
+    },
+  },
   plugins: [
     anonymous({
       generateName: () => `Guest ${crypto.randomUUID().slice(0, 8)}`,

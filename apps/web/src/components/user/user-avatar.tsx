@@ -39,7 +39,7 @@ export function UserAvatar({
   })
 
   if ((isPending || sessionPending) && !user) {
-    return <Skeleton className={cn("size-8 rounded-full", className)} />
+    return <Skeleton className={cn("size-8 rounded-none", className)} />
   }
 
   const resolvedUser = user ?? session?.user
@@ -55,7 +55,7 @@ export function UserAvatar({
   return (
     <Avatar
       className={cn(
-        "size-8 bg-muted text-foreground text-sm rounded-full",
+        "size-8 bg-muted text-foreground text-sm rounded-none",
         className
       )}
     >

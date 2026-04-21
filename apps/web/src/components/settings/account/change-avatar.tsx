@@ -103,7 +103,7 @@ export function ChangeAvatar({ className }: ChangeAvatarProps) {
         <Button
           type="button"
           variant="ghost"
-          className="p-0 h-auto w-auto rounded-full"
+          className="p-0 h-auto w-auto rounded-none"
           disabled={isPending}
           onClick={() => fileInputRef.current?.click()}
         >

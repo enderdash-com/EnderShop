@@ -35,6 +35,8 @@ export function Providers({ children }: { children: ReactNode }) {
       Link={AuthLink}
       appearance={{ setTheme, theme }}
       authClient={authClient}
+      deleteUser={{ enabled: true }}
+      emailAndPassword={{ enabled: true, confirmPassword: true }}
       navigate={(options) => {
         navigate({ to: options.to as RouterLinkProps["to"], replace: options.replace })
       }}

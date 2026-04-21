@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "endershop",
+  "name": "enderdash-shop-demo",
   "compatibility_date": "2026-04-21",
   "compatibility_flags": ["nodejs_compat"],
   "keep_vars": true,

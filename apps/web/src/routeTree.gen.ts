@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as SettingsPathRouteImport } from './routes/settings/$path'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
@@ -28,6 +30,16 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/auth/',
+  path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsPathRoute = SettingsPathRouteImport.update({
@@ -111,6 +123,8 @@ export interface FileRoutesByFullPath {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/settings/$path': typeof SettingsPathRoute
+  '/auth/': typeof AuthIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/shop/checkout': typeof ApiShopCheckoutRoute
   '/api/shop/entitlements': typeof ApiShopEntitlementsRoute
@@ -128,6 +142,8 @@ export interface FileRoutesByTo {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/settings/$path': typeof SettingsPathRoute
+  '/auth': typeof AuthIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/shop/checkout': typeof ApiShopCheckoutRoute
   '/api/shop/entitlements': typeof ApiShopEntitlementsRoute
@@ -146,6 +162,8 @@ export interface FileRoutesById {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/settings/$path': typeof SettingsPathRoute
+  '/auth/': typeof AuthIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/shop/checkout': typeof ApiShopCheckoutRoute
   '/api/shop/entitlements': typeof ApiShopEntitlementsRoute
@@ -165,6 +183,8 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/settings/$path'
+    | '/auth/'
+    | '/settings/'
     | '/api/auth/$'
     | '/api/shop/checkout'
     | '/api/shop/entitlements'
@@ -182,6 +202,8 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/settings/$path'
+    | '/auth'
+    | '/settings'
     | '/api/auth/$'
     | '/api/shop/checkout'
     | '/api/shop/entitlements'
@@ -199,6 +221,8 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/settings/$path'
+    | '/auth/'
+    | '/settings/'
     | '/api/auth/$'
     | '/api/shop/checkout'
     | '/api/shop/entitlements'
@@ -217,6 +241,8 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   SettingsPathRoute: typeof SettingsPathRoute
+  AuthIndexRoute: typeof AuthIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiShopCheckoutRoute: typeof ApiShopCheckoutRoute
   ApiShopEntitlementsRoute: typeof ApiShopEntitlementsRoute
@@ -232,6 +258,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/': {
+      id: '/auth/'
+      path: '/auth'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings/$path': {
@@ -345,6 +385,8 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   SettingsPathRoute: SettingsPathRoute,
+  AuthIndexRoute: AuthIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiShopCheckoutRoute: ApiShopCheckoutRoute,
   ApiShopEntitlementsRoute: ApiShopEntitlementsRoute,
