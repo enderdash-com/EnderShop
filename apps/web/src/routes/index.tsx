@@ -15,6 +15,7 @@ import { PurchaseHistory } from "@/components/purchase-history"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { authClient } from "@/lib/auth-client"
+import { shopCatalog } from "@/lib/shop/catalog"
 import {
   getShopState,
   openBillingPortal,
@@ -269,7 +270,7 @@ function App() {
                     ? (checkoutMutation.variables ?? null)
                     : null
                 }
-                catalog={shopState?.catalog ?? []}
+                catalog={shopCatalog}
                 currentTier={currentTier}
                 eligibleIds={eligibleIds}
                 icon={icon}
