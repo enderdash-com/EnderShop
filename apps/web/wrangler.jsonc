@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "endershop",
+  "compatibility_date": "2026-04-21",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:5173",
+    "BETTER_AUTH_SECRET": "replace-me-with-a-secret",
+    "ENDERDASH_API_KEY": "replace-me-with-an-api-key",
+    "ENDERDASH_BASE_URL": "https://app.enderdash.com",
+    "ENDERDASH_ORGANIZATION_ID": "replace-with-organization-id",
+    "ENDERDASH_SERVER_ID": "replace-with-server-id",
+    "SHOP_COMPANY_CITY": "Berlin",
+    "SHOP_COMPANY_COUNTRY": "Germany",
+    "SHOP_COMPANY_EMAIL": "legal@example.com",
+    "SHOP_COMPANY_NAME": "EnderShop",
+    "SHOP_COMPANY_STREET": "Replace Street 1",
+    "SHOP_COMPANY_VAT_ID": "Replace VAT ID",
+    "STRIPE_PRICE_FOUNDER_LIFETIME": "price_replace_founder",
+    "STRIPE_PRICE_LEGEND_LIFETIME": "price_replace_legend",
+    "STRIPE_PRICE_NETWORK_PLUS_MONTHLY": "price_replace_network_plus",
+    "STRIPE_PRICE_SENTINEL_MONTHLY": "price_replace_sentinel",
+    "STRIPE_SECRET_KEY": "sk_test_replace_me",
+    "STRIPE_WEBHOOK_SECRET": "whsec_replace_me"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "endershop",
+      "database_id": "00000000-0000-0000-0000-000000000000"
+    }
+  ]
+}
