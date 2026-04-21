@@ -77,7 +77,11 @@ export function UserButton({
   } = useAuth()
 
   const { isPending: settingActiveSession } = useSetActiveSession()
-  const { data: session, isPending: sessionPending } = useSession()
+  const { data: rawSession, isPending: sessionPending } = useSession()
+  const session =
+    (rawSession?.user as { isAnonymous?: boolean | null } | undefined)?.isAnonymous
+      ? null
+      : rawSession
 
   return (
     <DropdownMenu>
