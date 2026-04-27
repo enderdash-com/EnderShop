@@ -3,7 +3,6 @@ import { drizzleAdapter } from "@better-auth/drizzle-adapter"
 import { anonymous } from "better-auth/plugins"
 import { tanstackStartCookies } from "better-auth/tanstack-start"
 import { getDb } from "@/lib/server/db"
-import { ensureAppDatabase } from "@/lib/server/bootstrap"
 import { schema } from "@/lib/server/schema"
 import { reassignAnonymousUserData } from "@/lib/server/store"
 import { requireStringEnv } from "@/lib/server/worker-env"
@@ -53,8 +52,5 @@ export const auth = betterAuth({
 })
 
 export async function getSessionFromHeaders(headers: Headers) {
-  await ensureAppDatabase()
   return auth.api.getSession({ headers })
 }
-
-export { ensureAppDatabase }

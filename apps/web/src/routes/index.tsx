@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { Link, createFileRoute } from "@tanstack/react-router"
 import { Check, Crown, Gem, Lock, Shield, Sparkles } from "lucide-react"
-import { startTransition, useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -31,6 +31,12 @@ const TIERS: Array<{ tier: RankTier; label: string; icon: LucideIcon }> = [
   { tier: "apex", label: "Apex", icon: Crown },
 ]
 
+const TIER_LABELS: Record<RankTier, string> = {
+  prime: "Prime",
+  elite: "Elite",
+  apex: "Apex",
+}
+
 function shortUuid(uuid: string | null | undefined) {
   if (!uuid) return null
   return `${uuid.slice(0, 8)}…${uuid.slice(-4)}`
@@ -43,7 +49,6 @@ function App() {
     | undefined
   const isAnonymous = Boolean(user?.isAnonymous)
 
-  const queryClient = useQueryClient()
   const guestBootstrapRef = useRef(false)
 
   const ensureAnonymousSession = useEffectEvent(async () => {
@@ -64,14 +69,6 @@ function App() {
     if (session.isPending || session.data?.user) return
     void ensureAnonymousSession()
   }, [ensureAnonymousSession, session.data?.user, session.isPending])
-
-  useEffect(() => {
-    if (!session.data?.user) {
-      startTransition(() => {
-        queryClient.removeQueries({ queryKey: ["shop-state"] })
-      })
-    }
-  }, [queryClient, session.data?.user])
 
   const shopStateQuery = useQuery({
     queryKey: ["shop-state", session.data?.user.id ?? null],
@@ -134,6 +131,7 @@ function App() {
   })
 
   const usernameReady = Boolean(shopState?.profile.minecraftUuid)
+  const canCheckout = !isAnonymous && usernameReady
   const currentTier = shopState?.rankState.currentTier ?? null
   const activeUltra = shopState?.rankState.activeUltra ?? null
   const eligibleIds = useMemo(
@@ -152,6 +150,10 @@ function App() {
   }
 
   function handleBuy(productId: string) {
+    if (isAnonymous) {
+      toast.error("Create an account before purchasing.")
+      return
+    }
     if (!usernameReady) {
       toast.error("Link your Minecraft username first.")
       return
@@ -270,6 +272,7 @@ function App() {
                     ? (checkoutMutation.variables ?? null)
                     : null
                 }
+                canCheckout={canCheckout}
                 catalog={shopCatalog}
                 currentTier={currentTier}
                 eligibleIds={eligibleIds}
@@ -280,7 +283,6 @@ function App() {
                 onManage={() => portalMutation.mutate()}
                 portalPending={portalMutation.isPending}
                 tier={tier}
-                usernameReady={usernameReady}
               />
             ))}
           </div>
@@ -321,6 +323,7 @@ function App() {
 interface TierColumnProps {
   activeUltra: RankTier | null
   busyProductId: string | null
+  canCheckout: boolean
   catalog: Array<ShopProduct>
   currentTier: RankTier | null
   eligibleIds: Set<string>
@@ -330,7 +333,6 @@ interface TierColumnProps {
   onManage: () => void
   portalPending: boolean
   tier: RankTier
-  usernameReady: boolean
 }
 
 const TIER_ORDER: Record<RankTier, number> = { prime: 1, elite: 2, apex: 3 }
@@ -338,6 +340,7 @@ const TIER_ORDER: Record<RankTier, number> = { prime: 1, elite: 2, apex: 3 }
 function TierColumn({
   activeUltra,
   busyProductId,
+  canCheckout,
   catalog,
   currentTier,
   eligibleIds,
@@ -347,7 +350,6 @@ function TierColumn({
   onManage,
   portalPending,
   tier,
-  usernameReady,
 }: TierColumnProps) {
   const base = catalog.find(
     (product) => product.kind === "base_rank" && product.tier === tier
@@ -399,7 +401,7 @@ function TierColumn({
         {base ? (
           <BaseCard
             busy={busyProductId === base.id}
-            disabled={!usernameReady}
+            disabled={!canCheckout}
             eligible={eligibleIds.has(base.id)}
             isCurrent={isCurrent}
             isBelowCurrent={Boolean(isBelowCurrent)}
@@ -414,7 +416,7 @@ function TierColumn({
           <UltraCard
             activeHere={ultraIsActiveHere}
             busy={busyProductId === ultra.id}
-            disabled={!usernameReady}
+            disabled={!canCheckout}
             eligible={eligibleIds.has(ultra.id)}
             onBuy={onBuy}
             onManage={onManage}
@@ -570,7 +572,7 @@ function UltraCard({
       ) : requiresTier ? (
         <div className="flex items-center gap-2 text-xs tracking-wider text-muted-foreground uppercase">
           <Lock className="size-3.5" />
-          Requires the {product.name.split(" ")[0]} rank
+          Requires the {TIER_LABELS[product.tier]} rank
         </div>
       ) : !eligible ? (
         <div className="flex items-center gap-2 text-xs tracking-wider text-muted-foreground uppercase">

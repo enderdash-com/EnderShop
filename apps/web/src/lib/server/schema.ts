@@ -127,7 +127,7 @@ export const customerProfile = sqliteTable(
   },
   (table) => [
     index("customer_profile_stripe_customer_idx").on(table.stripeCustomerId),
-    index("customer_profile_minecraft_uuid_idx").on(table.minecraftUuid),
+    uniqueIndex("customer_profile_minecraft_uuid_uidx").on(table.minecraftUuid),
   ]
 )
 

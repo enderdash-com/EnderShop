@@ -33,7 +33,8 @@
     {
       "binding": "DB",
       "database_name": "endershop",
-      "database_id": "3f150b65-5c7a-4abf-9320-cc3a42fd7559"
+      "database_id": "3f150b65-5c7a-4abf-9320-cc3a42fd7559",
+      "migrations_dir": "drizzle"
     }
   ]
 }

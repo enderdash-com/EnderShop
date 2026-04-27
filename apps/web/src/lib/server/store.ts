@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm"
+import { and, eq, ne } from "drizzle-orm"
 import type { CustomerProfile } from "@/lib/shop/types"
 import { getDb } from "@/lib/server/db"
 import { customerProfile, stripeEvent } from "@/lib/server/schema"
@@ -69,6 +69,24 @@ export async function updateCustomerProfile(input: {
   userId: string
 }) {
   await ensureCustomerProfile(input.userId)
+
+  const conflicts = await getDb()
+    .select({ userId: customerProfile.userId })
+    .from(customerProfile)
+    .where(
+      and(
+        eq(customerProfile.minecraftUuid, input.minecraftUuid),
+        ne(customerProfile.userId, input.userId)
+      )
+    )
+    .limit(1)
+
+  if (conflicts.length > 0) {
+    throw new Error(
+      "That Minecraft account is already linked to another shop account."
+    )
+  }
+
   const timestamp = nowIso()
 
   await getDb()
@@ -110,27 +128,63 @@ export async function reassignAnonymousUserData(input: {
     return
   }
 
+  const existing = await getCustomerProfile(input.newUserId)
   const timestamp = nowIso()
 
-  await getDb()
-    .insert(customerProfile)
-    .values({
-      createdAt: previous.updatedAt,
-      minecraftUsername: previous.minecraftUsername,
-      minecraftUuid: previous.minecraftUuid,
-      stripeCustomerId: previous.stripeCustomerId,
-      updatedAt: timestamp,
-      userId: input.newUserId,
-    })
-    .onConflictDoUpdate({
-      set: {
+  if (existing.updatedAt) {
+    const merged = {
+      minecraftUsername:
+        existing.minecraftUsername ?? previous.minecraftUsername,
+      minecraftUuid: existing.minecraftUuid ?? previous.minecraftUuid,
+      stripeCustomerId:
+        existing.stripeCustomerId ?? previous.stripeCustomerId,
+    }
+
+    const changed =
+      merged.minecraftUsername !== existing.minecraftUsername ||
+      merged.minecraftUuid !== existing.minecraftUuid ||
+      merged.stripeCustomerId !== existing.stripeCustomerId
+
+    if (changed) {
+      if (
+        merged.minecraftUuid &&
+        merged.minecraftUuid !== existing.minecraftUuid
+      ) {
+        const conflicts = await getDb()
+          .select({ userId: customerProfile.userId })
+          .from(customerProfile)
+          .where(
+            and(
+              eq(customerProfile.minecraftUuid, merged.minecraftUuid),
+              ne(customerProfile.userId, input.newUserId)
+            )
+          )
+          .limit(1)
+
+        if (conflicts.length > 0) {
+          merged.minecraftUsername = existing.minecraftUsername
+          merged.minecraftUuid = existing.minecraftUuid
+        }
+      }
+
+      await getDb()
+        .update(customerProfile)
+        .set({ ...merged, updatedAt: timestamp })
+        .where(eq(customerProfile.userId, input.newUserId))
+    }
+  } else {
+    await getDb()
+      .insert(customerProfile)
+      .values({
+        createdAt: previous.updatedAt,
         minecraftUsername: previous.minecraftUsername,
         minecraftUuid: previous.minecraftUuid,
         stripeCustomerId: previous.stripeCustomerId,
         updatedAt: timestamp,
-      },
-      target: customerProfile.userId,
-    })
+        userId: input.newUserId,
+      })
+      .onConflictDoNothing({ target: customerProfile.userId })
+  }
 
   await getDb()
     .delete(customerProfile)
@@ -138,21 +192,19 @@ export async function reassignAnonymousUserData(input: {
 }
 
 export async function recordStripeEvent(input: { id: string; type: string }) {
-  const [existing] = await getDb()
-    .select({ id: stripeEvent.id })
-    .from(stripeEvent)
-    .where(eq(stripeEvent.id, input.id))
-    .limit(1)
+  const inserted = await getDb()
+    .insert(stripeEvent)
+    .values({
+      id: input.id,
+      processedAt: nowIso(),
+      type: input.type,
+    })
+    .onConflictDoNothing({ target: stripeEvent.id })
+    .returning({ id: stripeEvent.id })
 
-  if (existing) {
-    return false
-  }
+  return inserted.length > 0
+}
 
-  await getDb().insert(stripeEvent).values({
-    id: input.id,
-    processedAt: nowIso(),
-    type: input.type,
-  })
-
-  return true
+export async function forgetStripeEvent(id: string) {
+  await getDb().delete(stripeEvent).where(eq(stripeEvent.id, id))
 }

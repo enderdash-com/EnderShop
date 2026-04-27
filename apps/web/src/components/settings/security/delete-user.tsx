@@ -137,11 +137,15 @@ export function DeleteUser({ className }: DeleteUserProps) {
               )}
 
               <AlertDialogFooter>
-                <AlertDialogCancel>
+                <AlertDialogCancel disabled={isPending}>
                   {localization.settings.cancel}
                 </AlertDialogCancel>
 
-                <AlertDialogAction variant="destructive">
+                <AlertDialogAction
+                  type="submit"
+                  variant="destructive"
+                  disabled={isPending || (needsPassword && !password)}
+                >
                   {isPending && <Spinner />}
 
                   {localization.settings.deleteUser}

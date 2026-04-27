@@ -2,7 +2,6 @@
 
 import { useAuth, useListSessions, useSession } from "@better-auth-ui/react"
 import { Card, CardContent } from "@workspace/ui/components/card"
-import { Separator } from "@workspace/ui/components/separator"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
 import { ActiveSession } from "./active-session"
@@ -36,16 +35,15 @@ export function ActiveSessions({ className }: ActiveSessionsProps) {
       </h2>
 
       <Card className={cn("p-0", className)}>
-        <CardContent className="p-0">
+        <CardContent className="p-0 divide-y divide-border">
           {isPending ? (
             <SessionRowSkeleton />
           ) : (
-            activeSessions?.map((activeSession, index) => (
-              <div key={activeSession.id}>
-                {index > 0 && <Separator />}
-
-                <ActiveSession activeSession={activeSession} />
-              </div>
+            activeSessions.map((activeSession) => (
+              <ActiveSession
+                activeSession={activeSession}
+                key={activeSession.id}
+              />
             ))
           )}
         </CardContent>

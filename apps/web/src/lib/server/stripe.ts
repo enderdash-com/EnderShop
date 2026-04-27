@@ -11,6 +11,7 @@ import {
   resolveProductConfig,
 } from "@/lib/server/product-config"
 import {
+  forgetStripeEvent,
   getCustomerProfile,
   recordStripeEvent,
   setStripeCustomerId,
@@ -149,25 +150,17 @@ async function cancelActiveUltraSubscriptions(input: {
       | RankTier
       | null
 
-    try {
-      await stripe.subscriptions.cancel(subscription.id, {
-        invoice_now: false,
-        prorate: false,
-      })
-    } catch (error) {
-      console.warn(
-        `[stripe] Failed to cancel ultra subscription ${subscription.id}:`,
-        error
-      )
-    }
+    await stripe.subscriptions.cancel(subscription.id, {
+      invoice_now: false,
+      prorate: false,
+    })
 
     if (tier) {
       try {
         await revokeUltraGroup({ target: input.target, tier })
       } catch (error) {
-        console.warn(
-          `[luckperms] Failed to remove ultra group ${ULTRA_TIER_GROUPS[tier]} for ${input.target.uuid}:`,
-          error
+        throw new Error(
+          `Cancelled Stripe subscription ${subscription.id} but failed to remove ultra group ${ULTRA_TIER_GROUPS[tier]} for ${input.target.uuid}: ${error instanceof Error ? error.message : String(error)}`
         )
       }
     }
@@ -233,14 +226,7 @@ async function applySubscriptionState(subscription: Stripe.Subscription) {
     status === "unpaid"
 
   if (shouldRevoke) {
-    try {
-      await revokeUltraGroup({ target: { uuid, username }, tier })
-    } catch (error) {
-      console.warn(
-        `[luckperms] Failed to remove ultra group on subscription state change:`,
-        error
-      )
-    }
+    await revokeUltraGroup({ target: { uuid, username }, tier })
   }
 }
 
@@ -278,23 +264,37 @@ export async function handleStripeWebhook(request: Request) {
     return Response.json({ received: true, replay: true })
   }
 
-  switch (event.type) {
-    case "checkout.session.completed":
-      await applyCheckoutSession(event.data.object)
-      break
-    case "customer.subscription.updated":
-    case "customer.subscription.deleted":
-      await applySubscriptionState(event.data.object)
-      break
-    default:
-      break
+  try {
+    switch (event.type) {
+      case "checkout.session.completed":
+        await applyCheckoutSession(event.data.object)
+        break
+      case "customer.subscription.updated":
+      case "customer.subscription.deleted":
+        await applySubscriptionState(event.data.object)
+        break
+      default:
+        break
+    }
+  } catch (error) {
+    await forgetStripeEvent(event.id)
+    console.error(`[stripe] Failed to process event ${event.id}:`, error)
+    return Response.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Webhook processing failed.",
+      },
+      { status: 500 }
+    )
   }
 
   return Response.json({ received: true })
 }
 
 function formatAmount(amount: number | null, currency: string | null) {
-  if (amount == null || !currency) return "—"
+  if (amount == null || !currency) return "N/A"
   const formatter = new Intl.NumberFormat("en", {
     currency: currency.toUpperCase(),
     style: "currency",

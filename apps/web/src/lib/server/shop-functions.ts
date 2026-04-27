@@ -8,7 +8,7 @@ import type {
   ShopProduct,
 } from "@/lib/shop/types"
 import { shopCatalog } from "@/lib/shop/catalog"
-import { ensureAppDatabase, getSessionFromHeaders } from "@/lib/server/auth"
+import { getSessionFromHeaders } from "@/lib/server/auth"
 import { resolveMinecraftUsername } from "@/lib/server/enderdash"
 import {
   getEligibleProducts,
@@ -37,13 +37,23 @@ export interface ShopStatePayload {
 }
 
 async function requireSession() {
-  await ensureAppDatabase()
   const request = getRequest()
   const session = await getSessionFromHeaders(request.headers)
   if (!session) {
     throw new Error("Unauthorized")
   }
   return { session, request }
+}
+
+async function requireRegisteredSession() {
+  const result = await requireSession()
+  const isAnonymous = Boolean(
+    (result.session.user as { isAnonymous?: boolean | null }).isAnonymous
+  )
+  if (isAnonymous) {
+    throw new Error("Create an account before purchasing.")
+  }
+  return result
 }
 
 export const getShopState = createServerFn({ method: "GET" }).handler(
@@ -120,7 +130,7 @@ const startCheckoutSchema = z.object({
 export const startCheckout = createServerFn({ method: "POST" })
   .inputValidator(startCheckoutSchema)
   .handler(async ({ data }) => {
-    const { session, request } = await requireSession()
+    const { session, request } = await requireRegisteredSession()
     const profile = await getCustomerProfile(session.user.id)
 
     if (!profile.minecraftUsername || !profile.minecraftUuid) {
@@ -144,7 +154,7 @@ export const startCheckout = createServerFn({ method: "POST" })
 
 export const openBillingPortal = createServerFn({ method: "POST" }).handler(
   async () => {
-    const { session, request } = await requireSession()
+    const { session, request } = await requireRegisteredSession()
     return createBillingPortalSession({
       request,
       userId: session.user.id,
