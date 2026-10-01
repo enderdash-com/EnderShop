@@ -36,3 +36,6 @@ npm-debug.log*
 .DS_Store
 *.pem
 .idea
+
+# Cloudflare CLI build output, generated types, and local state
+.cloudflare/

@@ -49,7 +49,7 @@ The app runs through Vite in the Workers runtime via the Cloudflare Vite plugin.
 - `apps/web/src/lib/server/enderdash.ts` sends console execution requests to EnderDash over its tRPC HTTP API using an API key.
 - `apps/web/src/lib/server/product-config.ts` maps shop products to Stripe price IDs and command templates.
 - `apps/web/src/lib/server/schema.ts` defines the Drizzle schema used on D1.
-- `apps/web/wrangler.jsonc` defines the Worker runtime and D1 binding.
+- `apps/web/cloudflare.config.ts` defines the Worker runtime and D1 binding.
 
 ## Important bindings and local vars
 
@@ -103,7 +103,7 @@ Deploy from the app workspace:
 bun run --cwd apps/web deploy
 ```
 
-Before production deployment, replace the placeholder values in `wrangler.jsonc` and move sensitive values to real Wrangler secrets where appropriate.
+Before production deployment, replace the placeholder values in `cloudflare.config.ts` and move sensitive values to real Wrangler secrets where appropriate.
 
 ## Legal routes
 
