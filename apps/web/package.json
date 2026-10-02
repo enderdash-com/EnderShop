@@ -20,7 +20,7 @@
     "@better-auth-ui/react": "^1.6.3",
     "@better-auth/drizzle-adapter": "^1.6.5",
     "@tailwindcss/vite": "^4.1.18",
-    "@tanstack/react-pacer": "^0.22.0",
+    "@tanstack/react-pacer": "^0.24.0",
     "@tanstack/react-query": "^5.99.2",
     "@tanstack/react-router": "^1.168.23",
     "@tanstack/react-start": "^1.167.42",
@@ -42,7 +42,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "2.0.0-beta.sha-ad79608dd",
+    "@cloudflare/vite-plugin": "2.0.0-beta.sha-c82c3efb3",
     "@tanstack/eslint-config": "^0.4.0",
     "@types/node": "^26.0.0",
     "@types/react": "^19.2.10",
@@ -52,6 +52,6 @@
     "eslint": "^9.39.2",
     "typescript": "^7.0.0",
     "vite": "^7.3.2",
-    "cf": "1.0.0-beta.7"
+    "cf": "1.0.0-beta.12"
   }
 }
