@@ -39,7 +39,7 @@
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
     "@tanstack/eslint-config": "^0.4.0",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.0",
     "tailwindcss": "^4.1.18",
     "typescript": "^7.0.0"
   },
