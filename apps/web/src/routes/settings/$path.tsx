@@ -1,8 +1,9 @@
+import { authClient } from "@/lib/auth-client"
 import { useSession } from "@better-auth-ui/react"
-import { viewPaths } from "@better-auth-ui/react/core"
+import { viewPaths } from "@better-auth-ui/core"
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
-import { Settings } from "@/components/settings/settings"
+import { Settings } from "@/components/auth/settings/settings"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/settings/$path")({
 
 function SettingsPage() {
   const { path } = Route.useParams()
-  const { data: session, isPending } = useSession()
+  const { data: session, isPending } = useSession(authClient)
   const navigate = useNavigate()
   const isAnonymous =
     (session?.user as { isAnonymous?: boolean } | undefined)?.isAnonymous ??

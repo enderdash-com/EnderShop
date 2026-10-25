@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { Logo } from "@/components/logo"
 import { ModeToggle } from "@/components/mode-toggle"
-import { UserButton } from "@/components/user/user-button"
+import { UserMenu } from "@/components/UserMenu"
 
 export function SiteHeader() {
   return (
@@ -11,7 +11,7 @@ export function SiteHeader() {
           <Logo />
         </Link>
         <div className="flex items-center gap-2">
-          <UserButton align="end" size="icon" themeToggle={false} />
+          <UserMenu />
           <ModeToggle />
         </div>
       </div>

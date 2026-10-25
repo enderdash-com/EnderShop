@@ -1,6 +1,8 @@
 import { Link as RouterLink, useNavigate } from "@tanstack/react-router"
-import { useTheme } from "next-themes"
 import type { ComponentProps, ReactNode } from "react"
+import { useTheme } from "next-themes"
+import { deleteUserPlugin } from "@/lib/auth/delete-user-plugin"
+import { themePlugin } from "@/lib/auth/theme-plugin"
 import { authClient } from "@/lib/auth-client"
 import { AuthProvider } from "@/components/auth/auth-provider"
 
@@ -28,14 +30,12 @@ function AuthLink({
 
 export function Providers({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
-  const { theme, setTheme } = useTheme()
 
   return (
     <AuthProvider
       Link={AuthLink}
-      appearance={{ setTheme, theme }}
       authClient={authClient}
-      deleteUser={{ enabled: true }}
+      plugins={[deleteUserPlugin(), themePlugin({ useTheme })]}
       emailAndPassword={{ enabled: true, confirmPassword: true }}
       navigate={(options) => {
         navigate({ to: options.to, replace: options.replace })
@@ -47,7 +47,7 @@ export function Providers({ children }: { children: ReactNode }) {
   )
 }
 
-declare module "@better-auth-ui/react" {
+declare module "@better-auth-ui/core" {
   interface AuthConfig {
     AuthClient: typeof authClient
   }
