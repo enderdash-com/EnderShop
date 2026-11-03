@@ -4,6 +4,7 @@ import {
   useFetchOptions,
   useRequestPasswordReset,
 } from "@better-auth-ui/react"
+import { useId } from "react"
 
 import {
   Card,
@@ -38,6 +39,7 @@ export type ForgotPasswordProps = {
  * @returns The forgot-password form UI as a JSX element
  */
 export function ForgotPassword({ className }: ForgotPasswordProps) {
+  const emailErrorId = useId()
   const {
     authClient,
     baseURL,
@@ -53,6 +55,7 @@ export function ForgotPassword({ className }: ForgotPasswordProps) {
 
   const { mutateAsync: requestPasswordReset, isPending } =
     useRequestPasswordReset(authClient, {
+      meta: { errorPresentation: "inline" },
       onError: () => {
         resetFetchOptions()
       },
@@ -90,7 +93,10 @@ export function ForgotPassword({ className }: ForgotPasswordProps) {
 
       <CardContent>
         <form.AppForm>
-          <form.AuthFormRoot>
+          <form.AuthFormRoot
+            noValidate
+            serverErrorMessage={localization.errors.generic}
+          >
             <FieldGroup>
               <form.AppField
                 name="email"
@@ -111,6 +117,7 @@ export function ForgotPassword({ className }: ForgotPasswordProps) {
                       </FieldLabel>
                       <Input
                         id="email"
+                        aria-describedby={isInvalid ? emailErrorId : undefined}
                         name={field.name}
                         type="email"
                         autoComplete="email"
@@ -124,7 +131,7 @@ export function ForgotPassword({ className }: ForgotPasswordProps) {
                         }
                         aria-invalid={isInvalid}
                       />
-                      <field.AuthFormFieldError />
+                      <field.AuthFormFieldError id={emailErrorId} />
                     </Field>
                   )
                 }}
@@ -140,6 +147,7 @@ export function ForgotPassword({ className }: ForgotPasswordProps) {
                   {localization.auth.sendResetLink}
                 </form.AuthFormSubmitButton>
               </div>
+              <form.AuthFormServerError />
             </FieldGroup>
           </form.AuthFormRoot>
         </form.AppForm>

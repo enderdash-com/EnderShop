@@ -1,3 +1,5 @@
+import { useSession } from "@better-auth-ui/react"
+import { useSignInAnonymous } from "@better-auth-ui/react/plugins/anonymous"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Link, createFileRoute } from "@tanstack/react-router"
 import { Check, Crown, Gem, Lock, Shield, Sparkles } from "lucide-react"
@@ -43,26 +45,21 @@ function shortUuid(uuid: string | null | undefined) {
 }
 
 function App() {
-  const session = authClient.useSession()
-  const user = session.data?.user as
-    | { isAnonymous?: boolean | null }
-    | undefined
+  const session = useSession(authClient)
+  const user = session.data?.user
   const isAnonymous = Boolean(user?.isAnonymous)
 
   const guestBootstrapRef = useRef(false)
 
-  const ensureAnonymousSession = useEffectEvent(async () => {
+  const anonymousSignIn = useSignInAnonymous(authClient, {
+    onError: () => {
+      guestBootstrapRef.current = false
+    },
+  })
+  const ensureAnonymousSession = useEffectEvent(() => {
     if (guestBootstrapRef.current) return
     guestBootstrapRef.current = true
-
-    const result = await authClient.signIn.anonymous()
-    if (result.error) {
-      guestBootstrapRef.current = false
-      toast.error(result.error.message || "Could not start a guest session.")
-      return
-    }
-
-    await session.refetch()
+    anonymousSignIn.mutate({})
   })
 
   useEffect(() => {
@@ -111,7 +108,9 @@ function App() {
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : "Checkout could not be started."
+        error instanceof Error
+          ? error.message
+          : "Checkout could not be started."
       )
     },
   })
@@ -174,7 +173,7 @@ function App() {
           <h1 className="max-w-3xl font-heading text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
             Choose your rank. Stack a subscription.
           </h1>
-          <p className="max-w-xl text-balance text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <p className="max-w-xl text-sm leading-relaxed text-balance text-muted-foreground sm:text-base">
             Pick a lifetime tier, then layer on an Ultra subscription for
             monthly perks. Upgrades carry over your support history.
           </p>

@@ -35,10 +35,10 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
-import { deleteUserPlugin } from "@/lib/auth/delete-user-plugin"
 import { cn } from "cn"
 import { isAuthFormFieldInvalid, useAuthForm } from "../auth-form"
 import { ReauthenticationAction } from "../reauthentication"
+import { deleteUserPlugin } from "@/lib/auth/delete-user-plugin"
 
 export type DeleteAccountProps = {
   className?: string
@@ -101,6 +101,7 @@ export function DeleteAccount({ className }: DeleteAccountProps) {
   })
 
   const handleDialogOpenChange = (open: boolean) => {
+    if (!open && deleteUser.isPending) return
     setConfirmOpen(open)
     deleteUser.reset()
     form.reset()
@@ -142,7 +143,10 @@ export function DeleteAccount({ className }: DeleteAccountProps) {
               </>
             ) : (
               <form.AppForm>
-                <form.AuthFormRoot className="flex flex-col gap-6">
+                <form.AuthFormRoot
+                  className="flex flex-col gap-6"
+                  serverErrorMessage={localization.errors.generic}
+                >
                   <AlertDialogHeader>
                     <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
                       <TriangleAlert />
@@ -223,6 +227,8 @@ export function DeleteAccount({ className }: DeleteAccountProps) {
                       }}
                     </form.AppField>
                   )}
+
+                  <form.AuthFormServerError />
 
                   <AlertDialogFooter>
                     <AlertDialogCancel disabled={deleteUser.isPending}>

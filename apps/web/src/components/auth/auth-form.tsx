@@ -1,25 +1,14 @@
 "use client"
 
 import {
-  type AdditionalField as AdditionalFieldConfig,
-  type AdditionalFieldFormValue,
   DEFAULT_ADDITIONAL_FIELD_VALIDATION_DEBOUNCE_MS,
   getFormFieldErrors,
   normalizeAuthFormServerError,
   validateAdditionalFieldRequired,
   validateAdditionalFieldValue,
 } from "@better-auth-ui/core"
-import {
-  type AnyFormApi,
-  createFormHook,
-  createFormHookContexts,
-} from "@tanstack/react-form"
-import {
-  type ComponentProps,
-  type FormEvent,
-  type ReactNode,
-  useRef,
-} from "react"
+import { createFormHook, createFormHookContexts } from "@tanstack/react-form"
+import { useRef } from "react"
 
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -30,7 +19,14 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { AdditionalField, type AdditionalFieldProps } from "./additional-field"
+import { AdditionalField } from "./additional-field"
+import type { ComponentProps, FormEvent, ReactNode } from "react"
+import type { AnyFormApi } from "@tanstack/react-form"
+import type {
+  AdditionalField as AdditionalFieldConfig,
+  AdditionalFieldFormValue,
+} from "@better-auth-ui/core"
+import type { AdditionalFieldProps } from "./additional-field"
 
 const { fieldContext, formContext, useFieldContext, useFormContext } =
   createFormHookContexts()
@@ -47,7 +43,7 @@ export function focusFirstInvalidAuthFormControl(form: HTMLFormElement) {
   })
 }
 
-function AuthFormFieldError() {
+function AuthFormFieldError({ id }: { id?: string }) {
   const field = useFieldContext<unknown>()
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 
@@ -55,7 +51,7 @@ function AuthFormFieldError() {
 
   const errors = getFormFieldErrors(field.state.meta.errors)
 
-  return errors.length > 0 ? <FieldError errors={errors} /> : null
+  return errors.length > 0 ? <FieldError id={id} errors={errors} /> : null
 }
 
 function AuthFormServerError() {
