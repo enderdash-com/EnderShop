@@ -1,7 +1,7 @@
 # Security reports
 
 Open the affected repository's Security tab. If **Report a vulnerability** is available, use that private form.
-If it is unavailable, contact the maintainers through [EnderDash Discord](https://enderdash.com/discord) and ask for a private reporting channel.
+If it is unavailable, contact the maintainers through [Enderdash Discord](https://enderdash.com/discord) and ask for a private reporting channel.
 Do not include exploit details in a public issue or community message.
 
 ## What to include

@@ -91,7 +91,7 @@ function createClient() {
   })
 }
 
-export async function executeEnderDashConsoleCommand(
+export async function executeEnderdashConsoleCommand(
   input: ExecuteConsoleCommandInput
 ) {
   const result = (await createClient().mutation(
@@ -100,7 +100,7 @@ export async function executeEnderDashConsoleCommand(
   )) as ExecuteConsoleCommandResult
 
   if (!result.success) {
-    throw new Error(result.error || "EnderDash rejected the console command")
+    throw new Error(result.error || "Enderdash rejected the console command")
   }
 
   return result

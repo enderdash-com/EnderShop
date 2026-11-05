@@ -1,5 +1,5 @@
 import type { RankTier } from "@/lib/shop/types"
-import { executeEnderDashConsoleCommand } from "@/lib/server/enderdash"
+import { executeEnderdashConsoleCommand } from "@/lib/server/enderdash"
 import { renderCommand, resolveProductConfig } from "@/lib/server/product-config"
 import { ULTRA_TIER_GROUPS } from "@/lib/server/shop-state"
 import { requireStringEnv } from "@/lib/server/worker-env"
@@ -23,7 +23,7 @@ async function runCommands(input: {
   const { organizationId, serverId } = getTarget()
   for (const template of input.commands) {
     const command = renderCommand(template, input.target)
-    await executeEnderDashConsoleCommand({
+    await executeEnderdashConsoleCommand({
       command,
       organizationId,
       serverId,

@@ -12,7 +12,7 @@ Keep each change focused. Avoid unrelated formatting and dependency updates.
 
 ## Prepare a checkout
 
-Use the Bun version in root `package.json`. Use the Node.js version required by the workspace. Local integration needs test Stripe and EnderDash accounts.
+Use the Bun version in root `package.json`. Use the Node.js version required by the workspace. Local integration needs test Stripe and Enderdash accounts.
 
 ```bash
 bun install --frozen-lockfile

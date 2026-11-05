@@ -9,7 +9,7 @@ It now uses:
 - Drizzle ORM for schema and query access
 - Better Auth with anonymous guest sessions and email/password accounts
 - Stripe Checkout for one-time and subscription rank products
-- EnderDash console execution for fulfillment
+- Enderdash console execution for fulfillment
 - shadcn/ui on the Base UI primitive layer with Tailwind CSS v4 and RTL support
 
 ## Workspace
@@ -20,7 +20,7 @@ It now uses:
 ## Quick start
 
 1. Copy `apps/web/.dev.vars.example` to `apps/web/.dev.vars`.
-2. Replace the placeholder Stripe, EnderDash, and legal/company values.
+2. Replace the placeholder Stripe, Enderdash, and legal/company values.
 3. Install dependencies:
 
 ```bash
@@ -46,7 +46,7 @@ The app runs through Vite in the Workers runtime via the Cloudflare Vite plugin.
 - `apps/web/src/routes/api/auth/$` mounts Better Auth for TanStack Start.
 - `apps/web/src/routes/api/shop/checkout` creates Stripe Checkout Sessions.
 - `apps/web/src/routes/api/stripe/webhook` handles Stripe webhooks and updates entitlements.
-- `apps/web/src/lib/server/enderdash.ts` sends console execution requests to EnderDash over its tRPC HTTP API using an API key.
+- `apps/web/src/lib/server/enderdash.ts` sends console execution requests to Enderdash over its tRPC HTTP API using an API key.
 - `apps/web/src/lib/server/product-config.ts` maps shop products to Stripe price IDs and command templates.
 - `apps/web/src/lib/server/schema.ts` defines the Drizzle schema used on D1.
 - `apps/web/cloudflare.config.ts` defines the Worker runtime and D1 binding.
@@ -59,10 +59,10 @@ The app runs through Vite in the Workers runtime via the Cloudflare Vite plugin.
 - `STRIPE_SECRET_KEY`: Stripe secret key
 - `STRIPE_WEBHOOK_SECRET`: Stripe webhook signing secret
 - `STRIPE_PRICE_*`: Stripe price IDs for the sample products
-- `ENDERDASH_BASE_URL`: EnderDash app base URL
-- `ENDERDASH_API_KEY`: EnderDash API key sent as `x-api-key`
-- `ENDERDASH_ORGANIZATION_ID`: EnderDash organization scope for fulfillment
-- `ENDERDASH_SERVER_ID`: EnderDash server scope for fulfillment
+- `ENDERDASH_BASE_URL`: Enderdash app base URL
+- `ENDERDASH_API_KEY`: Enderdash API key sent as `x-api-key`
+- `ENDERDASH_ORGANIZATION_ID`: Enderdash organization scope for fulfillment
+- `ENDERDASH_SERVER_ID`: Enderdash server scope for fulfillment
 - `SHOP_COMPANY_*`: provider details used by the legal pages
 
 ## Product and fulfillment mapping
@@ -71,7 +71,7 @@ Public shop metadata lives in:
 
 - `apps/web/src/lib/shop/catalog.ts`
 
-Stripe and EnderDash fulfillment mapping lives in:
+Stripe and Enderdash fulfillment mapping lives in:
 
 - `apps/web/src/lib/server/product-config.ts`
 

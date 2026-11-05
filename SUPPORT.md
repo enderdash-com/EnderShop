@@ -1,7 +1,7 @@
 # Get help
 
 Read the [README](README.md) and [contribution guide](CONTRIBUTING.md) for setup and development instructions.
-For usage questions, use [EnderDash Discord](https://enderdash.com/discord).
+For usage questions, use [Enderdash Discord](https://enderdash.com/discord).
 
 For a reproducible defect or feature request, use [the issue tracker](https://github.com/enderdash-com/feedback/issues).
 Name the repository and affected version in reports sent to a shared tracker.
