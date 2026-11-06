@@ -1,6 +1,10 @@
 import { createServerFn } from "@tanstack/react-start"
 import { getRequest } from "@tanstack/react-start/server"
-import * as z from "zod"
+import { Schema } from "effect"
+import {
+  saveProfileSchema,
+  startCheckoutSchema,
+} from "@/lib/shop/input-schemas"
 import type {
   CustomerProfile,
   PurchaseRecord,
@@ -25,8 +29,6 @@ import {
   getCustomerProfile,
   updateCustomerProfile,
 } from "@/lib/server/store"
-
-const usernamePattern = /^[A-Za-z0-9_]{3,16}$/
 
 export interface ShopStatePayload {
   profile: CustomerProfile
@@ -83,18 +85,8 @@ export const getShopState = createServerFn({ method: "GET" }).handler(
   }
 )
 
-const saveProfileSchema = z.object({
-  minecraftUsername: z
-    .string()
-    .trim()
-    .regex(
-      usernamePattern,
-      "Use 3-16 characters: letters, numbers, or underscores."
-    ),
-})
-
 export const saveProfile = createServerFn({ method: "POST" })
-  .inputValidator(saveProfileSchema)
+  .inputValidator(Schema.toStandardSchemaV1(saveProfileSchema))
   .handler(async ({ data }) => {
     const { session } = await requireSession()
 
@@ -123,12 +115,8 @@ export const saveProfile = createServerFn({ method: "POST" })
     })
   })
 
-const startCheckoutSchema = z.object({
-  productId: z.string().min(1),
-})
-
 export const startCheckout = createServerFn({ method: "POST" })
-  .inputValidator(startCheckoutSchema)
+  .inputValidator(Schema.toStandardSchemaV1(startCheckoutSchema))
   .handler(async ({ data }) => {
     const { session, request } = await requireRegisteredSession()
     const profile = await getCustomerProfile(session.user.id)
