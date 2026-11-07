@@ -9,6 +9,7 @@ import {
   ShopSettings,
 } from "./shop-services"
 import { requireStringEnv } from "./worker-env"
+import { publicShopEffect } from "./shop-boundary"
 
 export type ShopServices =
   | ShopDatabase
@@ -36,5 +37,8 @@ export function runShopEffect<A, E>(
   program: Effect.Effect<A, E, ShopServices>,
   signal?: AbortSignal
 ): Promise<A> {
-  return Effect.runPromise(program.pipe(Effect.provide(shopLayer)), { signal })
+  return Effect.runPromise(
+    publicShopEffect(program).pipe(Effect.provide(shopLayer)),
+    { signal }
+  )
 }
