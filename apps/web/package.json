@@ -42,7 +42,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "sonner": "^2.0.7",
-    "stripe": "^22.0.2",
+    "stripe": "^23.0.0",
     "tailwindcss": "^4.3.3",
     "vite-tsconfig-paths": "^6.0.0"
   },
