@@ -1,5 +1,18 @@
 # Repository instructions
 
+## Server workflows and Effect
+
+- Compose fallible shop workflows as native Effect v4 programs. Keep pure calculations and React rendering as ordinary functions.
+- Supply dependencies through `ShopDatabase`, `ShopSettings`, `EnderdashGateway`, `StripeGateway`, and `ShopSession`.
+- Use `runShopEffect` only at HTTP, TanStack, or Better Auth callbacks. Compose Effects directly inside services.
+- Keep typed failures and their causes inside services. The runtime boundary exposes public messages without private provider or database details.
+- Wait for submitted D1 statements before releasing their resources. Use atomic D1 batches for related writes.
+- Preserve sequential fulfillment, Stripe event deduplication, and failed-event replay. Do not retry payment mutations or console commands automatically.
+- Finish submitted mutations and their saved results before cancellation returns. Use scoped resources and the Effect clock for HTTP deadlines.
+- Use Enderdash's `/api/http/servers/` endpoints with a user API key. Validate responses and preserve uncertain command outcomes.
+- From `apps/web`, run `bun test src/lib/server/*.test.ts src/lib/shop/input-schemas.test.ts` for workflow behavior.
+- From the repository root, run `bun run build` for the production build and type checking. Run `bun run lint` separately.
+
 ## React conventions
 
 - Use PascalCase for React component names. Match the existing component filename convention.
