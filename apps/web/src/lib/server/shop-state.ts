@@ -1,8 +1,6 @@
-import type {
-  RankStateSnapshot,
-  RankTier,
-  ShopProduct,
-} from "@/lib/shop/types"
+import { Effect } from "effect"
+import { ShopInputError } from "./shop-services"
+import type { RankStateSnapshot, RankTier, ShopProduct } from "@/lib/shop/types"
 import { getShopProduct, shopCatalog } from "@/lib/shop/catalog"
 import { getLuckPermsSnapshot } from "@/lib/server/enderdash"
 
@@ -47,23 +45,26 @@ export function deriveRankStateFromGroups(
   return { currentTier, activeUltra, groups }
 }
 
-export async function getRankStateByUuid(uuid: string): Promise<RankStateSnapshot> {
-  try {
-    const snapshot = await getLuckPermsSnapshot({ uuid })
-    if (!snapshot?.user) {
-      return { currentTier: null, activeUltra: null, groups: [] }
-    }
-
+export const getRankStateByUuid = Effect.fn("Shop.getRankStateByUuid")(
+  function* (uuid: string) {
+    const snapshot = yield* getLuckPermsSnapshot({ uuid })
+    if (!snapshot?.user)
+      return {
+        currentTier: null,
+        activeUltra: null,
+        groups: [],
+      } satisfies RankStateSnapshot
     const groups = snapshot.user.groups.map((group) => group.name)
-    if (snapshot.user.primary_group && !groups.includes(snapshot.user.primary_group)) {
+    if (
+      snapshot.user.primary_group &&
+      !groups.includes(snapshot.user.primary_group)
+    )
       groups.push(snapshot.user.primary_group)
-    }
-
+    // A failed lookup is not evidence that the player has no ranks. Let the
+    // caller report the failure instead of authorizing a base-rank purchase.
     return deriveRankStateFromGroups(groups)
-  } catch {
-    return { currentTier: null, activeUltra: null, groups: [] }
   }
-}
+)
 
 export function isProductEligible(
   product: ShopProduct,
@@ -90,20 +91,19 @@ export function getEligibleProducts(state: RankStateSnapshot) {
   return shopCatalog.filter((product) => isProductEligible(product, state))
 }
 
-export function requireEligibleProduct(
-  productId: string,
-  state: RankStateSnapshot
-) {
-  const product = getShopProduct(productId)
-  if (!product) {
-    throw new Error("Unknown product")
-  }
+export const requireEligibleProduct = Effect.fn("Shop.requireEligibleProduct")(
+  function* (productId: string, state: RankStateSnapshot) {
+    const product = getShopProduct(productId)
+    if (!product) {
+      return yield* new ShopInputError({ message: "Unknown product" })
+    }
 
-  if (!isProductEligible(product, state)) {
-    throw new Error(
-      "This rank is not available for your current account state."
-    )
-  }
+    if (!isProductEligible(product, state)) {
+      return yield* new ShopInputError({
+        message: "This rank is not available for your current account state.",
+      })
+    }
 
-  return product
-}
+    return product
+  }
+)

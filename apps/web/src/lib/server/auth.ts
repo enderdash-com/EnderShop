@@ -4,6 +4,7 @@ import { anonymous } from "better-auth/plugins"
 import { tanstackStartCookies } from "better-auth/tanstack-start"
 import { getDb } from "@/lib/server/db"
 import { schema } from "@/lib/server/schema"
+import { runShopEffect } from "./shop-runtime"
 import { reassignAnonymousUserData } from "@/lib/server/store"
 import { requireStringEnv } from "@/lib/server/worker-env"
 
@@ -41,10 +42,12 @@ export const auth = betterAuth({
       generateRandomEmail: () =>
         `guest-${crypto.randomUUID()}@guest.endershop.local`,
       onLinkAccount: async ({ anonymousUser, newUser }) => {
-        await reassignAnonymousUserData({
-          newUserId: newUser.user.id,
-          previousUserId: anonymousUser.user.id,
-        })
+        await runShopEffect(
+          reassignAnonymousUserData({
+            newUserId: newUser.user.id,
+            previousUserId: anonymousUser.user.id,
+          })
+        )
       },
     }),
     tanstackStartCookies(),

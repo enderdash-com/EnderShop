@@ -1,10 +1,8 @@
+import { Effect } from "effect"
 import type { ShopProduct } from "@/lib/shop/types"
 import { getShopProduct } from "@/lib/shop/catalog"
-import {
-  BASE_TIER_GROUPS,
-  ULTRA_TIER_GROUPS,
-} from "@/lib/server/shop-state"
-import { requireStringEnv } from "@/lib/server/worker-env"
+import { BASE_TIER_GROUPS, ULTRA_TIER_GROUPS } from "@/lib/server/shop-state"
+import { setting, ShopInputError } from "./shop-services"
 
 interface ServerProductConfig {
   grantCommands: Array<string>
@@ -32,10 +30,6 @@ const PRICE_ENV: Record<string, string> = {
   prime_ultra: "STRIPE_PRICE_PRIME_ULTRA",
   elite_ultra: "STRIPE_PRICE_ELITE_ULTRA",
   legend: "STRIPE_PRICE_LEGEND",
-}
-
-function requireEnv(name: string) {
-  return requireStringEnv(name as never)
 }
 
 function buildCommands(product: ShopProduct): ServerProductConfig {
@@ -75,30 +69,44 @@ function buildCommands(product: ShopProduct): ServerProductConfig {
   }
 }
 
-export function resolveProductConfig(productId: string): ResolvedProductConfig {
-  const product = getShopProduct(productId)
-  if (!product) {
-    throw new Error(`Unknown product: ${productId}`)
-  }
+export const resolveProductConfig = Effect.fn("Shop.resolveProductConfig")(
+  function* (productId: string) {
+    const product = getShopProduct(productId)
+    if (!product) {
+      return yield* new ShopInputError({
+        message: `Unknown product: ${productId}`,
+      })
+    }
 
-  const commands = buildCommands(product)
+    const commands = yield* Effect.try({
+      try: () => buildCommands(product),
+      catch: () =>
+        new ShopInputError({
+          message: `Missing Stripe price mapping for product ${product.id}`,
+        }),
+    })
 
-  return {
-    commands,
-    priceId: requireEnv(commands.priceEnvVar),
-    product,
-    target: {
-      organizationId: requireEnv("ENDERDASH_ORGANIZATION_ID"),
-      serverId: requireEnv("ENDERDASH_SERVER_ID"),
-    },
+    const config: ResolvedProductConfig = {
+      commands,
+      priceId: yield* setting(commands.priceEnvVar),
+      product,
+      target: {
+        organizationId: yield* setting("ENDERDASH_ORGANIZATION_ID"),
+        serverId: yield* setting("ENDERDASH_SERVER_ID"),
+      },
+    }
+    return config
   }
-}
+)
 
 export function isSubscriptionProduct(product: ShopProduct) {
   return product.kind === "ultra_subscription"
 }
 
-export function renderCommand(template: string, vars: { uuid: string; username: string }) {
+export function renderCommand(
+  template: string,
+  vars: { uuid: string; username: string }
+) {
   return template
     .replaceAll("{{uuid}}", vars.uuid)
     .replaceAll("{{username}}", vars.username)

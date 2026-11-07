@@ -1,6 +1,7 @@
-import { and, eq, ne } from "drizzle-orm"
+import { and, eq, ne, sql } from "drizzle-orm"
 import type { CustomerProfile } from "@/lib/shop/types"
-import { getDb } from "@/lib/server/db"
+import { Effect } from "effect"
+import { databaseOperation, ShopInputError } from "./shop-services"
 import { customerProfile, stripeEvent } from "@/lib/server/schema"
 
 function nowIso() {
@@ -25,186 +26,180 @@ function mapProfileRow(
   }
 }
 
-export async function getCustomerProfile(userId: string) {
-  const [row] = await getDb()
-    .select({
-      minecraftUsername: customerProfile.minecraftUsername,
-      minecraftUuid: customerProfile.minecraftUuid,
-      stripeCustomerId: customerProfile.stripeCustomerId,
-      updatedAt: customerProfile.updatedAt,
-    })
-    .from(customerProfile)
-    .where(eq(customerProfile.userId, userId))
-    .limit(1)
+export const getCustomerProfile = Effect.fn("ShopStore.getCustomerProfile")(
+  function* (userId: string) {
+    const [row] = yield* databaseOperation("get-profile", (db) =>
+      db
+        .select({
+          minecraftUsername: customerProfile.minecraftUsername,
+          minecraftUuid: customerProfile.minecraftUuid,
+          stripeCustomerId: customerProfile.stripeCustomerId,
+          updatedAt: customerProfile.updatedAt,
+        })
+        .from(customerProfile)
+        .where(eq(customerProfile.userId, userId))
+        .limit(1)
+    )
 
-  return mapProfileRow(row)
-}
+    return mapProfileRow(row)
+  }
+)
 
-export async function ensureCustomerProfile(userId: string) {
-  const existing = await getCustomerProfile(userId)
+export const ensureCustomerProfile = Effect.fn(
+  "ShopStore.ensureCustomerProfile"
+)(function* (userId: string) {
+  const existing = yield* getCustomerProfile(userId)
   if (existing.updatedAt) {
     return existing
   }
 
   const timestamp = nowIso()
 
-  await getDb()
-    .insert(customerProfile)
-    .values({
-      createdAt: timestamp,
-      minecraftUsername: null,
-      minecraftUuid: null,
-      stripeCustomerId: null,
-      updatedAt: timestamp,
-      userId,
-    })
-    .onConflictDoNothing({ target: customerProfile.userId })
+  yield* databaseOperation("create-profile", (db) =>
+    db
+      .insert(customerProfile)
+      .values({
+        createdAt: timestamp,
+        minecraftUsername: null,
+        minecraftUuid: null,
+        stripeCustomerId: null,
+        updatedAt: timestamp,
+        userId,
+      })
+      .onConflictDoNothing({ target: customerProfile.userId })
+  )
 
-  return getCustomerProfile(userId)
-}
+  return yield* getCustomerProfile(userId)
+}, Effect.uninterruptible)
 
-export async function updateCustomerProfile(input: {
+export const updateCustomerProfile = Effect.fn(
+  "ShopStore.updateCustomerProfile"
+)(function* (input: {
   minecraftUsername: string
   minecraftUuid: string
   userId: string
 }) {
-  await ensureCustomerProfile(input.userId)
+  yield* ensureCustomerProfile(input.userId)
 
-  const conflicts = await getDb()
-    .select({ userId: customerProfile.userId })
-    .from(customerProfile)
-    .where(
-      and(
-        eq(customerProfile.minecraftUuid, input.minecraftUuid),
-        ne(customerProfile.userId, input.userId)
+  const conflicts = yield* databaseOperation("find-profile-conflict", (db) =>
+    db
+      .select({ userId: customerProfile.userId })
+      .from(customerProfile)
+      .where(
+        and(
+          eq(customerProfile.minecraftUuid, input.minecraftUuid),
+          ne(customerProfile.userId, input.userId)
+        )
       )
-    )
-    .limit(1)
+      .limit(1)
+  )
 
   if (conflicts.length > 0) {
-    throw new Error(
-      "That Minecraft account is already linked to another shop account."
-    )
+    return yield* new ShopInputError({
+      message:
+        "That Minecraft account is already linked to another shop account.",
+    })
   }
 
   const timestamp = nowIso()
 
-  await getDb()
-    .update(customerProfile)
-    .set({
-      minecraftUsername: input.minecraftUsername,
-      minecraftUuid: input.minecraftUuid,
-      updatedAt: timestamp,
-    })
-    .where(eq(customerProfile.userId, input.userId))
+  yield* databaseOperation("update-profile", (db) =>
+    db
+      .update(customerProfile)
+      .set({
+        minecraftUsername: input.minecraftUsername,
+        minecraftUuid: input.minecraftUuid,
+        updatedAt: timestamp,
+      })
+      .where(eq(customerProfile.userId, input.userId))
+  )
 
-  return getCustomerProfile(input.userId)
-}
+  return yield* getCustomerProfile(input.userId)
+}, Effect.uninterruptible)
 
-export async function setStripeCustomerId(input: {
-  stripeCustomerId: string
-  userId: string
-}) {
-  await ensureCustomerProfile(input.userId)
+export const setStripeCustomerId = Effect.fn("ShopStore.setStripeCustomerId")(
+  function* (input: { stripeCustomerId: string; userId: string }) {
+    yield* ensureCustomerProfile(input.userId)
 
-  await getDb()
-    .update(customerProfile)
-    .set({
-      stripeCustomerId: input.stripeCustomerId,
-      updatedAt: nowIso(),
-    })
-    .where(eq(customerProfile.userId, input.userId))
+    yield* databaseOperation("set-stripe-customer", (db) =>
+      db
+        .update(customerProfile)
+        .set({
+          stripeCustomerId: input.stripeCustomerId,
+          updatedAt: nowIso(),
+        })
+        .where(eq(customerProfile.userId, input.userId))
+    )
 
-  return getCustomerProfile(input.userId)
-}
+    return yield* getCustomerProfile(input.userId)
+  },
+  Effect.uninterruptible
+)
 
-export async function reassignAnonymousUserData(input: {
-  newUserId: string
-  previousUserId: string
-}) {
-  const previous = await getCustomerProfile(input.previousUserId)
+export const reassignAnonymousUserData = Effect.fn(
+  "ShopStore.reassignAnonymousUserData"
+)(function* (input: { newUserId: string; previousUserId: string }) {
+  if (input.previousUserId === input.newUserId) return
+  const previous = yield* getCustomerProfile(input.previousUserId)
 
   if (!previous.updatedAt) {
     return
   }
 
-  const existing = await getCustomerProfile(input.newUserId)
-  const timestamp = nowIso()
+  // D1 batches are atomic. Release the previous UUID and publish the merged
+  // profile in the same batch, so the unique UUID index never blocks transfer
+  // and a failed publication restores the previous profile.
+  const createdAt = previous.updatedAt
+  yield* databaseOperation("transfer-profile", (db) =>
+    db.batch([
+      db
+        .delete(customerProfile)
+        .where(eq(customerProfile.userId, input.previousUserId)),
+      db
+        .insert(customerProfile)
+        .values({
+          userId: input.newUserId,
+          createdAt,
+          updatedAt: nowIso(),
+          minecraftUsername: previous.minecraftUsername,
+          minecraftUuid: previous.minecraftUuid,
+          stripeCustomerId: previous.stripeCustomerId,
+        })
+        .onConflictDoUpdate({
+          target: customerProfile.userId,
+          set: {
+            minecraftUsername: sql`coalesce(${customerProfile.minecraftUsername}, excluded.minecraft_username)`,
+            minecraftUuid: sql`coalesce(${customerProfile.minecraftUuid}, excluded.minecraft_uuid)`,
+            stripeCustomerId: sql`coalesce(${customerProfile.stripeCustomerId}, excluded.stripe_customer_id)`,
+            updatedAt: nowIso(),
+          },
+        }),
+    ])
+  )
+}, Effect.uninterruptible)
 
-  if (existing.updatedAt) {
-    const merged = {
-      minecraftUsername:
-        existing.minecraftUsername ?? previous.minecraftUsername,
-      minecraftUuid: existing.minecraftUuid ?? previous.minecraftUuid,
-      stripeCustomerId:
-        existing.stripeCustomerId ?? previous.stripeCustomerId,
-    }
+export const recordStripeEvent = Effect.fn("ShopStore.recordStripeEvent")(
+  function* (input: { id: string; type: string }) {
+    const inserted = yield* databaseOperation("claim-stripe-event", (db) =>
+      db
+        .insert(stripeEvent)
+        .values({
+          id: input.id,
+          processedAt: nowIso(),
+          type: input.type,
+        })
+        .onConflictDoNothing({ target: stripeEvent.id })
+        .returning({ id: stripeEvent.id })
+    )
 
-    const changed =
-      merged.minecraftUsername !== existing.minecraftUsername ||
-      merged.minecraftUuid !== existing.minecraftUuid ||
-      merged.stripeCustomerId !== existing.stripeCustomerId
-
-    if (changed) {
-      if (
-        merged.minecraftUuid &&
-        merged.minecraftUuid !== existing.minecraftUuid
-      ) {
-        const conflicts = await getDb()
-          .select({ userId: customerProfile.userId })
-          .from(customerProfile)
-          .where(
-            and(
-              eq(customerProfile.minecraftUuid, merged.minecraftUuid),
-              ne(customerProfile.userId, input.newUserId)
-            )
-          )
-          .limit(1)
-
-        if (conflicts.length > 0) {
-          merged.minecraftUsername = existing.minecraftUsername
-          merged.minecraftUuid = existing.minecraftUuid
-        }
-      }
-
-      await getDb()
-        .update(customerProfile)
-        .set({ ...merged, updatedAt: timestamp })
-        .where(eq(customerProfile.userId, input.newUserId))
-    }
-  } else {
-    await getDb()
-      .insert(customerProfile)
-      .values({
-        createdAt: previous.updatedAt,
-        minecraftUsername: previous.minecraftUsername,
-        minecraftUuid: previous.minecraftUuid,
-        stripeCustomerId: previous.stripeCustomerId,
-        updatedAt: timestamp,
-        userId: input.newUserId,
-      })
-      .onConflictDoNothing({ target: customerProfile.userId })
+    return inserted.length > 0
   }
+)
 
-  await getDb()
-    .delete(customerProfile)
-    .where(eq(customerProfile.userId, input.previousUserId))
-}
-
-export async function recordStripeEvent(input: { id: string; type: string }) {
-  const inserted = await getDb()
-    .insert(stripeEvent)
-    .values({
-      id: input.id,
-      processedAt: nowIso(),
-      type: input.type,
-    })
-    .onConflictDoNothing({ target: stripeEvent.id })
-    .returning({ id: stripeEvent.id })
-
-  return inserted.length > 0
-}
-
-export async function forgetStripeEvent(id: string) {
-  await getDb().delete(stripeEvent).where(eq(stripeEvent.id, id))
-}
+export const forgetStripeEvent = Effect.fn("ShopStore.forgetStripeEvent")(
+  function* (id: string) {
+    yield* databaseOperation("release-stripe-event", (db) =>
+      db.delete(stripeEvent).where(eq(stripeEvent.id, id))
+    )
+  }
+)

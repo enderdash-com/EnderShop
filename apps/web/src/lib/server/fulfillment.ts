@@ -1,54 +1,66 @@
+import { Data, Effect } from "effect"
 import type { RankTier } from "@/lib/shop/types"
-import { executeEnderdashConsoleCommand } from "@/lib/server/enderdash"
-import { renderCommand, resolveProductConfig } from "@/lib/server/product-config"
-import { ULTRA_TIER_GROUPS } from "@/lib/server/shop-state"
-import { requireStringEnv } from "@/lib/server/worker-env"
+import { executeEnderdashConsoleCommand } from "./enderdash"
+import { renderCommand, resolveProductConfig } from "./product-config"
+import { ULTRA_TIER_GROUPS } from "./shop-state"
+import { setting } from "./shop-services"
 
 interface FulfillmentTarget {
   uuid: string
   username: string
 }
 
-function getTarget() {
-  return {
-    organizationId: requireStringEnv("ENDERDASH_ORGANIZATION_ID"),
-    serverId: requireStringEnv("ENDERDASH_SERVER_ID"),
+export class FulfillmentError extends Data.TaggedError("FulfillmentError")<{
+  readonly commandIndex: number
+  readonly completedCommands: number
+  readonly cause: unknown
+}> {
+  override get message() {
+    return `Fulfillment failed after ${this.completedCommands} completed commands. The failed command may require reconciliation.`
   }
 }
 
-async function runCommands(input: {
-  commands: Array<string>
-  target: FulfillmentTarget
-}) {
-  const { organizationId, serverId } = getTarget()
-  for (const template of input.commands) {
-    const command = renderCommand(template, input.target)
-    await executeEnderdashConsoleCommand({
-      command,
-      organizationId,
-      serverId,
+export const runFulfillmentCommands = Effect.fn("Shop.runFulfillmentCommands")(
+  function* (input: { commands: Array<string>; target: FulfillmentTarget }) {
+    const organizationId = yield* setting("ENDERDASH_ORGANIZATION_ID")
+    const serverId = yield* setting("ENDERDASH_SERVER_ID")
+    for (const [commandIndex, template] of input.commands.entries()) {
+      yield* executeEnderdashConsoleCommand({
+        command: renderCommand(template, input.target),
+        organizationId,
+        serverId,
+      }).pipe(
+        Effect.mapError(
+          (cause) =>
+            new FulfillmentError({
+              commandIndex,
+              completedCommands: commandIndex,
+              cause,
+            })
+        )
+      )
+    }
+  },
+  Effect.uninterruptible
+)
+
+export const fulfillProductPurchase = Effect.fn("Shop.fulfillProductPurchase")(
+  function* (input: { productId: string; target: FulfillmentTarget }) {
+    const config = yield* resolveProductConfig(input.productId)
+    yield* runFulfillmentCommands({
+      commands: config.commands.grantCommands,
+      target: input.target,
     })
   }
-}
+)
 
-export async function fulfillProductPurchase(input: {
-  productId: string
-  target: FulfillmentTarget
-}) {
-  const config = resolveProductConfig(input.productId)
-  await runCommands({
-    commands: config.commands.grantCommands,
-    target: input.target,
-  })
-}
-
-export async function revokeUltraGroup(input: {
+export const revokeUltraGroup = (input: {
   tier: RankTier
   target: FulfillmentTarget
-}) {
-  const group = ULTRA_TIER_GROUPS[input.tier]
-  await runCommands({
-    commands: [`lp user {{uuid}} parent remove ${group}`],
+}) =>
+  runFulfillmentCommands({
+    commands: [
+      `lp user {{uuid}} parent remove ${ULTRA_TIER_GROUPS[input.tier]}`,
+    ],
     target: input.target,
   })
-}

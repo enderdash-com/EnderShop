@@ -35,3 +35,14 @@
 - Treat `apps/web/drizzle/` SQL and metadata as generated output. Do not hand-edit them.
 - Commit generated migration artifacts together, exactly as Drizzle produces them.
 - Check the deployment workflow before applying migrations. Do not assume a push applies them automatically.
+
+## Effect server workflows
+
+- Run app tests with `bun run --cwd apps/web test`. Run `typecheck`, `lint`, and `build` from the same package before committing server changes.
+- Business operations in `src/lib/server` return native Effect programs. Use `Context.Service` capabilities for settings, D1, Stripe, Enderdash, and the current session. Keep pure catalog, rank, and command helpers direct.
+- Call `runShopEffect` only at TanStack, HTTP, or Better Auth boundaries. Supply the session from the current request. Do not start nested runtimes inside services.
+- Resolve Worker settings lazily so profile operations do not require payment or game-server secrets.
+- D1 statements and submitted Stripe or game-server mutations must settle before cancellation returns. Keep webhook processing and claim release in one protected region. Never add transport retries to mutations.
+- Preserve Stripe event deduplication and release the event marker after failed processing. A replay can repeat earlier completed fulfillment commands. Do not claim exactly-once fulfillment or add automatic reconciliation without durable checkpoints.
+- Use the Enderdash HTTP API at `/api/http/servers/…` with `X-API-Key`. Decode responses with Effect Schema, bound body reads and deadlines, and close readers on interruption. Distinguish rejected and uncertain command outcomes.
+- Use local Miniflare D1 tests with the committed migrations for persistence behavior. Test public outcomes, mutation order, replay, partial failure, cancellation, and request isolation.
