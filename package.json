@@ -18,7 +18,7 @@
     "typescript": "7.0.2",
     "lefthook": "2.2.2"
   },
-  "packageManager": "bun@1.3.11",
+  "packageManager": "bun@1.4.4",
   "engines": {
     "node": ">=20"
   },
