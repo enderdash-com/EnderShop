@@ -1,8 +1,8 @@
 import { Effect } from "effect"
-import type { ShopProduct } from "@/lib/shop/types"
 import { getShopProduct } from "@/lib/shop/catalog"
 import { BASE_TIER_GROUPS, ULTRA_TIER_GROUPS } from "@/lib/server/shop-state"
-import { setting, ShopInputError } from "./shop-services"
+import { ShopInputError, setting } from "./shop-services"
+import type { ShopProduct } from "@/lib/shop/types"
 
 interface ServerProductConfig {
   grantCommands: Array<string>

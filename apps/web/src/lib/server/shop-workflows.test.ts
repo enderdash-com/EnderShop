@@ -3,7 +3,6 @@ import { after, before, test } from "node:test"
 import { Effect, Exit } from "effect"
 import { eq } from "drizzle-orm"
 import {
-  ShopSession,
   beginShopCheckout,
   loadShopState,
   openShopBillingPortal,
@@ -15,15 +14,16 @@ import {
   updateCustomerProfile,
 } from "./store"
 import {
-  makeShopDatabase,
-  databaseOperation,
   ShopDatabase,
+  databaseOperation,
+  makeShopDatabase,
 } from "./shop-services"
 import { shopFixture, unavailableEnderdash } from "./shop-test-fixture"
-import { EnderdashGateway } from "./enderdash"
-import { StripeGateway } from "./stripe-gateway"
-import { ShopSettings } from "./shop-services"
 import { customerProfile } from "./schema"
+import type { ShopSettings } from "./shop-services"
+import type { EnderdashGateway } from "./enderdash"
+import type { StripeGateway } from "./stripe-gateway"
+import type { ShopSession } from "./shop-workflows"
 
 let fixture: Awaited<ReturnType<typeof shopFixture>>
 before(async () => {
@@ -31,10 +31,10 @@ before(async () => {
   await fixture.addUser("customer")
 })
 after(async () => fixture.worker.dispose())
-const run = <A, E>(
+const run = <TValue, TError>(
   program: Effect.Effect<
-    A,
-    E,
+    TValue,
+    TError,
     ShopDatabase | ShopSettings | EnderdashGateway | StripeGateway | ShopSession
   >
 ) => Effect.runPromise(program.pipe(Effect.provide(fixture.layer())))
@@ -96,7 +96,7 @@ test("rank lookup failure blocks checkout instead of treating the player as rank
 
 test("checkout composes rank eligibility and product metadata before a single Stripe mutation", async () => {
   const original = fixture.stripe.checkout
-  const inputs: Parameters<typeof original>[0][] = []
+  const inputs: Array<Parameters<typeof original>[0]> = []
   fixture.stripe.checkout = (input) => {
     inputs.push(input)
     return Effect.succeed({ url: "https://checkout.example/session" })
@@ -282,7 +282,7 @@ test("subscription checkout retains Stripe subscription metadata and existing cu
     .where(eq(customerProfile.userId, "customer"))
   const oldSnapshot = fixture.enderdash.snapshot
   const oldCheckout = fixture.stripe.checkout
-  const inputs: Parameters<typeof oldCheckout>[0][] = []
+  const inputs: Array<Parameters<typeof oldCheckout>[0]> = []
   fixture.enderdash.snapshot = () =>
     Effect.succeed({
       found: true,
@@ -312,7 +312,7 @@ test("subscription checkout retains Stripe subscription metadata and existing cu
 
 test("billing portal uses the linked Stripe customer and current request origin", async () => {
   const original = fixture.stripe.portal
-  const inputs: Parameters<typeof original>[0][] = []
+  const inputs: Array<Parameters<typeof original>[0]> = []
   fixture.stripe.portal = (input) => {
     inputs.push(input)
     return Effect.succeed({ url: "https://billing.example/portal" })

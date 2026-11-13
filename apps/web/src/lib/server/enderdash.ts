@@ -1,9 +1,6 @@
 import { Context, Data, Effect, Schema } from "effect"
-import {
-  setting,
-  type ShopConfigurationError,
-  type ShopSettings,
-} from "./shop-services"
+import { setting } from "./shop-services"
+import type { ShopConfigurationError, ShopSettings } from "./shop-services"
 
 interface ExecuteConsoleCommandInput {
   command: string
@@ -105,10 +102,10 @@ type EnderdashFetch = (url: string, init: RequestInit) => Promise<Response>
 export function makeEnderdashGateway(
   fetcher: EnderdashFetch = fetch
 ): Context.Service.Shape<typeof EnderdashGateway> {
-  const request = <A>(
+  const request = <TValue>(
     operation: string,
     input: object,
-    schema: Schema.Decoder<A>,
+    schema: Schema.Decoder<TValue>,
     submitted: boolean
   ) =>
     Effect.gen(function* () {
@@ -190,7 +187,7 @@ export function makeEnderdashGateway(
                     let text = ""
                     const decoder = new TextDecoder()
                     if (reader)
-                      while (true) {
+                      for (;;) {
                         const chunk = yield* Effect.tryPromise({
                           try: () => reader.read(),
                           catch: failure,

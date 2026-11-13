@@ -36,9 +36,9 @@ import {
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
 import { cn } from "cn"
+import { deleteUserPlugin } from "@/lib/auth/delete-user-plugin"
 import { isAuthFormFieldInvalid, useAuthForm } from "../auth-form"
 import { ReauthenticationAction } from "../reauthentication"
-import { deleteUserPlugin } from "@/lib/auth/delete-user-plugin"
 
 export type DeleteAccountProps = {
   className?: string

@@ -2,6 +2,7 @@ import * as React from "react"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react"
 import { cn } from "cn"
 
+import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import {
   InputGroup,
@@ -9,7 +10,6 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
-import { ChevronDownIcon, XIcon, CheckIcon } from "lucide-react"
 
 const Combobox = ComboboxPrimitive.Root
 

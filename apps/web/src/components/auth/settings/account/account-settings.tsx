@@ -1,11 +1,11 @@
 "use client"
 
 import { useAuth } from "@better-auth-ui/react"
-import type { ComponentProps } from "react"
 
 import { cn } from "cn"
 import { ChangeEmail } from "./change-email"
 import { UserProfile } from "./user-profile"
+import type { ComponentProps } from "react"
 
 export type AccountSettingsProps = {
   className?: string
@@ -40,7 +40,7 @@ export function AccountSettings({
   // A plugin that replaces the card brings its own way to confirm the change,
   // so it can stand on its own without password or magic-link auth.
   const showChangeEmail =
-    emailAndPassword?.enabled || hasMagicLink || Boolean(ChangeEmailOverride)
+    emailAndPassword.enabled || hasMagicLink || Boolean(ChangeEmailOverride)
 
   return (
     <div

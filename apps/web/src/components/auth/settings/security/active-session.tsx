@@ -1,5 +1,4 @@
 import { useAuth, useRevokeSession, useSession } from "@better-auth-ui/react"
-import type { Session } from "better-auth"
 import Bowser from "bowser"
 import { LogOut, Monitor, Smartphone, X } from "lucide-react"
 import { toast } from "sonner"
@@ -15,12 +14,13 @@ import {
   ItemTitle,
 } from "@workspace/ui/components/item"
 import { Spinner } from "@workspace/ui/components/spinner"
+import type { Session } from "better-auth"
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
   const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" })
 
-  const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+  const UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
     ["year", 31536000],
     ["month", 2592000],
     ["week", 604800],
@@ -86,11 +86,9 @@ export function ActiveSession({ activeSession }: ActiveSessionProps) {
             {localization.settings.currentSession}
           </Badge>
         ) : (
-          activeSession.createdAt && (
-            <ItemDescription className="capitalize">
-              {timeAgo(activeSession.createdAt)}
-            </ItemDescription>
-          )
+          <ItemDescription className="capitalize">
+            {timeAgo(activeSession.createdAt)}
+          </ItemDescription>
         )}
       </ItemContent>
       <ItemActions>

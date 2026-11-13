@@ -1,8 +1,4 @@
-import type Stripe from "stripe"
-import { Cause, Data, Effect, Exit, Result } from "effect"
-import { StripeGateway } from "./stripe-gateway"
-import { ShopInputError } from "./shop-services"
-import type { PurchaseRecord, ShopProduct } from "@/lib/shop/types"
+import { Data, Effect, Exit, Result } from "effect"
 import { getShopProduct } from "@/lib/shop/catalog"
 import {
   fulfillProductPurchase,
@@ -19,6 +15,11 @@ import {
   setStripeCustomerId,
 } from "@/lib/server/store"
 import { ULTRA_TIER_GROUPS } from "@/lib/server/shop-state"
+import { ShopInputError } from "./shop-services"
+import { StripeGateway } from "./stripe-gateway"
+import type { Cause } from "effect"
+import type { PurchaseRecord, ShopProduct } from "@/lib/shop/types"
+import type Stripe from "stripe"
 
 function getOrigin(request: Request) {
   return new URL(request.url).origin
@@ -390,7 +391,7 @@ export const listCustomerPurchases = Effect.fn("Shop.listCustomerPurchases")(
       const product = getShopProduct(productId)
       if (!product) continue
       const createdAt = new Date(subscription.created * 1000).toISOString()
-      const item = subscription.items.data[0]
+      const item = subscription.items.data.at(0)
       const amount = item?.price.unit_amount ?? null
       const currency = item?.price.currency ?? null
       records.push({

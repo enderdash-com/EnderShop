@@ -1,13 +1,10 @@
 "use client"
 
 import {
-  getAuthCallbackURL,
-  type AuthSocialProvider,
-  type AuthView,
   authMutationKeys,
+  getAuthCallbackURL,
   getProviderId,
   getProviderName,
-  type OAuthPopupAuthClient,
 } from "@better-auth-ui/core"
 
 import {
@@ -18,12 +15,17 @@ import {
   useSignInSocial,
 } from "@better-auth-ui/react"
 import { useIsMutating } from "@tanstack/react-query"
-import type { ComponentProps } from "react"
 
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "cn"
 import { LastUsedBadge } from "./last-login-method/last-used-badge"
+import type {
+  AuthSocialProvider,
+  AuthView,
+  OAuthPopupAuthClient,
+} from "@better-auth-ui/core"
+import type { ComponentProps } from "react"
 
 export type ProviderButtonProps = {
   provider: AuthSocialProvider

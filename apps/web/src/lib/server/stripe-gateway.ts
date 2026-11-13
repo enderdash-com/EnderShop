@@ -1,10 +1,7 @@
 import Stripe from "stripe"
 import { Context, Data, Effect } from "effect"
-import {
-  setting,
-  ShopSettings,
-  type ShopConfigurationError,
-} from "./shop-services"
+import { setting } from "./shop-services"
+import type { ShopConfigurationError, ShopSettings } from "./shop-services"
 
 export class StripeOperationError extends Data.TaggedError(
   "StripeOperationError"
@@ -110,9 +107,9 @@ export function makeStripeGateway(
     })
   })
 
-  const stripeOperation = <A>(
+  const stripeOperation = <TValue>(
     operation: string,
-    execute: (stripe: Stripe) => PromiseLike<A>
+    execute: (stripe: Stripe) => PromiseLike<TValue>
   ) =>
     Effect.gen(function* () {
       const stripe = yield* client

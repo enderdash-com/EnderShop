@@ -1,10 +1,7 @@
 "use client"
 
-import type { UsernameAuthClient } from "@better-auth-ui/core/plugins/username"
 import { useAuth, useSession } from "@better-auth-ui/react"
-import type { User } from "better-auth"
 import { User2 } from "lucide-react"
-import type { ReactNode } from "react"
 
 import {
   Avatar,
@@ -13,6 +10,9 @@ import {
 } from "@workspace/ui/components/avatar"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "cn"
+import type { ReactNode } from "react"
+import type { User } from "better-auth"
+import type { UsernameAuthClient } from "@better-auth-ui/core/plugins/username"
 
 export type UserAvatarProps = {
   className?: string

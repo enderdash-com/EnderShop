@@ -1,6 +1,6 @@
-import type { ReactNode } from "react"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import type { ReactNode } from "react"
 
 interface LegalPageProps {
   children: ReactNode
@@ -21,7 +21,7 @@ export function LegalPage({ children, description, title }: LegalPageProps) {
             {description}
           </p>
         </header>
-        <article className="prose prose-sm prose-neutral max-w-none dark:prose-invert prose-headings:font-heading prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-foreground prose-a:underline-offset-4">
+        <article className="prose prose-sm max-w-none prose-neutral dark:prose-invert prose-headings:font-heading prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-foreground prose-a:underline-offset-4">
           {children}
         </article>
       </main>
