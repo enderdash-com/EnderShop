@@ -1,0 +1,16 @@
+lefthook: bunx --no-install lefthook
+min_version: 2.2.2
+
+pre-commit:
+  piped: true
+  jobs:
+    - name: format
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs,mts,cts,json,jsonc,css,scss,md,mdx,yml,yaml,toml}"
+      run: bunx --no-install prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+
+pre-push:
+  commands:
+    types:
+      glob: "*.{ts,tsx,json}"
+      run: bun run typecheck

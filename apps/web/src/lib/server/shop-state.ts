@@ -1,8 +1,8 @@
 import { Effect } from "effect"
-import { ShopInputError } from "./shop-services"
-import type { RankStateSnapshot, RankTier, ShopProduct } from "@/lib/shop/types"
 import { getShopProduct, shopCatalog } from "@/lib/shop/catalog"
 import { getLuckPermsSnapshot } from "@/lib/server/enderdash"
+import { ShopInputError } from "./shop-services"
+import type { RankStateSnapshot, RankTier, ShopProduct } from "@/lib/shop/types"
 
 export const BASE_TIER_GROUPS: Record<RankTier, string> = {
   prime: "prime",
@@ -70,21 +70,18 @@ export function isProductEligible(
   product: ShopProduct,
   state: RankStateSnapshot
 ): boolean {
-  if (product.kind === "base_rank") {
-    return state.currentTier === null
+  switch (product.kind) {
+    case "base_rank":
+      return state.currentTier === null
+    case "rank_upgrade":
+      if (!product.fromTier) return false
+      if (state.currentTier !== product.fromTier) return false
+      return TIER_RANK[product.tier] > TIER_RANK[product.fromTier]
+    case "ultra_subscription":
+      return state.currentTier === product.tier && state.activeUltra === null
+    default:
+      return false
   }
-
-  if (product.kind === "rank_upgrade") {
-    if (!product.fromTier) return false
-    if (state.currentTier !== product.fromTier) return false
-    return TIER_RANK[product.tier] > TIER_RANK[product.fromTier]
-  }
-
-  if (product.kind === "ultra_subscription") {
-    return state.currentTier === product.tier && state.activeUltra === null
-  }
-
-  return false
 }
 
 export function getEligibleProducts(state: RankStateSnapshot) {

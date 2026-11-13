@@ -4,9 +4,9 @@ import { anonymous } from "better-auth/plugins"
 import { tanstackStartCookies } from "better-auth/tanstack-start"
 import { getDb } from "@/lib/server/db"
 import { schema } from "@/lib/server/schema"
-import { runShopEffect } from "./shop-runtime"
 import { reassignAnonymousUserData } from "@/lib/server/store"
 import { requireStringEnv } from "@/lib/server/worker-env"
+import { runShopEffect } from "./shop-runtime"
 
 function getBaseUrl() {
   return requireStringEnv("BETTER_AUTH_URL")

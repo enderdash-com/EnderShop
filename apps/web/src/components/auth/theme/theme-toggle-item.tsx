@@ -51,8 +51,8 @@ export function ThemeToggleItem() {
     const currentIndex = items.indexOf(wrapper)
     const nextIndex =
       event.key === "ArrowDown" ? currentIndex + 1 : currentIndex - 1
+    if (nextIndex < 0 || nextIndex >= items.length) return
     const next = items[nextIndex]
-    if (!next) return
 
     event.preventDefault()
     next.focus()

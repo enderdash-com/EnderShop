@@ -6,9 +6,9 @@ import {
 import { ThemeProvider } from "next-themes"
 import appCss from "@workspace/ui/globals.css?url"
 import { Toaster } from "@workspace/ui/components/sonner"
+import { Providers } from "@/components/providers"
 import type { QueryClient } from "@tanstack/react-query"
 import type { ReactNode } from "react"
-import { Providers } from "@/components/providers"
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {

@@ -4,7 +4,7 @@ import { Badge } from "@workspace/ui/components/badge"
 
 export type LastUsedBadgeProps = {
   /** Login method IDs that should display the indicator. */
-  method: string | string[]
+  method: string | Array<string>
   /** Use the shorter label in constrained layouts. */
   compact?: boolean
   /** Float the compact indicator over the top-right edge of its container. */

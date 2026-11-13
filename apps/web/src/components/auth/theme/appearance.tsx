@@ -18,8 +18,8 @@ import {
   RadioGroup,
   RadioGroupItem,
 } from "@workspace/ui/components/radio-group"
-import { themePlugin } from "@/lib/auth/theme-plugin"
 import { cn } from "cn"
+import { themePlugin } from "@/lib/auth/theme-plugin"
 
 export type AppearanceProps = {
   className?: string

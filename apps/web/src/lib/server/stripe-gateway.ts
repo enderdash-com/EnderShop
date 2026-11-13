@@ -1,10 +1,12 @@
 import Stripe from "stripe"
 import { Context, Data, Effect } from "effect"
-import {
-  setting,
-  ShopSettings,
-  type ShopConfigurationError,
-} from "./shop-services"
+import { setting } from "./shop-services"
+import type { ShopConfigurationError, ShopSettings } from "./shop-services"
+
+// Preserve the existing API contract through the SDK's per-request version option.
+const requestOptions = {
+  apiVersion: "2026-03-25.dahlia",
+} satisfies Stripe.RequestOptions
 
 export class StripeOperationError extends Data.TaggedError(
   "StripeOperationError"
@@ -102,7 +104,6 @@ export function makeStripeGateway(
   const client = Effect.gen(function* () {
     const secret = yield* setting("STRIPE_SECRET_KEY")
     return new Stripe(secret, {
-      apiVersion: "2026-03-25.dahlia",
       httpClient: Stripe.createFetchHttpClient(fetcher),
       // A lost acknowledgement can follow a successful payment mutation. Recovery
       // belongs to the webhook workflow; the transport must not replay it.
@@ -110,9 +111,9 @@ export function makeStripeGateway(
     })
   })
 
-  const stripeOperation = <A>(
+  const stripeOperation = <TValue>(
     operation: string,
-    execute: (stripe: Stripe) => PromiseLike<A>
+    execute: (stripe: Stripe) => PromiseLike<TValue>
   ) =>
     Effect.gen(function* () {
       const stripe = yield* client
@@ -127,23 +128,27 @@ export function makeStripeGateway(
   return {
     checkout: (params) =>
       stripeOperation("create-checkout", (stripe) =>
-        stripe.checkout.sessions.create(params)
+        stripe.checkout.sessions.create(params, requestOptions)
       ),
     portal: (params) =>
       stripeOperation("create-portal", (stripe) =>
-        stripe.billingPortal.sessions.create(params)
+        stripe.billingPortal.sessions.create(params, requestOptions)
       ),
     subscriptions: (params) =>
       stripeOperation("list-subscriptions", (stripe) =>
-        stripe.subscriptions.list(params)
+        stripe.subscriptions.list(params, requestOptions)
       ).pipe(Effect.map((page) => page.data)),
     cancel: (id) =>
       stripeOperation("cancel-subscription", (stripe) =>
-        stripe.subscriptions.cancel(id, { invoice_now: false, prorate: false })
+        stripe.subscriptions.cancel(
+          id,
+          { invoice_now: false, prorate: false },
+          requestOptions
+        )
       ).pipe(Effect.asVoid),
     sessions: (params) =>
       stripeOperation("list-checkouts", (stripe) =>
-        stripe.checkout.sessions.list(params)
+        stripe.checkout.sessions.list(params, requestOptions)
       ).pipe(Effect.map((page) => page.data)),
     verify: (payload, signature) =>
       Effect.gen(function* () {

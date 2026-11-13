@@ -1,9 +1,6 @@
 "use client"
 
-import {
-  emailOtpPlugin,
-  type EmailOtpAuthClient,
-} from "@better-auth-ui/core/plugins/email-otp"
+import { emailOtpPlugin } from "@better-auth-ui/core/plugins/email-otp"
 import { useRequestPasswordResetOtp } from "@better-auth-ui/react/plugins/email-otp"
 
 import {
@@ -40,6 +37,7 @@ import { cn } from "cn"
 import { isAuthFormFieldInvalid, useAuthForm } from "../../auth-form"
 import { OpenEmailButton } from "../../open-email-button"
 import { PasswordStrengthMeter } from "../../password-strength-meter"
+import type { EmailOtpAuthClient } from "@better-auth-ui/core/plugins/email-otp"
 
 export type ChangePasswordProps = {
   className?: string

@@ -7,15 +7,19 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "turbo format",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "prepare": "lefthook install",
+    "pre-commit": "lefthook run pre-commit"
   },
   "devDependencies": {
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "turbo": "^2.8.17",
-    "typescript": "7.0.2"
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "lefthook": "2.2.2",
+    "@typescript/native": "npm:typescript@7.0.2"
   },
-  "packageManager": "bun@1.3.11",
+  "packageManager": "bun@1.4.4",
   "engines": {
     "node": ">=20"
   },

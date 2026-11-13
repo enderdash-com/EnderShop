@@ -21,11 +21,13 @@ export function getOptionalStringEnv(name: keyof typeof env) {
 }
 
 export function getD1Database() {
-  if (!("DB" in env) || !env.DB) {
+  const bindings: Partial<typeof env> = env
+  const database = bindings.DB
+  if (!database) {
     throw new Error("Missing required D1 binding: DB")
   }
 
-  return env.DB
+  return database
 }
 
 export { env }

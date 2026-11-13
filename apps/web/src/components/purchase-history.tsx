@@ -1,8 +1,8 @@
 import { CheckCircle, Crown, Gem, Shield, Sparkles } from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
+import { getShopProduct } from "@/lib/shop/catalog"
 import type { LucideIcon } from "lucide-react"
 import type { PurchaseRecord } from "@/lib/shop/types"
-import { getShopProduct } from "@/lib/shop/catalog"
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -20,15 +20,24 @@ function iconFor(productId: string): LucideIcon {
         ? Shield
         : Crown
   }
-  return product.tier === "apex" ? Crown : product.tier === "elite" ? Shield : Gem
+  return product.tier === "apex"
+    ? Crown
+    : product.tier === "elite"
+      ? Shield
+      : Gem
 }
 
 function statusVariant(
   status: string
 ): "default" | "secondary" | "outline" | "destructive" {
-  if (status === "active" || status === "paid" || status === "trialing") return "default"
+  if (status === "active" || status === "paid" || status === "trialing")
+    return "default"
   if (status === "past_due") return "outline"
-  if (status === "canceled" || status === "unpaid" || status === "incomplete_expired")
+  if (
+    status === "canceled" ||
+    status === "unpaid" ||
+    status === "incomplete_expired"
+  )
     return "destructive"
   return "secondary"
 }
@@ -64,10 +73,7 @@ export function PurchaseHistory({
         const Icon = iconFor(record.productId)
 
         return (
-          <li
-            className="flex items-center gap-4 px-4 py-3.5"
-            key={record.id}
-          >
+          <li className="flex items-center gap-4 px-4 py-3.5" key={record.id}>
             <span className="flex size-9 shrink-0 items-center justify-center border border-border bg-muted/60">
               <Icon className="size-4" />
             </span>

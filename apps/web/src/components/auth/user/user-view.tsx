@@ -1,12 +1,12 @@
 "use client"
 
-import type { UsernameAuthClient } from "@better-auth-ui/core/plugins/username"
 import { useAuth, useSession } from "@better-auth-ui/react"
-import type { User } from "better-auth"
 
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "cn"
 import { UserAvatar } from "./user-avatar"
+import type { User } from "better-auth"
+import type { UsernameAuthClient } from "@better-auth-ui/core/plugins/username"
 
 export type UserViewProps = {
   className?: string
@@ -73,7 +73,7 @@ export function UserView({
         {!hideSubtitle &&
           (resolvedUser?.displayUsername || resolvedUser?.name) && (
             <span className="truncate text-xs text-muted-foreground">
-              {resolvedUser?.email}
+              {resolvedUser.email}
             </span>
           )}
       </div>

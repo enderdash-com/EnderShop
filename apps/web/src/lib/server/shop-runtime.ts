@@ -3,12 +3,14 @@ import { getDb } from "./db"
 import { EnderdashGateway, makeEnderdashGateway } from "./enderdash"
 import { StripeGateway, stripeGateway } from "./stripe-gateway"
 import {
-  makeShopDatabase,
   ShopConfigurationError,
   ShopDatabase,
   ShopSettings,
+  makeShopDatabase,
 } from "./shop-services"
 import { requireStringEnv } from "./worker-env"
+import { publicShopEffect } from "./shop-boundary"
+import type { env } from "./worker-env"
 
 export type ShopServices =
   | ShopDatabase
@@ -23,8 +25,7 @@ const shopLayer = Layer.mergeAll(
   Layer.succeed(ShopSettings, {
     require: (name) =>
       Effect.try({
-        try: () =>
-          requireStringEnv(name as keyof typeof import("./worker-env").env),
+        try: () => requireStringEnv(name as keyof typeof env),
         catch: (cause) => new ShopConfigurationError({ binding: name, cause }),
       }),
   }),
@@ -32,9 +33,12 @@ const shopLayer = Layer.mergeAll(
   Layer.succeed(StripeGateway, stripeGateway)
 )
 
-export function runShopEffect<A, E>(
-  program: Effect.Effect<A, E, ShopServices>,
+export function runShopEffect<TValue, TError>(
+  program: Effect.Effect<TValue, TError, ShopServices>,
   signal?: AbortSignal
-): Promise<A> {
-  return Effect.runPromise(program.pipe(Effect.provide(shopLayer)), { signal })
+): Promise<TValue> {
+  return Effect.runPromise(
+    publicShopEffect(program).pipe(Effect.provide(shopLayer)),
+    { signal }
+  )
 }

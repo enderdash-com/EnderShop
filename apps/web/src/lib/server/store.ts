@@ -1,8 +1,8 @@
 import { and, eq, ne, sql } from "drizzle-orm"
-import type { CustomerProfile } from "@/lib/shop/types"
 import { Effect } from "effect"
-import { databaseOperation, ShopInputError } from "./shop-services"
 import { customerProfile, stripeEvent } from "@/lib/server/schema"
+import { ShopInputError, databaseOperation } from "./shop-services"
+import type { CustomerProfile } from "@/lib/shop/types"
 
 function nowIso() {
   return new Date().toISOString()

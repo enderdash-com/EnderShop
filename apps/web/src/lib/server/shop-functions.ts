@@ -6,20 +6,21 @@ import {
   startCheckoutSchema,
 } from "@/lib/shop/input-schemas"
 import { getSessionFromHeaders } from "./auth"
-import { runShopEffect, type ShopServices } from "./shop-runtime"
+import { runShopEffect } from "./shop-runtime"
 import {
+  ShopSession,
+  ShopSessionError,
   beginShopCheckout,
   loadShopState,
   openShopBillingPortal,
   saveShopProfile,
-  ShopSession,
-  ShopSessionError,
 } from "./shop-workflows"
+import type { ShopServices } from "./shop-runtime"
 
 export type { ShopStatePayload } from "./shop-workflows"
 
-function runSessionEffect<A, E>(
-  program: Effect.Effect<A, E, ShopServices | ShopSession>
+function runSessionEffect<TValue, TError>(
+  program: Effect.Effect<TValue, TError, ShopServices | ShopSession>
 ) {
   const request = getRequest()
   return runShopEffect(

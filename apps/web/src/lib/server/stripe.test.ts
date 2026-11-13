@@ -22,8 +22,9 @@ before(async () => {
   await fixture.addUser("customer")
 })
 after(async () => fixture.worker.dispose())
-const run = <A, E>(program: Effect.Effect<A, E, ShopServices>) =>
-  Effect.runPromise(program.pipe(Effect.provide(fixture.layer())))
+const run = <TValue, TError>(
+  program: Effect.Effect<TValue, TError, ShopServices>
+) => Effect.runPromise(program.pipe(Effect.provide(fixture.layer())))
 const marker = (id: string) =>
   fixture.db.select().from(stripeEventTable).where(eq(stripeEventTable.id, id))
 
@@ -43,7 +44,7 @@ function subscription(id = "sub_ultra") {
 }
 
 test("checkout webhooks link the customer, cancel old subscriptions, revoke, then grant", async () => {
-  const calls: string[] = []
+  const calls: Array<string> = []
   const oldExecute = fixture.enderdash.execute
   const oldList = fixture.stripe.subscriptions
   const oldCancel = fixture.stripe.cancel
@@ -225,9 +226,9 @@ test("failed claim release retains both the processing and cleanup failure", asy
     )
   const event = await checkoutEvent()
   const database = {
-    run: <A>(
+    run: <TValue>(
       operation: string,
-      execute: Parameters<typeof fixture.database.run<A>>[1]
+      execute: Parameters<typeof fixture.database.run<TValue>>[1]
     ) =>
       operation === "release-stripe-event"
         ? Effect.fail(new ShopStoreError({ operation, cause: "unavailable" }))
@@ -243,8 +244,7 @@ test("failed claim release retains both the processing and cleanup failure", asy
     )
     assert(Result.isFailure(outcome))
     assert.equal(outcome.failure._tag, "WebhookProcessingError")
-    if (outcome.failure._tag === "WebhookProcessingError")
-      assert(outcome.failure.releaseFailure instanceof ShopStoreError)
+    assert(outcome.failure.releaseFailure instanceof ShopStoreError)
     assert.equal((await marker(event.id)).length, 1)
   } finally {
     fixture.enderdash.execute = original
@@ -274,7 +274,7 @@ test("missing webhook configuration is an operational failure rather than a sign
 
 test("subscription termination statuses revoke perks while active subscriptions retain them", async () => {
   const original = fixture.enderdash.execute
-  const commands: string[] = []
+  const commands: Array<string> = []
   fixture.enderdash.execute = (input) =>
     Effect.sync(() => {
       commands.push(input.command)

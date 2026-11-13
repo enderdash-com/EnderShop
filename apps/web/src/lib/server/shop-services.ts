@@ -42,10 +42,10 @@ type ShopDb = ReturnType<typeof getDb>
 export class ShopDatabase extends Context.Service<
   ShopDatabase,
   {
-    readonly run: <A>(
+    readonly run: <TValue>(
       operation: string,
-      execute: (db: ShopDb) => PromiseLike<A>
-    ) => Effect.Effect<A, ShopStoreError>
+      execute: (db: ShopDb) => PromiseLike<TValue>
+    ) => Effect.Effect<TValue, ShopStoreError>
   }
 >()("endershop/ShopDatabase") {}
 
@@ -63,8 +63,8 @@ export function makeShopDatabase(
   }
 }
 
-export const databaseOperation = <A>(
+export const databaseOperation = <TValue>(
   operation: string,
-  execute: (db: ShopDb) => PromiseLike<A>
+  execute: (db: ShopDb) => PromiseLike<TValue>
 ) =>
   Effect.flatMap(ShopDatabase, (database) => database.run(operation, execute))

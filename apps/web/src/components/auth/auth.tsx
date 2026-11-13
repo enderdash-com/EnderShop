@@ -1,19 +1,20 @@
 "use client"
 
-import type { AuthView } from "@better-auth-ui/core"
 import { useAuth } from "@better-auth-ui/react"
-import { type ComponentType, useEffect } from "react"
+import { useEffect } from "react"
 
 import { AuthRedirect } from "./auth-redirect"
 import { AuthCallback, AuthError } from "./auth-result"
 import { ForgotPassword } from "./forgot-password"
-import type { SocialLayout } from "./provider-buttons"
 import { ResetLinkSent } from "./reset-link-sent"
 import { ResetPassword } from "./reset-password"
 import { SignIn } from "./sign-in"
 import { SignOut } from "./sign-out"
 import { SignUp } from "./sign-up"
 import { VerifyEmail } from "./verify-email"
+import type { ComponentType } from "react"
+import type { SocialLayout } from "./provider-buttons"
+import type { AuthView } from "@better-auth-ui/core"
 
 export type AuthProps = {
   className?: string
@@ -79,7 +80,7 @@ export function Auth({
 
   const authView =
     view ||
-    (Object.keys(viewPaths.auth) as AuthView[]).find(
+    (Object.keys(viewPaths.auth) as Array<AuthView>).find(
       (key) => viewPaths.auth[key] === path
     )
 
@@ -88,7 +89,7 @@ export function Auth({
   // where a plugin's `fallbackViews.auth.signIn` (e.g. magic link) takes
   // over as the primary entry point.
   const shouldRedirectToSignIn =
-    !emailAndPassword?.enabled &&
+    !emailAndPassword.enabled &&
     authView &&
     PASSWORD_ONLY_VIEWS.includes(authView)
 
@@ -136,7 +137,7 @@ export function Auth({
   // 2. Plugin fallbacks. only when the built-in `signIn` isn't viable
   //    (password auth is off). Used by `magicLinkPlugin` to render the
   //    magic-link form as the primary passwordless sign-in surface.
-  if (authView === "signIn" && !emailAndPassword?.enabled) {
+  if (authView === "signIn" && !emailAndPassword.enabled) {
     const Fallback = plugins.find(
       (plugin) => plugin.fallbackViews?.auth?.signIn
     )?.fallbackViews?.auth?.signIn

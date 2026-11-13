@@ -1,10 +1,10 @@
 import { Link as RouterLink, useNavigate } from "@tanstack/react-router"
-import type { ComponentProps, ReactNode } from "react"
 import { useTheme } from "next-themes"
 import { deleteUserPlugin } from "@/lib/auth/delete-user-plugin"
 import { themePlugin } from "@/lib/auth/theme-plugin"
 import { authClient } from "@/lib/auth-client"
 import { AuthProvider } from "@/components/auth/auth-provider"
+import type { ComponentProps, ReactNode } from "react"
 
 type RouterLinkProps = ComponentProps<typeof RouterLink>
 

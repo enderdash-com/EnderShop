@@ -1,4 +1,5 @@
 import { bindings, defineConfig } from "cf/config"
+
 export default defineConfig({
   worker: {
     name: "enderdash-shop-demo",
