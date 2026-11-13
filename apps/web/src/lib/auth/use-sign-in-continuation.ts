@@ -1,9 +1,9 @@
 import { useAuth } from "@better-auth-ui/react"
 import { useCallback } from "react"
 import {
+  TWO_FACTOR_PLUGIN_ID,
   isTwoFactorRedirect,
   storeTwoFactorMethods,
-  TWO_FACTOR_PLUGIN_ID,
 } from "./two-factor-methods"
 
 /**

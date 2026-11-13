@@ -2,7 +2,6 @@
 
 import {
   getAuthCallbackURL,
-  type AuthSocialProvider,
   getAuthErrorMessage,
   getProviderId,
   getProviderName,
@@ -16,7 +15,6 @@ import {
   useLinkSocial,
   useUnlinkAccount,
 } from "@better-auth-ui/react"
-import type { Account } from "better-auth"
 import { Link2, Link2Off, Plug } from "lucide-react"
 import { toast } from "sonner"
 
@@ -39,6 +37,8 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "cn"
 import { ReauthenticationAction } from "../../reauthentication"
+import type { AuthSocialProvider } from "@better-auth-ui/core"
+import type { Account } from "better-auth"
 
 export type LinkedAccountProps = {
   account?: Account
@@ -94,8 +94,8 @@ export function LinkedAccount({
   const displayName =
     accountData?.login ||
     accountData?.username ||
-    accountInfo?.user?.email ||
-    accountInfo?.user?.name ||
+    accountInfo?.user.email ||
+    accountInfo?.user.name ||
     account?.accountId
 
   const needsReauthentication = isReauthenticationRequiredError(

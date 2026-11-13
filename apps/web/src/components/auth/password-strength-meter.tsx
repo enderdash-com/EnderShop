@@ -1,10 +1,8 @@
-import {
-  evaluatePasswordStrength,
-  type PasswordStrengthLevel,
-} from "@better-auth-ui/core"
+import { evaluatePasswordStrength } from "@better-auth-ui/core"
 import { useAuth } from "@better-auth-ui/react"
 
 import { cn } from "cn"
+import type { PasswordStrengthLevel } from "@better-auth-ui/core"
 
 /** Fixed segment identities, so the bars keep their own React keys. */
 const STRENGTH_SEGMENTS = [1, 2, 3, 4] as const
@@ -37,7 +35,7 @@ export function PasswordStrengthMeter({
 }: PasswordStrengthMeterProps) {
   const { emailAndPassword, localization } = useAuth()
 
-  if (!emailAndPassword?.strengthMeter) return null
+  if (!emailAndPassword.strengthMeter) return null
 
   const { score, level } = evaluatePasswordStrength(password, {
     minLength: emailAndPassword.minPasswordLength,

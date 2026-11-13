@@ -1,6 +1,6 @@
 export type TwoFactorMethod = "totp" | "otp"
 
-const TWO_FACTOR_METHODS: TwoFactorMethod[] = ["totp", "otp"]
+const TWO_FACTOR_METHODS: Array<TwoFactorMethod> = ["totp", "otp"]
 
 /** Auth plugin id used by Better Auth UI's two-factor integration. */
 export const TWO_FACTOR_PLUGIN_ID = "twoFactor"
@@ -29,7 +29,9 @@ export function isTwoFactorRedirect(data: unknown): data is TwoFactorRedirect {
 }
 
 /** Narrow arbitrary method names to the challenge views this UI supports. */
-export function parseTwoFactorMethods(methods?: unknown): TwoFactorMethod[] {
+export function parseTwoFactorMethods(
+  methods?: unknown
+): Array<TwoFactorMethod> {
   if (!Array.isArray(methods)) return []
 
   return TWO_FACTOR_METHODS.filter((method) => methods.includes(method))
@@ -50,7 +52,7 @@ export function storeTwoFactorMethods(methods?: unknown) {
 }
 
 /** Read the stored methods, falling back to every supported challenge. */
-export function readTwoFactorMethods(): TwoFactorMethod[] {
+export function readTwoFactorMethods(): Array<TwoFactorMethod> {
   if (typeof sessionStorage === "undefined") return TWO_FACTOR_METHODS
 
   try {

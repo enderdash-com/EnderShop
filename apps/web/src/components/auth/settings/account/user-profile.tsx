@@ -6,7 +6,6 @@ import {
   getAdditionalFieldSubmitValues,
   validateStringLength,
 } from "@better-auth-ui/core"
-import type { UsernameAuthClient } from "@better-auth-ui/core/plugins/username"
 import { useAuth, useSession, useUpdateUser } from "@better-auth-ui/react"
 import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
@@ -22,6 +21,7 @@ import {
   useAuthForm,
 } from "../../auth-form"
 import { ChangeAvatar } from "./change-avatar"
+import type { UsernameAuthClient } from "@better-auth-ui/core/plugins/username"
 
 export type UserProfileProps = {
   className?: string
@@ -68,10 +68,7 @@ export function UserProfile({ className }: UserProfileProps) {
     if (!session) return
     form.reset({
       additionalFields: getAdditionalFieldDefaultValues(
-        fieldsWithModelValues(
-          profileFields,
-          session.user as Record<string, unknown>
-        )
+        fieldsWithModelValues(profileFields, session.user)
       ),
       name: session.user.name,
     })

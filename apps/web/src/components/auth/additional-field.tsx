@@ -1,13 +1,8 @@
-import {
-  type AdditionalField as AdditionalFieldConfig,
-  type AdditionalFieldFormValue,
-  getFormFieldErrors,
-  resolveInputType,
-} from "@better-auth-ui/core"
+import { getFormFieldErrors, resolveInputType } from "@better-auth-ui/core"
 import { useAuth, useCopyToClipboard } from "@better-auth-ui/react"
 import { format } from "date-fns"
 import { CalendarIcon, Check, ChevronDownIcon, Copy } from "lucide-react"
-import { type ComponentType, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { buttonVariants } from "@workspace/ui/components/button"
@@ -51,6 +46,11 @@ import { Slider } from "@workspace/ui/components/slider"
 import { Switch } from "@workspace/ui/components/switch"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { cn } from "cn"
+import type { ComponentType } from "react"
+import type {
+  AdditionalField as AdditionalFieldConfig,
+  AdditionalFieldFormValue,
+} from "@better-auth-ui/core"
 
 export type AdditionalFieldProps = {
   name: string
@@ -59,7 +59,7 @@ export type AdditionalFieldProps = {
   onBlur: () => void
   onChange: (value: AdditionalFieldFormValue) => void
   isInvalid?: boolean
-  errors?: unknown[]
+  errors?: Array<unknown>
   isPending?: boolean
   /** Complete suffix appended to labels for fields that are not required. */
   optionalLabel?: string

@@ -1,13 +1,15 @@
 import { readFile } from "node:fs/promises"
 import { drizzle } from "drizzle-orm/d1"
-import { Context, Effect, Layer } from "effect"
+import { Effect, Layer } from "effect"
 import { Miniflare } from "miniflare"
 import Stripe from "stripe"
 import { EnderdashError, EnderdashGateway } from "./enderdash"
 import * as schema from "./schema"
-import { makeShopDatabase, ShopDatabase, ShopSettings } from "./shop-services"
-import { ShopSession, type ShopUser } from "./shop-workflows"
+import { ShopDatabase, ShopSettings, makeShopDatabase } from "./shop-services"
+import { ShopSession } from "./shop-workflows"
 import { StripeGateway } from "./stripe-gateway"
+import type { ShopUser } from "./shop-workflows"
+import type { Context } from "effect"
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] }
 
@@ -43,7 +45,7 @@ export async function shopFixture() {
   }
   const db = drizzle(d1, { schema })
   const database = makeShopDatabase(() => db)
-  const calls: string[] = []
+  const calls: Array<string> = []
   const settings: Context.Service.Shape<typeof ShopSettings> = {
     require: (name) =>
       Effect.succeed(

@@ -1,6 +1,5 @@
 import { createQrCodeSvgData, getEmailProviderLink } from "@better-auth-ui/core"
 import { useAuth } from "@better-auth-ui/react"
-import type { VariantProps } from "class-variance-authority"
 import { QrCode } from "lucide-react"
 import { useMemo } from "react"
 
@@ -12,6 +11,7 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip"
 import { cn } from "cn"
+import type { VariantProps } from "class-variance-authority"
 
 export type OpenEmailButtonProps = {
   /** Email address used to detect the provider, e.g. from the verify-email flow. */

@@ -1,6 +1,6 @@
-import { TestClock } from "effect/testing"
 import assert from "node:assert/strict"
 import { test } from "node:test"
+import { TestClock } from "effect/testing"
 import { Effect, Exit, Fiber, Layer, Result } from "effect"
 import { EnderdashGateway, makeEnderdashGateway } from "./enderdash"
 import { ShopConfigurationError, ShopSettings } from "./shop-services"
@@ -29,11 +29,12 @@ const executeResult = {
   commandResult: 1,
 }
 
-const run = <A, E>(program: Effect.Effect<A, E, ShopSettings>) =>
-  Effect.runPromise(program.pipe(Effect.provide(settings)))
+const run = <TValue, TError>(
+  program: Effect.Effect<TValue, TError, ShopSettings>
+) => Effect.runPromise(program.pipe(Effect.provide(settings)))
 
 test("Enderdash uses the supported HTTP endpoints, credentials and plain JSON bodies", async () => {
-  const requests: { url: string; init: RequestInit }[] = []
+  const requests: Array<{ url: string; init: RequestInit }> = []
   const gateway = makeEnderdashGateway(async (url, init) => {
     requests.push({ url, init })
     if (url.endsWith("executeConsoleCommand"))
@@ -109,8 +110,7 @@ test("a lost command acknowledgement is classified as uncertain and never retrie
   assert.equal(attempts, 1)
   assert(Result.isFailure(outcome))
   assert.equal(outcome.failure._tag, "EnderdashError")
-  if (outcome.failure._tag === "EnderdashError")
-    assert.equal(outcome.failure.uncertain, true)
+  assert.equal(outcome.failure.uncertain, true)
 })
 
 test("explicit command rejection and invalid response shape remain different failures", async () => {
@@ -214,7 +214,7 @@ test("oversized responses are rejected and close their reader", async () => {
 })
 
 test("sequential command failure records completed commands without submitting later commands", async () => {
-  const commands: string[] = []
+  const commands: Array<string> = []
   const gateway = makeEnderdashGateway(async (_url, init) => {
     const input = JSON.parse(String(init.body))
     commands.push(input.command)
@@ -350,7 +350,7 @@ test("a late response after read cancellation is discarded and closed", async ()
 })
 
 test("concurrent programs keep their Enderdash credentials and targets isolated", async () => {
-  const received: { key: string | null; organizationId: string }[] = []
+  const received: Array<{ key: string | null; organizationId: string }> = []
   const gateway = makeEnderdashGateway(async (_url, init) => {
     received.push({
       key: new Headers(init.headers).get("X-API-Key"),
@@ -440,10 +440,8 @@ for (const phase of ["headers", "body"]) {
       const outcome = yield* Fiber.join(fiber)
       assert(Result.isFailure(outcome))
       assert.equal(outcome.failure._tag, "EnderdashError")
-      if (outcome.failure._tag === "EnderdashError") {
-        assert.equal(outcome.failure.reason, "transport")
-        assert.equal(outcome.failure.uncertain, true)
-      }
+      assert.equal(outcome.failure.reason, "transport")
+      assert.equal(outcome.failure.uncertain, true)
     })
     await Effect.runPromise(
       program.pipe(Effect.provide(settings), Effect.provide(TestClock.layer()))
@@ -453,3 +451,17 @@ for (const phase of ["headers", "body"]) {
     if (phase === "body") assert.equal(bodyClosed, true)
   })
 }
+
+test("an empty successful command response remains an uncertain response failure", async () => {
+  let attempts = 0
+  const gateway = makeEnderdashGateway(async () => {
+    attempts++
+    return new Response(null, { status: 204 })
+  })
+  const outcome = await run(Effect.result(gateway.execute(command)))
+  assert.equal(attempts, 1)
+  assert(Result.isFailure(outcome))
+  assert.equal(outcome.failure._tag, "EnderdashError")
+  assert.equal(outcome.failure.reason, "response")
+  assert.equal(outcome.failure.uncertain, true)
+})

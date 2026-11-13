@@ -1,9 +1,8 @@
 import { fileToAvatarDataUrl } from "@better-auth-ui/core"
 import { useAuth, useSession, useUpdateUser } from "@better-auth-ui/react"
 import { Trash2, Upload } from "lucide-react"
-import { type ChangeEvent, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { toast } from "sonner"
-import { UserAvatar } from "@/components/auth/user/user-avatar"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
 import {
   DropdownMenu,
@@ -14,6 +13,8 @@ import {
 import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "cn"
+import { UserAvatar } from "@/components/auth/user/user-avatar"
+import type { ChangeEvent } from "react"
 
 export type ChangeAvatarProps = {
   className?: string
@@ -41,8 +42,7 @@ export function ChangeAvatar({ className }: ChangeAvatarProps) {
     setIsUploading(true)
 
     try {
-      const resized =
-        (await avatar.resize?.(file, avatar.size, avatar.extension)) || file
+      const resized = await avatar.resize(file, avatar.size, avatar.extension)
 
       const image =
         (await avatar.upload?.(resized)) || (await fileToAvatarDataUrl(resized))

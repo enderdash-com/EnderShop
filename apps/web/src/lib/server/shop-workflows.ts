@@ -1,10 +1,4 @@
 import { Context, Data, Effect } from "effect"
-import type {
-  CustomerProfile,
-  PurchaseRecord,
-  RankStateSnapshot,
-  ShopProduct,
-} from "@/lib/shop/types"
 import { shopCatalog } from "@/lib/shop/catalog"
 import { resolveMinecraftUsername } from "./enderdash"
 import {
@@ -23,6 +17,12 @@ import {
   updateCustomerProfile,
 } from "./store"
 import { ShopInputError } from "./shop-services"
+import type {
+  CustomerProfile,
+  PurchaseRecord,
+  RankStateSnapshot,
+  ShopProduct,
+} from "@/lib/shop/types"
 
 export interface ShopUser {
   id: string

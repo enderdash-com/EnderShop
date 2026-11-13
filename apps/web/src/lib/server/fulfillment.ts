@@ -1,9 +1,9 @@
 import { Data, Effect } from "effect"
-import type { RankTier } from "@/lib/shop/types"
 import { executeEnderdashConsoleCommand } from "./enderdash"
 import { renderCommand, resolveProductConfig } from "./product-config"
 import { ULTRA_TIER_GROUPS } from "./shop-state"
 import { setting } from "./shop-services"
+import type { RankTier } from "@/lib/shop/types"
 
 interface FulfillmentTarget {
   uuid: string

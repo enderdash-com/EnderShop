@@ -1,4 +1,3 @@
-import type { MultiSessionAuthClient } from "@better-auth-ui/core/plugins/multi-session"
 import { useAuth, useSession } from "@better-auth-ui/react"
 import { useSetActiveSession } from "@better-auth-ui/react/plugins/multi-session"
 import {
@@ -8,7 +7,7 @@ import {
   Settings,
   UserPlus2,
 } from "lucide-react"
-import { isValidElement, type ReactElement, type ReactNode } from "react"
+import { isValidElement } from "react"
 
 import { buttonVariants } from "@workspace/ui/components/button"
 import {
@@ -23,6 +22,8 @@ import {
 import { cn } from "cn"
 import { UserAvatar } from "./user-avatar"
 import { UserView } from "./user-view"
+import type { ReactElement, ReactNode } from "react"
+import type { MultiSessionAuthClient } from "@better-auth-ui/core/plugins/multi-session"
 
 /** Auth states a `UserButton` link can be visible in. */
 export type UserButtonLinkVisibility =
@@ -61,7 +62,7 @@ export type UserButtonProps = {
     | "outline"
     | "secondary"
   /** Additional menu entries rendered above the built-in items. */
-  links?: (UserButtonLink | ReactElement)[]
+  links?: Array<UserButtonLink | ReactElement>
   /** Hide the built-in "Settings" link. Useful when replacing it via `links`. */
   hideSettings?: boolean
 }

@@ -10,9 +10,6 @@ import { Button } from "@workspace/ui/components/button"
 import { Field } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { cn } from "@workspace/ui/lib/utils"
-import type { LucideIcon } from "lucide-react"
-import type { FormEvent } from "react"
-import type { RankTier, ShopProduct } from "@/lib/shop/types"
 import { PurchaseHistory } from "@/components/purchase-history"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
@@ -24,6 +21,9 @@ import {
   saveProfile,
   startCheckout,
 } from "@/lib/server/shop-functions"
+import type { RankTier, ShopProduct } from "@/lib/shop/types"
+import type { FormEvent } from "react"
+import type { LucideIcon } from "lucide-react"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -267,9 +267,7 @@ function App() {
               <TierColumn
                 activeUltra={activeUltra}
                 busyProductId={
-                  checkoutMutation.isPending
-                    ? (checkoutMutation.variables ?? null)
-                    : null
+                  checkoutMutation.isPending ? checkoutMutation.variables : null
                 }
                 canCheckout={canCheckout}
                 catalog={shopCatalog}
