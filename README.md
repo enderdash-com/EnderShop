@@ -63,6 +63,7 @@ The app runs through Vite in the Workers runtime via the Cloudflare Vite plugin.
 - `ENDERDASH_API_KEY`: Enderdash API key sent as `x-api-key`
 - `ENDERDASH_ORGANIZATION_ID`: Enderdash organization scope for fulfillment
 - `ENDERDASH_SERVER_ID`: Enderdash server scope for fulfillment
+- `SHOP_SOCIAL_IMAGE_URL`: absolute or site-relative social preview image URL (defaults to `/social-card.png`)
 - `SHOP_COMPANY_*`: provider details used by the legal pages
 
 ## Product and fulfillment mapping

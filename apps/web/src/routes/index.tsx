@@ -10,6 +10,8 @@ import { Button } from "@workspace/ui/components/button"
 import { Field } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { cn } from "@workspace/ui/lib/utils"
+import { getShopSite } from "@/lib/shop/site"
+import { shopPageHead } from "@/lib/shop/seo"
 import { PurchaseHistory } from "@/components/purchase-history"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
@@ -25,7 +27,17 @@ import type { RankTier, ShopProduct } from "@/lib/shop/types"
 import type { FormEvent } from "react"
 import type { LucideIcon } from "lucide-react"
 
-export const Route = createFileRoute("/")({ component: App })
+export const Route = createFileRoute("/")({
+  loader: () => getShopSite(),
+  head: ({ loaderData }) =>
+    shopPageHead(
+      "/",
+      "Minecraft ranks and perks",
+      "Buy Minecraft ranks and perks. Permissions are granted automatically, usually within seconds.",
+      loaderData
+    ),
+  component: App,
+})
 
 const TIERS: Array<{ tier: RankTier; label: string; icon: LucideIcon }> = [
   { tier: "prime", label: "Prime", icon: Gem },

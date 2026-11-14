@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { shopPageHead } from "@/lib/shop/seo"
+import { getShopSite } from "@/lib/shop/site"
 import { LegalPage } from "@/components/legal-page"
 
 export const Route = createFileRoute("/legal/cookies")({
+  loader: () => getShopSite(),
+  head: ({ loaderData }) =>
+    shopPageHead(
+      "/legal/cookies",
+      "Cookie Policy",
+      "What cookies and similar technologies this storefront uses.",
+      loaderData
+    ),
   component: CookiePage,
 })
 
@@ -14,8 +24,8 @@ function CookiePage() {
       <blockquote>
         <strong>Placeholder.</strong> You must replace this document with your
         own Cookie Policy that accurately describes the cookies and similar
-        technologies your storefront uses. The text below is a generic
-        template and does not constitute legal advice.
+        technologies your storefront uses. The text below is a generic template
+        and does not constitute legal advice.
       </blockquote>
 
       <h2>1. What cookies are</h2>
@@ -49,9 +59,9 @@ function CookiePage() {
 
       <h2>3. Third-party cookies</h2>
       <p>
-        When you leave the storefront to complete payment, the payment
-        provider may set its own cookies on its domain according to its own
-        cookie policy. We do not control those cookies.
+        When you leave the storefront to complete payment, the payment provider
+        may set its own cookies on its domain according to its own cookie
+        policy. We do not control those cookies.
       </p>
 
       <h2>4. Managing cookies</h2>
@@ -63,8 +73,8 @@ function CookiePage() {
 
       <h2>5. Changes</h2>
       <p>
-        If the cookies we use change in any meaningful way, we will update
-        this page.
+        If the cookies we use change in any meaningful way, we will update this
+        page.
       </p>
 
       <p>

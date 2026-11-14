@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { shopPageHead } from "@/lib/shop/seo"
+import { getShopSite } from "@/lib/shop/site"
 import { LegalPage } from "@/components/legal-page"
 
 export const Route = createFileRoute("/legal/privacy")({
+  loader: () => getShopSite(),
+  head: ({ loaderData }) =>
+    shopPageHead(
+      "/legal/privacy",
+      "Privacy Policy",
+      "How this storefront handles your account, order, and delivery information.",
+      loaderData
+    ),
   component: PrivacyPage,
 })
 
@@ -22,8 +32,7 @@ function PrivacyPage() {
       <h2>1. Who is responsible</h2>
       <p>
         The operator of this storefront is responsible for the personal data
-        processed through it. Contact details are published on the imprint
-        page.
+        processed through it. Contact details are published on the imprint page.
       </p>
 
       <h2>2. Information we collect</h2>
@@ -41,8 +50,8 @@ function PrivacyPage() {
           deliveries;
         </li>
         <li>
-          <strong>Order and subscription records</strong> including the
-          products purchased, price paid, and delivery status;
+          <strong>Order and subscription records</strong> including the products
+          purchased, price paid, and delivery status;
         </li>
         <li>
           <strong>Technical data</strong> such as IP address, user agent, and

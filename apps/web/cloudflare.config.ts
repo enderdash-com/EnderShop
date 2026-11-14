@@ -23,6 +23,7 @@ export default defineConfig({
       SHOP_COMPANY_CITY: bindings.text("Berlin"),
       SHOP_COMPANY_COUNTRY: bindings.text("Germany"),
       SHOP_COMPANY_EMAIL: bindings.text("legal@example.com"),
+      SHOP_SOCIAL_IMAGE_URL: bindings.text("/social-card.png"),
       SHOP_COMPANY_NAME: bindings.text("EnderShop"),
       SHOP_COMPANY_STREET: bindings.text("Replace Street 1"),
       SHOP_COMPANY_VAT_ID: bindings.text("Replace VAT ID"),

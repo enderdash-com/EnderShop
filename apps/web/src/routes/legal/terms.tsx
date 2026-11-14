@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { shopPageHead } from "@/lib/shop/seo"
+import { getShopSite } from "@/lib/shop/site"
 import { LegalPage } from "@/components/legal-page"
 
 export const Route = createFileRoute("/legal/terms")({
+  loader: () => getShopSite(),
+  head: ({ loaderData }) =>
+    shopPageHead(
+      "/legal/terms",
+      "Terms of Service",
+      "Rules for buying one-time and subscription-based Minecraft ranks through this storefront.",
+      loaderData
+    ),
   component: TermsPage,
 })
 
@@ -14,8 +24,8 @@ function TermsPage() {
       <blockquote>
         <strong>Placeholder.</strong> You must replace this document with your
         own Terms of Service before going live. The text below is a generic
-        template meant to show prose formatting, not legal advice. Review
-        your local laws and consult a qualified lawyer where needed.
+        template meant to show prose formatting, not legal advice. Review your
+        local laws and consult a qualified lawyer where needed.
       </blockquote>
 
       <h2>1. Who we are</h2>
@@ -38,8 +48,8 @@ function TermsPage() {
       <h2>3. Orders and payment</h2>
       <p>
         All prices are displayed in the catalog and include applicable taxes
-        unless stated otherwise. Payment is processed by our payment provider
-        at checkout. An order is only considered complete once payment has been
+        unless stated otherwise. Payment is processed by our payment provider at
+        checkout. An order is only considered complete once payment has been
         confirmed.
       </p>
       <ul>
@@ -91,10 +101,10 @@ function TermsPage() {
 
       <h2>8. Changes to the Service</h2>
       <p>
-        We may update the catalog, the perks attached to a rank, or these
-        Terms over time. Material changes will be announced on the storefront.
-        Continued use of the Service after a change means you accept the
-        updated Terms.
+        We may update the catalog, the perks attached to a rank, or these Terms
+        over time. Material changes will be announced on the storefront.
+        Continued use of the Service after a change means you accept the updated
+        Terms.
       </p>
 
       <h2>9. Contact</h2>

@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { shopPageHead } from "@/lib/shop/seo"
+import { getShopSite } from "@/lib/shop/site"
 import { LegalPage } from "@/components/legal-page"
 
 export const Route = createFileRoute("/legal/imprint")({
+  loader: () => getShopSite(),
+  head: ({ loaderData }) =>
+    shopPageHead(
+      "/legal/imprint",
+      "Imprint",
+      "Provider information for the operator of this storefront.",
+      loaderData
+    ),
   component: ImprintPage,
 })
 
@@ -14,8 +24,8 @@ function ImprintPage() {
       <blockquote>
         <strong>Placeholder.</strong> Replace the details below with your real
         provider information. In some jurisdictions (for example Germany under
-        &sect; 5 TMG) an imprint is legally required. Consult a qualified
-        lawyer if you are unsure what your storefront must disclose.
+        &sect; 5 TMG) an imprint is legally required. Consult a qualified lawyer
+        if you are unsure what your storefront must disclose.
       </blockquote>
 
       <h2>Operator</h2>
@@ -34,8 +44,7 @@ function ImprintPage() {
 
       <h2>Contact</h2>
       <p>
-        Email:{" "}
-        <a href="mailto:hello@example.com">hello@example.com</a>
+        Email: <a href="mailto:hello@example.com">hello@example.com</a>
         <br />
         Phone: +00 000 000 000
       </p>
@@ -54,9 +63,7 @@ function ImprintPage() {
       </p>
 
       <h2>Responsible for content</h2>
-      <p>
-        Jane Doe (address as above)
-      </p>
+      <p>Jane Doe (address as above)</p>
 
       <h2>Online dispute resolution</h2>
       <p>
@@ -75,9 +82,9 @@ function ImprintPage() {
 
       <h2>Liability</h2>
       <p>
-        Despite careful content control, we assume no liability for the
-        content of external links. The operators of linked pages are solely
-        responsible for their content.
+        Despite careful content control, we assume no liability for the content
+        of external links. The operators of linked pages are solely responsible
+        for their content.
       </p>
 
       <p>
