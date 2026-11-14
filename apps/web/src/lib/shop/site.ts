@@ -1,12 +1,14 @@
 import { createServerFn } from "@tanstack/react-start"
 import { getRequestUrl } from "@tanstack/react-start/server"
+import { shopOrigin } from "./seo"
 
 export const getShopSite = createServerFn({ method: "GET" }).handler(
   async () => {
     const { getOptionalStringEnv } = await import("@/lib/server/worker-env")
-    const origin = new URL(
-      getOptionalStringEnv("BETTER_AUTH_URL") ?? getRequestUrl().origin
-    ).origin
+    const origin = shopOrigin(
+      getOptionalStringEnv("BETTER_AUTH_URL"),
+      getRequestUrl()
+    )
     return {
       origin,
       name: getOptionalStringEnv("SHOP_COMPANY_NAME") ?? "EnderShop",
