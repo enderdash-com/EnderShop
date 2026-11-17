@@ -1,0 +1,98 @@
+{
+  "$schema": "./node_modules/@effect/tsgo/oxlint-schema.json",
+  "extends": ["./node_modules/@effect/tsgo/oxlint-presets/recommended.json"],
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc",
+    "import",
+    "promise",
+    "react",
+    "jsx-a11y",
+    "effecttsgo"
+  ],
+  "jsPlugins": ["@shadcn/lint"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "options": {
+    "typeAware": true,
+    "reportUnusedDisableDirectives": "error"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true
+  },
+  "ignorePatterns": [
+    "**/.cloudflare/**",
+    "**/.output/**",
+    "**/.tanstack/**",
+    "**/dist/**",
+    "apps/web/drizzle/**",
+    "apps/web/src/routeTree.gen.ts",
+    "apps/web/src/components/auth/**",
+    "packages/ui/src/components/**"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "effecttsgo/multiple-effect-provide": "off",
+        "typescript/no-base-to-string": "off",
+        "typescript/no-floating-promises": "off"
+      }
+    }
+  ],
+  "rules": {
+    "eslint/no-underscore-dangle": "off",
+    "eslint/no-var": "error",
+    "eslint/prefer-const": "error",
+    "import/first": "error",
+    "import/no-commonjs": "error",
+    "import/no-duplicates": "error",
+    "import/no-named-as-default": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "react/react-in-jsx-scope": "off",
+    "shadcn/no-arbitrary-values": [
+      "error",
+      {
+        "allow": [
+          "text-[10px]",
+          "tracking-[0.18em]",
+          "tracking-[0.22em]",
+          "tracking-[0.24em]",
+          "tracking-[0.3em]"
+        ]
+      }
+    ],
+    "shadcn/no-inline-styles": "error",
+    "shadcn/no-raw-colors": "error",
+    "shadcn/no-restyle": "off",
+    "shadcn/no-unknown-classes": "error",
+    "shadcn/require-static-classes": "error",
+    "typescript/array-type": [
+      "error",
+      { "default": "generic", "readonly": "generic" }
+    ],
+    "typescript/ban-ts-comment": [
+      "error",
+      { "ts-expect-error": false, "ts-ignore": "allow-with-description" }
+    ],
+    "typescript/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports" }
+    ],
+    "typescript/no-inferrable-types": ["error", { "ignoreParameters": true }],
+    "typescript/no-namespace": "error",
+    "typescript/no-unnecessary-condition": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-unsafe-type-assertion": "off",
+    "typescript/prefer-for-of": "error",
+    "unicorn/no-array-sort": "off",
+    "effecttsgo/any-unknown-in-error-context": "off",
+    "effecttsgo/leaking-requirements": "off",
+    "effecttsgo/strict-effect-provide": "off",
+    "effecttsgo/unsafe-effect-type-assertion": "off"
+  }
+}

@@ -67,5 +67,4 @@ Remove credentials and private data from examples, logs, and screenshots.
 
 `bun install` installs Lefthook for this checkout and preserves the existing preparation steps.
 Run `bun run pre-commit` to run the commit checks manually.
-Pre-commit formats staged files with Prettier. Before pushing, changed TypeScript or package files run the workspace typechecks.
-ESLint remains a manual check because its existing TypeScript integration currently fails to load.
+Pre-commit formats staged files with oxfmt and lints staged scripts with Oxlint. Before pushing, changed TypeScript or package files run the workspace typechecks.

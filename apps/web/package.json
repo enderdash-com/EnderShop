@@ -12,8 +12,7 @@
     "db:generate": "drizzle-kit generate",
     "db:apply:local": "cf d1 migrations apply 3f150b65-5c7a-4abf-9320-cc3a42fd7559 --dir drizzle --local --persist-to .cloudflare/state",
     "db:apply:remote": "cf d1 migrations apply 3f150b65-5c7a-4abf-9320-cc3a42fd7559 --dir drizzle",
-    "lint": "eslint",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "lint": "bun run cf-typegen && oxlint --deny-warnings",
     "typecheck": "bun run cf-typegen && tsc --noEmit",
     "test": "bun test src/lib/server src/lib/shop/input-schemas.test.ts"
   },
@@ -48,17 +47,15 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "2.0.0-rc.0",
-    "@tanstack/eslint-config": "^0.5.0",
     "@types/node": "^26.0.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
+    "@typescript/native": "npm:typescript@7.0.2",
     "@vitejs/plugin-react": "^6.2.1",
     "cf": "1.0.0-rc.0",
     "drizzle-kit": "^0.31.10",
-    "eslint": "^10.0.0",
     "miniflare": "5.20260926.0-alpha",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vite": "^8.0.0",
-    "@typescript/native": "npm:typescript@7.0.2"
+    "vite": "^8.0.0"
   }
 }

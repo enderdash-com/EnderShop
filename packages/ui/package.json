@@ -4,8 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "lint": "eslint",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "lint": "oxlint --deny-warnings",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -40,11 +39,9 @@
     "@types/node": "^26.0.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
-    "@tanstack/eslint-config": "^0.5.0",
-    "eslint": "^10.0.0",
+    "@typescript/native": "npm:typescript@7.0.2",
     "tailwindcss": "^4.3.3",
-    "typescript": "npm:@typescript/typescript6@6.0.2",
-    "@typescript/native": "npm:typescript@7.0.2"
+    "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "exports": {
     "./globals.css": "./src/styles/globals.css",

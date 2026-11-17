@@ -2,8 +2,6 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "eslint.config.js",
-    "prettier.config.js",
     "vite.config.js",
     ".cloudflare/types/index.d.ts"
   ],
@@ -11,14 +9,8 @@
     "target": "ES2022",
     "jsx": "react-jsx",
     "module": "ESNext",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "types": [
-      "vite/client"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
@@ -31,12 +23,8 @@
     "noUncheckedSideEffectImports": true,
     "allowJs": true,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@workspace/ui/*": [
-        "../../packages/ui/src/*"
-      ]
+      "@/*": ["./src/*"],
+      "@workspace/ui/*": ["../../packages/ui/src/*"]
     }
   }
 }
