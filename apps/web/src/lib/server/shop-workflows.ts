@@ -1,28 +1,30 @@
 import { Context, Data, Effect } from "effect"
+
 import { shopCatalog } from "@/lib/shop/catalog"
-import { resolveMinecraftUsername } from "./enderdash"
-import {
-  getEligibleProducts,
-  getRankStateByUuid,
-  requireEligibleProduct,
-} from "./shop-state"
-import {
-  createBillingPortalSession,
-  createCheckoutSession,
-  listCustomerPurchases,
-} from "./stripe"
-import {
-  ensureCustomerProfile,
-  getCustomerProfile,
-  updateCustomerProfile,
-} from "./store"
-import { ShopInputError } from "./shop-services"
 import type {
   CustomerProfile,
   PurchaseRecord,
   RankStateSnapshot,
   ShopProduct,
 } from "@/lib/shop/types"
+
+import { resolveMinecraftUsername } from "./enderdash"
+import { ShopInputError } from "./shop-services"
+import {
+  getEligibleProducts,
+  getRankStateByUuid,
+  requireEligibleProduct,
+} from "./shop-state"
+import {
+  ensureCustomerProfile,
+  getCustomerProfile,
+  updateCustomerProfile,
+} from "./store"
+import {
+  createBillingPortalSession,
+  createCheckoutSession,
+  listCustomerPurchases,
+} from "./stripe"
 
 export interface ShopUser {
   id: string

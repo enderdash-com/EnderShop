@@ -5,7 +5,6 @@ import {
   isReauthenticationSignInURL,
 } from "@better-auth-ui/core"
 import { useAuth, useSignOut } from "@better-auth-ui/react"
-import { useSyncExternalStore } from "react"
 import {
   Alert,
   AlertDescription,
@@ -14,6 +13,7 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "cn"
+import { useSyncExternalStore } from "react"
 
 const subscribeToLocation = () => () => undefined
 

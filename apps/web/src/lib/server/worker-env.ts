@@ -9,7 +9,7 @@ export function requireStringEnv(name: keyof typeof env) {
   const value = readEnv(name)
 
   if (typeof value !== "string" || value.length === 0) {
-    throw new Error(`Missing required Worker binding: ${String(name)}`)
+    throw new Error(`Missing required Worker binding: ${name}`)
   }
 
   return value

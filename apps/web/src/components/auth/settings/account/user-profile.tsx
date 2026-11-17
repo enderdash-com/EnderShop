@@ -6,22 +6,22 @@ import {
   getAdditionalFieldSubmitValues,
   validateStringLength,
 } from "@better-auth-ui/core"
+import type { UsernameAuthClient } from "@better-auth-ui/core/plugins/username"
 import { useAuth, useSession, useUpdateUser } from "@better-auth-ui/react"
-import { useEffect, useMemo } from "react"
-import { toast } from "sonner"
-
 import { Card, CardContent, CardFooter } from "@workspace/ui/components/card"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "cn"
+import { useEffect, useMemo } from "react"
+import { toast } from "sonner"
+
 import {
   getAuthAdditionalFieldValidators,
   isAuthFormFieldInvalid,
   useAuthForm,
 } from "../../auth-form"
 import { ChangeAvatar } from "./change-avatar"
-import type { UsernameAuthClient } from "@better-auth-ui/core/plugins/username"
 
 export type UserProfileProps = {
   className?: string

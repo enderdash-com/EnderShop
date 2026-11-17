@@ -1,9 +1,5 @@
 import { getAuthCallbackURL } from "@better-auth-ui/core"
-
 import { useAuth, useSendVerificationEmail } from "@better-auth-ui/react"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-
 import { Button } from "@workspace/ui/components/button"
 import {
   Card,
@@ -14,6 +10,9 @@ import {
 import { FieldDescription } from "@workspace/ui/components/field"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "cn"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+
 import { OpenEmailButton } from "./open-email-button"
 import { useIsHydrated } from "./use-is-hydrated"
 

@@ -1,8 +1,4 @@
 import { useAuth, useRevokeSession, useSession } from "@better-auth-ui/react"
-import Bowser from "bowser"
-import { LogOut, Monitor, Smartphone, X } from "lucide-react"
-import { toast } from "sonner"
-
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -15,6 +11,9 @@ import {
 } from "@workspace/ui/components/item"
 import { Spinner } from "@workspace/ui/components/spinner"
 import type { Session } from "better-auth"
+import Bowser from "bowser"
+import { LogOut, Monitor, Smartphone, X } from "lucide-react"
+import { toast } from "sonner"
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000)

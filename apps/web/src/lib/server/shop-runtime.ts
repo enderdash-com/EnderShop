@@ -1,15 +1,16 @@
 import { Effect, Layer } from "effect"
+
 import { getDb } from "./db"
 import { EnderdashGateway, makeEnderdashGateway } from "./enderdash"
-import { StripeGateway, stripeGateway } from "./stripe-gateway"
+import { publicShopEffect } from "./shop-boundary"
 import {
   ShopConfigurationError,
   ShopDatabase,
   ShopSettings,
   makeShopDatabase,
 } from "./shop-services"
+import { StripeGateway, stripeGateway } from "./stripe-gateway"
 import { requireStringEnv } from "./worker-env"
-import { publicShopEffect } from "./shop-boundary"
 import type { env } from "./worker-env"
 
 export type ShopServices =

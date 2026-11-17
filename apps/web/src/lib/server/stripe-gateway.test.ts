@@ -1,13 +1,18 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
+
 import { Effect, Exit, Layer } from "effect"
 import Stripe from "stripe"
-import { makeStripeGateway } from "./stripe-gateway"
+
 import { ShopSettings } from "./shop-services"
+import { makeStripeGateway } from "./stripe-gateway"
 
 const settings = Layer.succeed(ShopSettings, {
   require: () => Effect.succeed("sk_test"),
 })
+
+const run = <TValue>(program: Effect.Effect<TValue, unknown, ShopSettings>) =>
+  Effect.runPromise(program.pipe(Effect.provide(settings)))
 
 test("every Stripe operation retains the pinned API version with SDK 23", async () => {
   const calls: Array<{ method: string | undefined; path: string }> = []
@@ -24,8 +29,6 @@ test("every Stripe operation retains the pinned API version with SDK 23", async 
       data: [],
     })
   })
-  const run = <TValue>(program: Effect.Effect<TValue, unknown, ShopSettings>) =>
-    Effect.runPromise(program.pipe(Effect.provide(settings)))
   await run(gateway.checkout({ mode: "payment" }))
   await run(gateway.portal({ customer: "cus_test" }))
   await run(gateway.subscriptions({ customer: "cus_test" }))

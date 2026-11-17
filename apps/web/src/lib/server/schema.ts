@@ -162,12 +162,15 @@ export const accountRelations = relations(account, ({ one }) => ({
   }),
 }))
 
-export const customerProfileRelations = relations(customerProfile, ({ one }) => ({
-  user: one(user, {
-    fields: [customerProfile.userId],
-    references: [user.id],
-  }),
-}))
+export const customerProfileRelations = relations(
+  customerProfile,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [customerProfile.userId],
+      references: [user.id],
+    }),
+  })
+)
 
 export const schema = {
   account,

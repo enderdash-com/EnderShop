@@ -1,10 +1,9 @@
 import { getFormFieldErrors, resolveInputType } from "@better-auth-ui/core"
+import type {
+  AdditionalField as AdditionalFieldConfig,
+  AdditionalFieldFormValue,
+} from "@better-auth-ui/core"
 import { useAuth, useCopyToClipboard } from "@better-auth-ui/react"
-import { format } from "date-fns"
-import { CalendarIcon, Check, ChevronDownIcon, Copy } from "lucide-react"
-import { useRef, useState } from "react"
-import { toast } from "sonner"
-
 import { buttonVariants } from "@workspace/ui/components/button"
 import { Calendar } from "@workspace/ui/components/calendar"
 import { Checkbox } from "@workspace/ui/components/checkbox"
@@ -46,11 +45,11 @@ import { Slider } from "@workspace/ui/components/slider"
 import { Switch } from "@workspace/ui/components/switch"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { cn } from "cn"
+import { format } from "date-fns"
+import { CalendarIcon, Check, ChevronDownIcon, Copy } from "lucide-react"
+import { useRef, useState } from "react"
 import type { ComponentType } from "react"
-import type {
-  AdditionalField as AdditionalFieldConfig,
-  AdditionalFieldFormValue,
-} from "@better-auth-ui/core"
+import { toast } from "sonner"
 
 export type AdditionalFieldProps = {
   name: string

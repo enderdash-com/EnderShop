@@ -12,9 +12,6 @@ import {
   useListAccounts,
 } from "@better-auth-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { Eye, EyeOff, TriangleAlert } from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -36,7 +33,12 @@ import {
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
 import { cn } from "cn"
+import { Eye, EyeOff, TriangleAlert } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
+
 import { deleteUserPlugin } from "@/lib/auth/delete-user-plugin"
+
 import { isAuthFormFieldInvalid, useAuthForm } from "../auth-form"
 import { ReauthenticationAction } from "../reauthentication"
 

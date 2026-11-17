@@ -1,6 +1,5 @@
 import { getProviderId } from "@better-auth-ui/core"
 import { useAuth, useListAccounts } from "@better-auth-ui/react"
-import { Fragment } from "react"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import {
   Item,
@@ -11,6 +10,8 @@ import {
 } from "@workspace/ui/components/item"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "cn"
+import { Fragment } from "react"
+
 import { LinkedAccount } from "./linked-account"
 
 export type LinkedAccountsProps = {

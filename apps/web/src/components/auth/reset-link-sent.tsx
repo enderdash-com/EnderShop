@@ -2,8 +2,6 @@
 
 import { getAuthLinkURL } from "@better-auth-ui/core"
 import { useAuth } from "@better-auth-ui/react"
-import { useEffect, useState } from "react"
-
 import {
   Card,
   CardContent,
@@ -12,6 +10,8 @@ import {
 } from "@workspace/ui/components/card"
 import { FieldDescription } from "@workspace/ui/components/field"
 import { cn } from "cn"
+import { useEffect, useState } from "react"
+
 import { OpenEmailButton } from "./open-email-button"
 import { useIsHydrated } from "./use-is-hydrated"
 

@@ -1,20 +1,20 @@
 "use client"
 
+import type { AuthView } from "@better-auth-ui/core"
 import { useAuth } from "@better-auth-ui/react"
 import { useEffect } from "react"
+import type { ComponentType } from "react"
 
 import { AuthRedirect } from "./auth-redirect"
 import { AuthCallback, AuthError } from "./auth-result"
 import { ForgotPassword } from "./forgot-password"
+import type { SocialLayout } from "./provider-buttons"
 import { ResetLinkSent } from "./reset-link-sent"
 import { ResetPassword } from "./reset-password"
 import { SignIn } from "./sign-in"
 import { SignOut } from "./sign-out"
 import { SignUp } from "./sign-up"
 import { VerifyEmail } from "./verify-email"
-import type { ComponentType } from "react"
-import type { SocialLayout } from "./provider-buttons"
-import type { AuthView } from "@better-auth-ui/core"
 
 export type AuthProps = {
   className?: string

@@ -1,13 +1,13 @@
 import { getViewURL, validateEmailAddress } from "@better-auth-ui/core"
 import { useAuth, useChangeEmail, useSession } from "@better-auth-ui/react"
-import { useEffect } from "react"
-import { toast } from "sonner"
-
 import { Card, CardContent, CardFooter } from "@workspace/ui/components/card"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "cn"
+import { useEffect } from "react"
+import { toast } from "sonner"
+
 import { isAuthFormFieldInvalid, useAuthForm } from "../../auth-form"
 
 export type ChangeEmailProps = {

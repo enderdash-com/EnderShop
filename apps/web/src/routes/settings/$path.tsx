@@ -1,11 +1,12 @@
-import { useSession } from "@better-auth-ui/react"
 import { viewPaths } from "@better-auth-ui/core"
+import { useSession } from "@better-auth-ui/react"
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
-import { authClient } from "@/lib/auth-client"
+
 import { Settings } from "@/components/auth/settings/settings"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import { authClient } from "@/lib/auth-client"
 
 export const Route = createFileRoute("/settings/$path")({
   beforeLoad({ params: { path } }) {

@@ -6,7 +6,11 @@ import {
   getProviderId,
   getProviderName,
 } from "@better-auth-ui/core"
-
+import type {
+  AuthSocialProvider,
+  AuthView,
+  OAuthPopupAuthClient,
+} from "@better-auth-ui/core"
 import {
   renderProviderIcon,
   useAuth,
@@ -15,17 +19,12 @@ import {
   useSignInSocial,
 } from "@better-auth-ui/react"
 import { useIsMutating } from "@tanstack/react-query"
-
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "cn"
-import { LastUsedBadge } from "./last-login-method/last-used-badge"
-import type {
-  AuthSocialProvider,
-  AuthView,
-  OAuthPopupAuthClient,
-} from "@better-auth-ui/core"
 import type { ComponentProps } from "react"
+
+import { LastUsedBadge } from "./last-login-method/last-used-badge"
 
 export type ProviderButtonProps = {
   provider: AuthSocialProvider

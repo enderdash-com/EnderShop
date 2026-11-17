@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start"
 import { getRequestUrl } from "@tanstack/react-start/server"
+
 import { shopOrigin } from "./seo"
 
 export const getShopSite = createServerFn({ method: "GET" }).handler(

@@ -4,9 +4,6 @@ import {
   ThemePreviewSystem,
   useAuthPlugin,
 } from "@better-auth-ui/react"
-import { Monitor, Moon, Sun } from "lucide-react"
-import { useEffect, useState } from "react"
-
 import { Card, CardContent } from "@workspace/ui/components/card"
 import {
   Field,
@@ -19,6 +16,9 @@ import {
   RadioGroupItem,
 } from "@workspace/ui/components/radio-group"
 import { cn } from "cn"
+import { Monitor, Moon, Sun } from "lucide-react"
+import { useEffect, useState } from "react"
+
 import { themePlugin } from "@/lib/auth/theme-plugin"
 
 export type AppearanceProps = {

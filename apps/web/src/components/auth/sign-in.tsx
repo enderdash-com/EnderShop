@@ -7,7 +7,6 @@ import {
   validateEmailAddress,
   validateStringLength,
 } from "@better-auth-ui/core"
-
 import {
   isPasskeyAutoFillEnabled,
   withPasskeyAutoFill,
@@ -19,9 +18,6 @@ import {
   useSignInEmail,
 } from "@better-auth-ui/react"
 import { useIsMutating } from "@tanstack/react-query"
-import { Eye, EyeOff } from "lucide-react"
-import { useState } from "react"
-
 import {
   Card,
   CardContent,
@@ -44,12 +40,16 @@ import {
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
 import { cn } from "cn"
+import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react"
+
 import { useSignInContinuation } from "@/lib/auth/use-sign-in-continuation"
+
 import { isAuthFormFieldInvalid, useAuthForm } from "./auth-form"
 import { LastUsedBadge } from "./last-login-method/last-used-badge"
 import { ProviderButtons } from "./provider-buttons"
-import { ReauthenticationNotice } from "./reauthentication"
 import type { SocialLayout } from "./provider-buttons"
+import { ReauthenticationNotice } from "./reauthentication"
 
 export type SignInProps = {
   className?: string

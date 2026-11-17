@@ -1,5 +1,6 @@
 import { viewPaths } from "@better-auth-ui/core"
 import { createFileRoute, redirect } from "@tanstack/react-router"
+
 import { Auth } from "@/components/auth/auth"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"

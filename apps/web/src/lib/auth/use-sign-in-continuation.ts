@@ -1,5 +1,6 @@
 import { useAuth } from "@better-auth-ui/react"
 import { useCallback } from "react"
+
 import {
   TWO_FACTOR_PLUGIN_ID,
   isTwoFactorRedirect,

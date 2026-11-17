@@ -1,10 +1,12 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
-import { TestClock } from "effect/testing"
+
 import { Effect, Exit, Fiber, Layer, Result } from "effect"
+import { TestClock } from "effect/testing"
+
 import { EnderdashGateway, makeEnderdashGateway } from "./enderdash"
-import { ShopConfigurationError, ShopSettings } from "./shop-services"
 import { runFulfillmentCommands } from "./fulfillment"
+import { ShopConfigurationError, ShopSettings } from "./shop-services"
 
 const settings = Layer.succeed(ShopSettings, {
   require: (name: string) =>

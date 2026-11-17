@@ -7,7 +7,7 @@ import {
   getProviderName,
   isReauthenticationRequiredError,
 } from "@better-auth-ui/core"
-
+import type { AuthSocialProvider } from "@better-auth-ui/core"
 import {
   renderProviderIcon,
   useAccountInfo,
@@ -15,9 +15,6 @@ import {
   useLinkSocial,
   useUnlinkAccount,
 } from "@better-auth-ui/react"
-import { Link2, Link2Off, Plug } from "lucide-react"
-import { toast } from "sonner"
-
 import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
@@ -35,10 +32,12 @@ import {
 } from "@workspace/ui/components/item"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { cn } from "cn"
-import { ReauthenticationAction } from "../../reauthentication"
-import type { AuthSocialProvider } from "@better-auth-ui/core"
 import type { Account } from "better-auth"
+import { cn } from "cn"
+import { Link2, Link2Off, Plug } from "lucide-react"
+import { toast } from "sonner"
+
+import { ReauthenticationAction } from "../../reauthentication"
 
 export type LinkedAccountProps = {
   account?: Account

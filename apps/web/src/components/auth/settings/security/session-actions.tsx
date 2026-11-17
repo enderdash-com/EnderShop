@@ -3,10 +3,6 @@ import {
   useRevokeOtherSessions,
   useRevokeSessions,
 } from "@better-auth-ui/react"
-import { LogOut } from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
-
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -19,6 +15,9 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { LogOut } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 
 type PendingAction = "other" | "all"
 

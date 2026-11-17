@@ -4,8 +4,6 @@ import {
   useFetchOptions,
   useRequestPasswordReset,
 } from "@better-auth-ui/react"
-import { useId } from "react"
-
 import {
   Card,
   CardContent,
@@ -20,6 +18,8 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { cn } from "cn"
+import { useId } from "react"
+
 import { isAuthFormFieldInvalid, useAuthForm } from "./auth-form"
 import { RESET_LINK_SENT_STORAGE_KEY } from "./reset-link-sent"
 

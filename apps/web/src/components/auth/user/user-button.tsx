@@ -1,14 +1,6 @@
+import type { MultiSessionAuthClient } from "@better-auth-ui/core/plugins/multi-session"
 import { useAuth, useSession } from "@better-auth-ui/react"
 import { useSetActiveSession } from "@better-auth-ui/react/plugins/multi-session"
-import {
-  ChevronsUpDown,
-  LogIn,
-  LogOut,
-  Settings,
-  UserPlus2,
-} from "lucide-react"
-import { isValidElement } from "react"
-
 import { buttonVariants } from "@workspace/ui/components/button"
 import {
   DropdownMenu,
@@ -20,10 +12,18 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { cn } from "cn"
+import {
+  ChevronsUpDown,
+  LogIn,
+  LogOut,
+  Settings,
+  UserPlus2,
+} from "lucide-react"
+import { isValidElement } from "react"
+import type { ReactElement, ReactNode } from "react"
+
 import { UserAvatar } from "./user-avatar"
 import { UserView } from "./user-view"
-import type { ReactElement, ReactNode } from "react"
-import type { MultiSessionAuthClient } from "@better-auth-ui/core/plugins/multi-session"
 
 /** Auth states a `UserButton` link can be visible in. */
 export type UserButtonLinkVisibility =

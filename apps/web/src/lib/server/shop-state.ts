@@ -1,8 +1,10 @@
 import { Effect } from "effect"
-import { getShopProduct, shopCatalog } from "@/lib/shop/catalog"
+
 import { getLuckPermsSnapshot } from "@/lib/server/enderdash"
-import { ShopInputError } from "./shop-services"
+import { getShopProduct, shopCatalog } from "@/lib/shop/catalog"
 import type { RankStateSnapshot, RankTier, ShopProduct } from "@/lib/shop/types"
+
+import { ShopInputError } from "./shop-services"
 
 export const BASE_TIER_GROUPS: Record<RankTier, string> = {
   prime: "prime",

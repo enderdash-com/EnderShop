@@ -1,12 +1,12 @@
 "use client"
 
-import { useAuth, useSession } from "@better-auth-ui/react"
-
-import { Skeleton } from "@workspace/ui/components/skeleton"
-import { cn } from "cn"
-import { UserAvatar } from "./user-avatar"
-import type { User } from "better-auth"
 import type { UsernameAuthClient } from "@better-auth-ui/core/plugins/username"
+import { useAuth, useSession } from "@better-auth-ui/react"
+import { Skeleton } from "@workspace/ui/components/skeleton"
+import type { User } from "better-auth"
+import { cn } from "cn"
+
+import { UserAvatar } from "./user-avatar"
 
 export type UserViewProps = {
   className?: string

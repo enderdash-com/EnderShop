@@ -1,8 +1,5 @@
 "use client"
 
-import { emailOtpPlugin } from "@better-auth-ui/core/plugins/email-otp"
-import { useRequestPasswordResetOtp } from "@better-auth-ui/react/plugins/email-otp"
-
 import {
   getAuthLinkURL,
   getViewURL,
@@ -10,6 +7,8 @@ import {
   validateMatchingValue,
   validateStringLength,
 } from "@better-auth-ui/core"
+import { emailOtpPlugin } from "@better-auth-ui/core/plugins/email-otp"
+import type { EmailOtpAuthClient } from "@better-auth-ui/core/plugins/email-otp"
 import {
   useAuth,
   useChangePassword,
@@ -18,9 +17,7 @@ import {
   useRequestPasswordReset,
   useSession,
 } from "@better-auth-ui/react"
-import { Eye, EyeOff } from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
+import { useRequestPasswordResetOtp } from "@better-auth-ui/react/plugins/email-otp"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardFooter } from "@workspace/ui/components/card"
 import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
@@ -34,10 +31,13 @@ import {
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "cn"
+import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
+
 import { isAuthFormFieldInvalid, useAuthForm } from "../../auth-form"
 import { OpenEmailButton } from "../../open-email-button"
 import { PasswordStrengthMeter } from "../../password-strength-meter"
-import type { EmailOtpAuthClient } from "@better-auth-ui/core/plugins/email-otp"
 
 export type ChangePasswordProps = {
   className?: string

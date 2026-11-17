@@ -5,7 +5,6 @@ import {
   isReauthenticationRequiredError,
 } from "@better-auth-ui/core"
 import { useAuth, useListSessions, useSession } from "@better-auth-ui/react"
-import { Fragment } from "react"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import {
   Item,
@@ -16,6 +15,8 @@ import {
 } from "@workspace/ui/components/item"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "cn"
+import { Fragment } from "react"
+
 import { ReauthenticationAction } from "../../reauthentication"
 import { ActiveSession } from "./active-session"
 import { SessionActions } from "./session-actions"

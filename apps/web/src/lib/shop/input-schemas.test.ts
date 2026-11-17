@@ -1,6 +1,8 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
+
 import { Schema } from "effect"
+
 import { saveProfileSchema, startCheckoutSchema } from "./input-schemas"
 
 test("profile input trims usernames and rejects invalid names", () => {

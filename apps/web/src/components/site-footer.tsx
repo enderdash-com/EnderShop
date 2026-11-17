@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router"
+
 import { LogoMark } from "@/components/logo"
 
 export function SiteFooter() {
@@ -9,21 +10,34 @@ export function SiteFooter() {
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <LogoMark className="size-4" />
             <span className="tracking-wide">
+              {/* oxlint-disable-next-line react/purity -- the copyright year only needs the render-time date */}
               &copy; {new Date().getFullYear()} EnderShop. All ranks delivered
               automatically.
             </span>
           </div>
           <nav className="flex flex-wrap items-center gap-5 text-xs tracking-wider text-muted-foreground uppercase">
-            <Link className="transition-colors hover:text-foreground" to="/legal/terms">
+            <Link
+              className="transition-colors hover:text-foreground"
+              to="/legal/terms"
+            >
               Terms
             </Link>
-            <Link className="transition-colors hover:text-foreground" to="/legal/privacy">
+            <Link
+              className="transition-colors hover:text-foreground"
+              to="/legal/privacy"
+            >
               Privacy
             </Link>
-            <Link className="transition-colors hover:text-foreground" to="/legal/cookies">
+            <Link
+              className="transition-colors hover:text-foreground"
+              to="/legal/cookies"
+            >
               Cookies
             </Link>
-            <Link className="transition-colors hover:text-foreground" to="/legal/imprint">
+            <Link
+              className="transition-colors hover:text-foreground"
+              to="/legal/imprint"
+            >
               Imprint
             </Link>
           </nav>

@@ -1,4 +1,5 @@
 import { Context, Data, Effect, Schema } from "effect"
+
 import { setting } from "./shop-services"
 import type { ShopConfigurationError, ShopSettings } from "./shop-services"
 
@@ -133,7 +134,7 @@ export function makeEnderdashGateway(
               )
               const result = yield* Effect.tryPromise({
                 try: async () => {
-                  const result = await fetcher(
+                  const fetched = await fetcher(
                     `${baseUrl.replace(/\/$/, "")}/api/http/servers/${operation}`,
                     {
                       method: "POST",
@@ -146,10 +147,10 @@ export function makeEnderdashGateway(
                     }
                   )
                   if (controller.signal.aborted) {
-                    await result.body?.cancel().catch(() => undefined)
+                    await fetched.body?.cancel().catch(() => undefined)
                     controller.signal.throwIfAborted()
                   }
-                  return result
+                  return fetched
                 },
                 catch: failure,
               })
@@ -250,18 +251,15 @@ export function makeEnderdashGateway(
   return {
     execute: (input) =>
       request("executeConsoleCommand", input, commandResponseSchema, true).pipe(
-        Effect.flatMap((result) =>
-          result.success
-            ? Effect.succeed(result)
-            : Effect.fail(
-                new EnderdashError({
-                  operation: "executeConsoleCommand",
-                  reason: result.commandResult === 2 ? "rejected" : "response",
-                  uncertain: result.commandResult !== 2,
-                  message:
-                    result.error || "Enderdash rejected the console command",
-                })
-              )
+        Effect.filterOrFail(
+          (result) => result.success,
+          (result) =>
+            new EnderdashError({
+              operation: "executeConsoleCommand",
+              reason: result.commandResult === 2 ? "rejected" : "response",
+              uncertain: result.commandResult !== 2,
+              message: result.error || "Enderdash rejected the console command",
+            })
         )
       ),
     resolve: (username) =>

@@ -1,7 +1,8 @@
-import { CheckCircle, Crown, Gem, Shield, Sparkles } from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
-import { getShopProduct } from "@/lib/shop/catalog"
+import { CheckCircle, Crown, Gem, Shield, Sparkles } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+
+import { getShopProduct } from "@/lib/shop/catalog"
 import type { PurchaseRecord } from "@/lib/shop/types"
 
 function formatDate(value: string) {

@@ -1,12 +1,15 @@
 import { createServerFn } from "@tanstack/react-start"
 import { getRequest } from "@tanstack/react-start/server"
 import { Effect, Schema } from "effect"
+
 import {
   saveProfileSchema,
   startCheckoutSchema,
 } from "@/lib/shop/input-schemas"
+
 import { getSessionFromHeaders } from "./auth"
 import { runShopEffect } from "./shop-runtime"
+import type { ShopServices } from "./shop-runtime"
 import {
   ShopSession,
   ShopSessionError,
@@ -15,7 +18,6 @@ import {
   openShopBillingPortal,
   saveShopProfile,
 } from "./shop-workflows"
-import type { ShopServices } from "./shop-runtime"
 
 export type { ShopStatePayload } from "./shop-workflows"
 

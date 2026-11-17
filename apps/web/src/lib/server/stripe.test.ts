@@ -1,20 +1,22 @@
 import assert from "node:assert/strict"
 import { after, before, test } from "node:test"
+
 import { eq } from "drizzle-orm"
 import { Effect, Exit, Result } from "effect"
+
 import { EnderdashError } from "./enderdash"
-import { getCustomerProfile } from "./store"
 import { stripeEvent as stripeEventTable } from "./schema"
-import { handleStripeWebhook, processStripeEvent } from "./stripe"
+import type { ShopServices } from "./shop-runtime"
 import {
   ShopConfigurationError,
   ShopDatabase,
   ShopSettings,
   ShopStoreError,
 } from "./shop-services"
-import { StripeGateway, stripeGateway } from "./stripe-gateway"
 import { checkoutEvent, shopFixture, stripeEvent } from "./shop-test-fixture"
-import type { ShopServices } from "./shop-runtime"
+import { getCustomerProfile } from "./store"
+import { handleStripeWebhook, processStripeEvent } from "./stripe"
+import { StripeGateway, stripeGateway } from "./stripe-gateway"
 
 let fixture: Awaited<ReturnType<typeof shopFixture>>
 before(async () => {

@@ -1,5 +1,7 @@
 import { Data, Effect, Exit, Result } from "effect"
-import { getShopProduct } from "@/lib/shop/catalog"
+import type { Cause } from "effect"
+import type Stripe from "stripe"
+
 import {
   fulfillProductPurchase,
   revokeUltraGroup,
@@ -8,18 +10,18 @@ import {
   isSubscriptionProduct,
   resolveProductConfig,
 } from "@/lib/server/product-config"
+import { ULTRA_TIER_GROUPS } from "@/lib/server/shop-state"
 import {
   forgetStripeEvent,
   getCustomerProfile,
   recordStripeEvent,
   setStripeCustomerId,
 } from "@/lib/server/store"
-import { ULTRA_TIER_GROUPS } from "@/lib/server/shop-state"
+import { getShopProduct } from "@/lib/shop/catalog"
+import type { PurchaseRecord, ShopProduct } from "@/lib/shop/types"
+
 import { ShopInputError } from "./shop-services"
 import { StripeGateway } from "./stripe-gateway"
-import type { Cause } from "effect"
-import type { PurchaseRecord, ShopProduct } from "@/lib/shop/types"
-import type Stripe from "stripe"
 
 function getOrigin(request: Request) {
   return new URL(request.url).origin

@@ -1,29 +1,31 @@
 import assert from "node:assert/strict"
 import { after, before, test } from "node:test"
-import { Effect, Exit } from "effect"
+
 import { eq } from "drizzle-orm"
+import { Effect, Exit } from "effect"
+
+import type { EnderdashGateway } from "./enderdash"
+import { customerProfile } from "./schema"
+import {
+  ShopDatabase,
+  databaseOperation,
+  makeShopDatabase,
+} from "./shop-services"
+import type { ShopSettings } from "./shop-services"
+import { shopFixture, unavailableEnderdash } from "./shop-test-fixture"
 import {
   beginShopCheckout,
   loadShopState,
   openShopBillingPortal,
   saveShopProfile,
 } from "./shop-workflows"
+import type { ShopSession } from "./shop-workflows"
 import {
   getCustomerProfile,
   reassignAnonymousUserData,
   updateCustomerProfile,
 } from "./store"
-import {
-  ShopDatabase,
-  databaseOperation,
-  makeShopDatabase,
-} from "./shop-services"
-import { shopFixture, unavailableEnderdash } from "./shop-test-fixture"
-import { customerProfile } from "./schema"
-import type { ShopSettings } from "./shop-services"
-import type { EnderdashGateway } from "./enderdash"
 import type { StripeGateway } from "./stripe-gateway"
-import type { ShopSession } from "./shop-workflows"
 
 let fixture: Awaited<ReturnType<typeof shopFixture>>
 before(async () => {

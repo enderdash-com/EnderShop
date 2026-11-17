@@ -7,9 +7,12 @@ import {
   validateAdditionalFieldRequired,
   validateAdditionalFieldValue,
 } from "@better-auth-ui/core"
+import type {
+  AdditionalField as AdditionalFieldConfig,
+  AdditionalFieldFormValue,
+} from "@better-auth-ui/core"
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form"
-import { useRef } from "react"
-
+import type { AnyFormApi } from "@tanstack/react-form"
 import { Button } from "@workspace/ui/components/button"
 import {
   Field,
@@ -19,13 +22,10 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { AdditionalField } from "./additional-field"
+import { useRef } from "react"
 import type { ComponentProps, FormEvent, ReactNode } from "react"
-import type { AnyFormApi } from "@tanstack/react-form"
-import type {
-  AdditionalField as AdditionalFieldConfig,
-  AdditionalFieldFormValue,
-} from "@better-auth-ui/core"
+
+import { AdditionalField } from "./additional-field"
 import type { AdditionalFieldProps } from "./additional-field"
 
 const { fieldContext, formContext, useFieldContext, useFormContext } =

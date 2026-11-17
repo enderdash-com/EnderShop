@@ -1,5 +1,4 @@
 import { useLastLoginMethod } from "@better-auth-ui/react"
-
 import { Badge } from "@workspace/ui/components/badge"
 
 export type LastUsedBadgeProps = {

@@ -2,30 +2,31 @@ import { useSession } from "@better-auth-ui/react"
 import { useSignInAnonymous } from "@better-auth-ui/react/plugins/anonymous"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Link, createFileRoute } from "@tanstack/react-router"
-import { Check, Crown, Gem, Lock, Shield, Sparkles } from "lucide-react"
-import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
-import { toast } from "sonner"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Field } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { cn } from "@workspace/ui/lib/utils"
-import { getShopSite } from "@/lib/shop/site"
-import { shopPageHead } from "@/lib/shop/seo"
+import { Check, Crown, Gem, Lock, Shield, Sparkles } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
+import type { FormEvent } from "react"
+import { toast } from "sonner"
+
 import { PurchaseHistory } from "@/components/purchase-history"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { authClient } from "@/lib/auth-client"
-import { shopCatalog } from "@/lib/shop/catalog"
 import {
   getShopState,
   openBillingPortal,
   saveProfile,
   startCheckout,
 } from "@/lib/server/shop-functions"
+import { shopCatalog } from "@/lib/shop/catalog"
+import { shopPageHead } from "@/lib/shop/seo"
+import { getShopSite } from "@/lib/shop/site"
 import type { RankTier, ShopProduct } from "@/lib/shop/types"
-import type { FormEvent } from "react"
-import type { LucideIcon } from "lucide-react"
 
 export const Route = createFileRoute("/")({
   loader: () => getShopSite(),
@@ -76,8 +77,8 @@ function App() {
 
   useEffect(() => {
     if (session.isPending || session.data?.user) return
-    void ensureAnonymousSession()
-  }, [ensureAnonymousSession, session.data?.user, session.isPending])
+    ensureAnonymousSession()
+  }, [session.data?.user, session.isPending])
 
   const shopStateQuery = useQuery({
     queryKey: ["shop-state", session.data?.user.id ?? null],
@@ -91,6 +92,7 @@ function App() {
   const [profileDraft, setProfileDraft] = useState("")
   useEffect(() => {
     if (shopState?.profile.minecraftUsername) {
+      // oxlint-disable-next-line react/set-state-in-effect -- seeds the editable draft from loaded server state
       setProfileDraft(shopState.profile.minecraftUsername)
     }
   }, [shopState?.profile.minecraftUsername])

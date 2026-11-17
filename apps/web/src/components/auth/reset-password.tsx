@@ -7,10 +7,6 @@ import {
   validateStringLength,
 } from "@better-auth-ui/core"
 import { useAuth, useResetPassword } from "@better-auth-ui/react"
-import { Eye, EyeOff } from "lucide-react"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-
 import {
   Card,
   CardContent,
@@ -31,6 +27,10 @@ import {
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
 import { cn } from "cn"
+import { Eye, EyeOff } from "lucide-react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+
 import { isAuthFormFieldInvalid, useAuthForm } from "./auth-form"
 import { PasswordStrengthMeter } from "./password-strength-meter"
 

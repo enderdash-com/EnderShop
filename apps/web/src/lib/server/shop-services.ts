@@ -1,4 +1,5 @@
 import { Context, Data, Effect } from "effect"
+
 import type { getDb } from "./db"
 
 export class ShopConfigurationError extends Data.TaggedError(

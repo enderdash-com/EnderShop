@@ -1,15 +1,17 @@
 import { readFile } from "node:fs/promises"
+
 import { drizzle } from "drizzle-orm/d1"
 import { Effect, Layer } from "effect"
+import type { Context } from "effect"
 import { Miniflare } from "miniflare"
 import Stripe from "stripe"
+
 import { EnderdashError, EnderdashGateway } from "./enderdash"
 import * as schema from "./schema"
 import { ShopDatabase, ShopSettings, makeShopDatabase } from "./shop-services"
 import { ShopSession } from "./shop-workflows"
-import { StripeGateway } from "./stripe-gateway"
 import type { ShopUser } from "./shop-workflows"
-import type { Context } from "effect"
+import { StripeGateway } from "./stripe-gateway"
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] }
 
@@ -166,6 +168,7 @@ export function checkoutEvent(id?: string) {
   )
 }
 
+// oxlint-disable-next-line effecttsgo/lazy-effect -- assigned as a service method that callers invoke
 export const unavailableEnderdash = () =>
   Effect.fail(
     new EnderdashError({

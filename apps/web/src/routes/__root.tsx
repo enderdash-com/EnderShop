@@ -1,14 +1,16 @@
+import type { QueryClient } from "@tanstack/react-query"
 import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
 } from "@tanstack/react-router"
-import { ThemeProvider } from "next-themes"
-import appCss from "@workspace/ui/globals.css?url"
 import { Toaster } from "@workspace/ui/components/sonner"
-import { Providers } from "@/components/providers"
-import type { QueryClient } from "@tanstack/react-query"
+import { ThemeProvider } from "next-themes"
 import type { ReactNode } from "react"
+
+import { Providers } from "@/components/providers"
+
+import appCss from "@workspace/ui/globals.css?url"
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {

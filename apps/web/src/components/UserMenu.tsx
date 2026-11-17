@@ -1,5 +1,4 @@
 import { useAuth, useSession } from "@better-auth-ui/react"
-import { LogIn, UserPlus2, UserRound } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import {
   DropdownMenu,
@@ -8,6 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
+import { LogIn, UserPlus2, UserRound } from "lucide-react"
+
 import { UserButton } from "@/components/auth/user/user-button"
 import { authClient } from "@/lib/auth-client"
 

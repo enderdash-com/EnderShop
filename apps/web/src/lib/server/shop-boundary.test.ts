@@ -1,6 +1,8 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
+
 import { Effect, Fiber } from "effect"
+
 import { publicShopEffect } from "./shop-boundary"
 import { ShopInputError, ShopStoreError } from "./shop-services"
 

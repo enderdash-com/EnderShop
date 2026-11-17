@@ -1,9 +1,7 @@
 "use client"
 
+import type { SettingsView } from "@better-auth-ui/core"
 import { useAuth, useAuthenticate } from "@better-auth-ui/react"
-import { Shield, User2 } from "lucide-react"
-import { useMemo } from "react"
-
 import {
   Tabs,
   TabsContent,
@@ -11,9 +9,11 @@ import {
   TabsTrigger,
 } from "@workspace/ui/components/tabs"
 import { cn } from "cn"
+import { Shield, User2 } from "lucide-react"
+import { useMemo } from "react"
+
 import { AccountSettings } from "./account/account-settings"
 import { SecuritySettings } from "./security/security-settings"
-import type { SettingsView } from "@better-auth-ui/core"
 
 export type SettingsProps = {
   className?: string

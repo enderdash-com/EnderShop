@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
+
+import { LegalPage } from "@/components/legal-page"
 import { shopPageHead } from "@/lib/shop/seo"
 import { getShopSite } from "@/lib/shop/site"
-import { LegalPage } from "@/components/legal-page"
 
 export const Route = createFileRoute("/legal/terms")({
   loader: () => getShopSite(),

@@ -1,8 +1,6 @@
 import { getAuthResultMessage, parseAuthResult } from "@better-auth-ui/core"
+import type { AuthResult } from "@better-auth-ui/core"
 import { useAuth } from "@better-auth-ui/react"
-import { CircleCheckIcon, CircleXIcon, TriangleAlertIcon } from "lucide-react"
-import { useEffect, useState } from "react"
-
 import { Button } from "@workspace/ui/components/button"
 import {
   Card,
@@ -12,7 +10,8 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 import { cn } from "cn"
-import type { AuthResult } from "@better-auth-ui/core"
+import { CircleCheckIcon, CircleXIcon, TriangleAlertIcon } from "lucide-react"
+import { useEffect, useState } from "react"
 
 type AuthResultProps = {
   className?: string

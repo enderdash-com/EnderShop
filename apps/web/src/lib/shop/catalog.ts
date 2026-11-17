@@ -128,23 +128,29 @@ export function getShopProduct(productId: string) {
 }
 
 export function getBaseRankProduct(tier: RankTier) {
-  return shopCatalog.find(
-    (product) => product.kind === "base_rank" && product.tier === tier
-  ) ?? null
+  return (
+    shopCatalog.find(
+      (product) => product.kind === "base_rank" && product.tier === tier
+    ) ?? null
+  )
 }
 
 export function getUltraProduct(tier: RankTier) {
-  return shopCatalog.find(
-    (product) =>
-      product.kind === "ultra_subscription" && product.tier === tier
-  ) ?? null
+  return (
+    shopCatalog.find(
+      (product) =>
+        product.kind === "ultra_subscription" && product.tier === tier
+    ) ?? null
+  )
 }
 
 export function getUpgradeProduct(fromTier: RankTier, toTier: RankTier) {
-  return shopCatalog.find(
-    (product) =>
-      product.kind === "rank_upgrade" &&
-      product.fromTier === fromTier &&
-      product.tier === toTier
-  ) ?? null
+  return (
+    shopCatalog.find(
+      (product) =>
+        product.kind === "rank_upgrade" &&
+        product.fromTier === fromTier &&
+        product.tier === toTier
+    ) ?? null
+  )
 }
