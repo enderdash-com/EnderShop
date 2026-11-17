@@ -98,13 +98,17 @@ The current scaffold also bootstraps its tables at runtime so a fresh D1 databas
 
 ## Cloudflare deployment
 
-Deploy from the app workspace:
+The Deploy workflow builds the monorepo and deploys `apps/web` with the [`cf` CLI](https://developers.cloudflare.com/cf/).
+Pushes to `main` deploy production, and other branch pushes upload a preview version.
+It needs the `CLOUDFLARE_API_TOKEN` secret, an account API token that can edit Workers scripts and D1.
+
+To deploy by hand, sign in with `bunx cf auth login` and run:
 
 ```bash
 bun run --cwd apps/web deploy
 ```
 
-Before production deployment, replace the placeholder values in `cloudflare.config.ts` and move sensitive values to real Wrangler secrets where appropriate.
+Before production deployment, replace the placeholder values in `cloudflare.config.ts` and move sensitive values to Worker secrets with `bindings.secret()` where appropriate.
 
 ## Legal routes
 
