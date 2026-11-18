@@ -16,18 +16,20 @@ const run = <TValue>(program: Effect.Effect<TValue, unknown, ShopSettings>) =>
 
 test("every Stripe operation retains the pinned API version with SDK 23", async () => {
   const calls: Array<{ method: string | undefined; path: string }> = []
-  const gateway = makeStripeGateway(async (url, init) => {
+  const gateway = makeStripeGateway((url, init) => {
     assert.equal(
       new Headers(init?.headers).get("stripe-version"),
       "2026-03-25.dahlia"
     )
     const path = new URL(url instanceof Request ? url.url : url).pathname
     calls.push({ method: init?.method, path })
-    return Response.json({
-      id: "test",
-      url: "https://checkout.example",
-      data: [],
-    })
+    return Promise.resolve(
+      Response.json({
+        id: "test",
+        url: "https://checkout.example",
+        data: [],
+      })
+    )
   })
   await run(gateway.checkout({ mode: "payment" }))
   await run(gateway.portal({ customer: "cus_test" }))
@@ -80,9 +82,9 @@ test("Stripe verifies signed events and rejects tampering and stale signatures",
 
 test("Stripe does not replay a mutation after a truncated response", async () => {
   let calls = 0
-  const gateway = makeStripeGateway(async () => {
+  const gateway = makeStripeGateway(() => {
     calls++
-    return new Response(
+    const response = new Response(
       new ReadableStream({
         start(controller) {
           controller.enqueue(new TextEncoder().encode('{"id":'))
@@ -91,6 +93,7 @@ test("Stripe does not replay a mutation after a truncated response", async () =>
       }),
       { headers: { "content-type": "application/json" } }
     )
+    return Promise.resolve(response)
   })
   await assert.rejects(
     Effect.runPromise(
@@ -103,12 +106,14 @@ test("Stripe does not replay a mutation after a truncated response", async () =>
 
 test("Stripe does not retry a rejected mutation even when the server recommends retry", async () => {
   let calls = 0
-  const gateway = makeStripeGateway(async (_url, init) => {
+  const gateway = makeStripeGateway((_url, init) => {
     calls++
     assert.equal(init?.method, "POST")
-    return Response.json(
-      { error: { message: "temporarily unavailable", type: "api_error" } },
-      { status: 500, headers: { "stripe-should-retry": "true" } }
+    return Promise.resolve(
+      Response.json(
+        { error: { message: "temporarily unavailable", type: "api_error" } },
+        { status: 500, headers: { "stripe-should-retry": "true" } }
+      )
     )
   })
   await assert.rejects(

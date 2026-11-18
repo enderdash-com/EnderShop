@@ -42,27 +42,31 @@ const run = <TValue, TError>(
 
 test("Enderdash uses the supported HTTP endpoints, credentials and plain JSON bodies", async () => {
   const requests: Array<{ url: string; init: RequestInit }> = []
-  const gateway = makeEnderdashGateway(async (url, init) => {
+  const gateway = makeEnderdashGateway((url, init) => {
     requests.push({ url, init })
     if (url.endsWith("executeConsoleCommand"))
-      return Response.json(executeResult)
+      return Promise.resolve(Response.json(executeResult))
     if (url.endsWith("resolveLuckPermsUsername"))
-      return Response.json({
+      return Promise.resolve(
+        Response.json({
+          ...envelope,
+          lookup: { found: true, username: "Player", uuid: "uuid", groups: [] },
+        })
+      )
+    return Promise.resolve(
+      Response.json({
         ...envelope,
-        lookup: { found: true, username: "Player", uuid: "uuid", groups: [] },
-      })
-    return Response.json({
-      ...envelope,
-      result: {
-        found: true,
-        user: {
-          uuid: "uuid",
-          primary_group: "prime",
-          groups: [{ name: "prime", nodes: [{ key: "extra" }] }],
-          nodes: [],
+        result: {
+          found: true,
+          user: {
+            uuid: "uuid",
+            primary_group: "prime",
+            groups: [{ name: "prime", nodes: [{ key: "extra" }] }],
+            nodes: [],
+          },
         },
-      },
-    })
+      })
+    )
   })
   assert.equal((await run(gateway.execute(command))).commandResult, 1)
   assert.equal((await run(gateway.resolve("Player")))?.username, "Player")
@@ -109,9 +113,9 @@ test("Enderdash uses the supported HTTP endpoints, credentials and plain JSON bo
 
 test("a lost command acknowledgement is classified as uncertain and never retried", async () => {
   let attempts = 0
-  const gateway = makeEnderdashGateway(async () => {
+  const gateway = makeEnderdashGateway(() => {
     attempts++
-    throw new Error("lost connection")
+    return Promise.reject(new Error("lost connection"))
   })
   const outcome = await run(Effect.result(gateway.execute(command)))
   assert.equal(attempts, 1)
@@ -121,21 +125,23 @@ test("a lost command acknowledgement is classified as uncertain and never retrie
 })
 
 test("explicit command rejection and invalid response shape remain different failures", async () => {
-  const rejected = makeEnderdashGateway(async () =>
-    Response.json({
-      ...executeResult,
-      success: false,
-      error: "Server offline",
-      commandResult: 2,
-    })
+  const rejected = makeEnderdashGateway(() =>
+    Promise.resolve(
+      Response.json({
+        ...executeResult,
+        success: false,
+        error: "Server offline",
+        commandResult: 2,
+      })
+    )
   )
   await assert.rejects(run(rejected.execute(command)), {
     reason: "rejected",
     uncertain: false,
     message: "Server offline",
   })
-  const invalid = makeEnderdashGateway(async () =>
-    Response.json({ ...executeResult, commandResult: "wrong" })
+  const invalid = makeEnderdashGateway(() =>
+    Promise.resolve(Response.json({ ...executeResult, commandResult: "wrong" }))
   )
   await assert.rejects(run(invalid.execute(command)), {
     reason: "response",
@@ -146,8 +152,8 @@ test("explicit command rejection and invalid response shape remain different fai
 
 test("HTTP failures close the response body and preserve uncertain command outcomes", async () => {
   let closed = false
-  const gateway = makeEnderdashGateway(
-    async () =>
+  const gateway = makeEnderdashGateway(() =>
+    Promise.resolve(
       new Response(
         new ReadableStream({
           cancel() {
@@ -156,6 +162,7 @@ test("HTTP failures close the response body and preserve uncertain command outco
         }),
         { status: 503 }
       )
+    )
   )
   await assert.rejects(run(gateway.execute(command)), {
     reason: "transport",
@@ -170,8 +177,8 @@ test("cancelling a read closes its body before the operation settles", async () 
     reading = resolve
   })
   let closed = false
-  const gateway = makeEnderdashGateway(
-    async () =>
+  const gateway = makeEnderdashGateway(() =>
+    Promise.resolve(
       new Response(
         new ReadableStream(
           {
@@ -186,6 +193,7 @@ test("cancelling a read closes its body before the operation settles", async () 
           { highWaterMark: 0 }
         )
       )
+    )
   )
   const controller = new AbortController()
   const result = Effect.runPromiseExit(
@@ -200,8 +208,8 @@ test("cancelling a read closes its body before the operation settles", async () 
 
 test("oversized responses are rejected and close their reader", async () => {
   let closed = false
-  const gateway = makeEnderdashGateway(
-    async () =>
+  const gateway = makeEnderdashGateway(() =>
+    Promise.resolve(
       new Response(
         new ReadableStream({
           start(controller) {
@@ -212,6 +220,7 @@ test("oversized responses are rejected and close their reader", async () => {
           },
         })
       )
+    )
   )
   await assert.rejects(run(gateway.snapshot({ uuid: "uuid" })), {
     reason: "response",
@@ -222,15 +231,17 @@ test("oversized responses are rejected and close their reader", async () => {
 
 test("sequential command failure records completed commands without submitting later commands", async () => {
   const commands: Array<string> = []
-  const gateway = makeEnderdashGateway(async (_url, init) => {
+  const gateway = makeEnderdashGateway((_url, init) => {
     const input = jsonBody(init.body)
     commands.push(input.command)
-    return Response.json({
-      ...executeResult,
-      command: input.command,
-      success: commands.length !== 2,
-      error: commands.length === 2 ? "rejected" : null,
-    })
+    return Promise.resolve(
+      Response.json({
+        ...executeResult,
+        command: input.command,
+        success: commands.length !== 2,
+        error: commands.length === 2 ? "rejected" : null,
+      })
+    )
   })
   await assert.rejects(
     Effect.runPromise(
@@ -254,9 +265,9 @@ test("sequential command failure records completed commands without submitting l
 
 test("configuration failures occur before contacting Enderdash", async () => {
   let contacted = false
-  const gateway = makeEnderdashGateway(async () => {
+  const gateway = makeEnderdashGateway(() => {
     contacted = true
-    return Response.json(executeResult)
+    return Promise.resolve(Response.json(executeResult))
   })
   const result = gateway.execute(command).pipe(
     Effect.provideService(ShopSettings, {
@@ -285,8 +296,8 @@ test("interruption waits for response-body cleanup", async () => {
   const closed = new Promise<void>((resolve) => {
     close = resolve
   })
-  const gateway = makeEnderdashGateway(
-    async () =>
+  const gateway = makeEnderdashGateway(() =>
+    Promise.resolve(
       new Response(
         new ReadableStream(
           {
@@ -301,6 +312,7 @@ test("interruption waits for response-body cleanup", async () => {
           { highWaterMark: 0 }
         )
       )
+    )
   )
   const controller = new AbortController()
   let settled = false
@@ -358,12 +370,12 @@ test("a late response after read cancellation is discarded and closed", async ()
 
 test("concurrent programs keep their Enderdash credentials and targets isolated", async () => {
   const received: Array<{ key: string | null; organizationId: string }> = []
-  const gateway = makeEnderdashGateway(async (_url, init) => {
+  const gateway = makeEnderdashGateway((_url, init) => {
     received.push({
       key: new Headers(init.headers).get("X-API-Key"),
       organizationId: jsonBody(init.body).organizationId,
     })
-    return Response.json({ ...envelope, lookup: null })
+    return Promise.resolve(Response.json({ ...envelope, lookup: null }))
   })
   await Promise.all(
     ["first", "second"].map((request) =>
@@ -461,9 +473,9 @@ for (const phase of ["headers", "body"]) {
 
 test("an empty successful command response remains an uncertain response failure", async () => {
   let attempts = 0
-  const gateway = makeEnderdashGateway(async () => {
+  const gateway = makeEnderdashGateway(() => {
     attempts++
-    return new Response(null, { status: 204 })
+    return Promise.resolve(new Response(null, { status: 204 }))
   })
   const outcome = await run(Effect.result(gateway.execute(command)))
   assert.equal(attempts, 1)
