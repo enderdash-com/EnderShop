@@ -10,7 +10,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { Check, Crown, Gem, Lock, Shield, Sparkles } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
-import type { FormEvent } from "react"
+import type { SubmitEvent } from "react"
 import { toast } from "sonner"
 
 import { PurchaseHistory } from "@/components/purchase-history"
@@ -152,7 +152,7 @@ function App() {
     [shopState?.eligibleProductIds]
   )
 
-  async function handleProfileSave(event: FormEvent<HTMLFormElement>) {
+  function handleProfileSave(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     const next = profileDraft.trim()
     if (!next) {

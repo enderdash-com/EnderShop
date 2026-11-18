@@ -274,6 +274,7 @@ export const processStripeEvent = Effect.fn("Shop.processStripeEvent")(
 
     const outcome = yield* Effect.exit(
       Effect.gen(function* () {
+        // oxlint-disable-next-line typescript/switch-exhaustiveness-check -- Stripe.Event has hundreds of types and this webhook handles only these.
         switch (event.type) {
           case "checkout.session.completed":
             yield* applyCheckoutSession(event.data.object)
@@ -321,13 +322,12 @@ export const handleStripeWebhook = Effect.fn("Shop.handleStripeWebhook")(
     return yield* processStripeEvent(verified.success).pipe(
       Effect.map((body) => Response.json(body)),
       Effect.catchTag("WebhookProcessingError", (error) =>
-        Effect.sync(() => {
-          console.error(
-            `[stripe] Failed to process event ${error.eventId}:`,
-            error
-          )
-          return Response.json({ error: error.message }, { status: 500 })
-        })
+        Effect.logError(
+          `[stripe] Failed to process event ${error.eventId}:`,
+          error
+        ).pipe(
+          Effect.as(Response.json({ error: error.message }, { status: 500 }))
+        )
       )
     )
   }
