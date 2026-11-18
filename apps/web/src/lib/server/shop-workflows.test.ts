@@ -111,8 +111,10 @@ test("checkout composes rank eligibility and product metadata before a single St
       { url: "https://checkout.example/session" }
     )
     assert.equal(inputs.length, 1)
-    assert.equal(inputs[0].mode, "payment")
-    assert.deepEqual(inputs[0].metadata, {
+    const [input] = inputs
+    assert(input)
+    assert.equal(input.mode, "payment")
+    assert.deepEqual(input.metadata, {
       minecraftUsername: "Player",
       minecraftUuid: "player-uuid",
       productId: "prime",
@@ -121,7 +123,7 @@ test("checkout composes rank eligibility and product metadata before a single St
       userId: "customer",
     })
     assert.equal(
-      inputs[0].success_url,
+      input.success_url,
       "https://shop.example/checkout/success?session_id={CHECKOUT_SESSION_ID}"
     )
   } finally {
@@ -302,10 +304,12 @@ test("subscription checkout retains Stripe subscription metadata and existing cu
     await run(
       beginShopCheckout("prime_ultra", new Request("https://shop.example"))
     )
-    assert.equal(inputs[0].mode, "subscription")
-    assert.equal(inputs[0].customer, "cus_customer")
-    assert.equal(inputs[0].customer_email, undefined)
-    assert.deepEqual(inputs[0].subscription_data?.metadata, inputs[0].metadata)
+    const [input] = inputs
+    assert(input)
+    assert.equal(input.mode, "subscription")
+    assert.equal(input.customer, "cus_customer")
+    assert.equal(input.customer_email, undefined)
+    assert.deepEqual(input.subscription_data?.metadata, input.metadata)
   } finally {
     fixture.enderdash.snapshot = oldSnapshot
     fixture.stripe.checkout = oldCheckout
