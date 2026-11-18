@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { test } from "node:test"
 
 import { Effect, Exit, Layer } from "effect"
-import Stripe from "stripe"
+import { Stripe } from "stripe"
 
 import { ShopSettings } from "./shop-services"
 import { makeStripeGateway } from "./stripe-gateway"
@@ -21,7 +21,7 @@ test("every Stripe operation retains the pinned API version with SDK 23", async 
       new Headers(init?.headers).get("stripe-version"),
       "2026-03-25.dahlia"
     )
-    const path = new URL(String(url)).pathname
+    const path = new URL(url instanceof Request ? url.url : url).pathname
     calls.push({ method: init?.method, path })
     return Response.json({
       id: "test",

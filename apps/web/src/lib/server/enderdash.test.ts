@@ -8,6 +8,11 @@ import { EnderdashGateway, makeEnderdashGateway } from "./enderdash"
 import { runFulfillmentCommands } from "./fulfillment"
 import { ShopConfigurationError, ShopSettings } from "./shop-services"
 
+function jsonBody(body: RequestInit["body"]) {
+  assert(typeof body === "string")
+  return JSON.parse(body)
+}
+
 const settings = Layer.succeed(ShopSettings, {
   require: (name: string) =>
     name === "ENDERDASH_BASE_URL"
@@ -74,7 +79,7 @@ test("Enderdash uses the supported HTTP endpoints, credentials and plain JSON bo
     ]
   )
   assert.deepEqual(
-    requests.map((request) => JSON.parse(String(request.init.body))),
+    requests.map((request) => jsonBody(request.init.body)),
     [
       command,
       {
@@ -218,7 +223,7 @@ test("oversized responses are rejected and close their reader", async () => {
 test("sequential command failure records completed commands without submitting later commands", async () => {
   const commands: Array<string> = []
   const gateway = makeEnderdashGateway(async (_url, init) => {
-    const input = JSON.parse(String(init.body))
+    const input = jsonBody(init.body)
     commands.push(input.command)
     return Response.json({
       ...executeResult,
@@ -356,7 +361,7 @@ test("concurrent programs keep their Enderdash credentials and targets isolated"
   const gateway = makeEnderdashGateway(async (_url, init) => {
     received.push({
       key: new Headers(init.headers).get("X-API-Key"),
-      organizationId: JSON.parse(String(init.body)).organizationId,
+      organizationId: jsonBody(init.body).organizationId,
     })
     return Response.json({ ...envelope, lookup: null })
   })
@@ -446,7 +451,7 @@ for (const phase of ["headers", "body"]) {
       assert.equal(outcome.failure.uncertain, true)
     })
     await Effect.runPromise(
-      program.pipe(Effect.provide(settings), Effect.provide(TestClock.layer()))
+      program.pipe(Effect.provide(Layer.mergeAll(settings, TestClock.layer())))
     )
     assert.equal(requests, 1)
     assert.equal(aborted, true)

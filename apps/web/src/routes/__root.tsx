@@ -1,14 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query"
-import {
-  HeadContent,
-  Scripts,
-  createRootRouteWithContext,
-} from "@tanstack/react-router"
-import { Toaster } from "@workspace/ui/components/sonner"
-import { ThemeProvider } from "next-themes"
-import type { ReactNode } from "react"
+import { createRootRouteWithContext } from "@tanstack/react-router"
 
-import { Providers } from "@/components/providers"
+import { RootDocument } from "@/components/pages/root-document"
 
 import appCss from "@workspace/ui/globals.css?url"
 
@@ -42,30 +35,3 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     shellComponent: RootDocument,
   }
 )
-
-function RootDocument({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <HeadContent />
-      </head>
-      <body
-        className="bg-background text-foreground antialiased"
-        suppressHydrationWarning
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          disableTransitionOnChange
-          enableSystem
-        >
-          <Providers>
-            {children}
-            <Toaster position="bottom-right" />
-          </Providers>
-        </ThemeProvider>
-        <Scripts />
-      </body>
-    </html>
-  )
-}

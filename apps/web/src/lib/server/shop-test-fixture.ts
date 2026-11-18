@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/d1"
 import { Effect, Layer } from "effect"
 import type { Context } from "effect"
 import { Miniflare } from "miniflare"
-import Stripe from "stripe"
+import { Stripe } from "stripe"
 
 import { EnderdashError, EnderdashGateway } from "./enderdash"
 import * as schema from "./schema"

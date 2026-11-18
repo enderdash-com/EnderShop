@@ -11,7 +11,6 @@ import {
 } from "./shop-services"
 import { StripeGateway, stripeGateway } from "./stripe-gateway"
 import { requireStringEnv } from "./worker-env"
-import type { env } from "./worker-env"
 
 export type ShopServices =
   | ShopDatabase
@@ -26,7 +25,7 @@ const shopLayer = Layer.mergeAll(
   Layer.succeed(ShopSettings, {
     require: (name) =>
       Effect.try({
-        try: () => requireStringEnv(name as keyof typeof env),
+        try: () => requireStringEnv(name),
         catch: (cause) => new ShopConfigurationError({ binding: name, cause }),
       }),
   }),

@@ -18,9 +18,7 @@ export function LegalPage({ children, description, title }: LegalPageProps) {
           <h1 className="font-heading text-3xl font-semibold tracking-tight">
             {title}
           </h1>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {description}
-          </p>
+          <p className="text-sm/relaxed text-muted-foreground">{description}</p>
         </header>
         <article className="prose prose-sm max-w-none prose-neutral dark:prose-invert prose-headings:font-heading prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-foreground prose-a:underline-offset-4">
           {children}

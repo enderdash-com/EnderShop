@@ -1,5 +1,5 @@
 import { Context, Data, Effect } from "effect"
-import Stripe from "stripe"
+import { Stripe } from "stripe"
 
 import { setting } from "./shop-services"
 import type { ShopConfigurationError, ShopSettings } from "./shop-services"

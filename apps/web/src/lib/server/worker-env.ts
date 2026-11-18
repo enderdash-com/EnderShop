@@ -1,11 +1,11 @@
 import { env } from "cloudflare:workers"
 
-function readEnv(name: keyof typeof env) {
-  const value = env[name]
+function readEnv(name: string) {
+  const value: unknown = Reflect.get(env, name)
   return typeof value === "string" ? value.trim() : value
 }
 
-export function requireStringEnv(name: keyof typeof env) {
+export function requireStringEnv(name: string) {
   const value = readEnv(name)
 
   if (typeof value !== "string" || value.length === 0) {
