@@ -8,9 +8,16 @@ pre-commit:
       glob: "*.{js,jsx,ts,tsx,mjs,cjs,mts,cts,json,jsonc,css,scss,md,mdx,yml,yaml,toml}"
       run: bunx --no-install oxfmt --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
-    - name: lint
+    # Lint from each package so the Tailwind plugin resolves tailwindcss and
+    # the shared entry point the same way `bun run lint` does.
+    - name: lint web
+      root: "apps/web/"
       glob: "*.{js,jsx,ts,tsx,mjs,cjs,mts,cts}"
-      run: bunx --no-install oxlint --deny-warnings {staged_files}
+      run: bunx --no-install oxlint {staged_files}
+    - name: lint ui
+      root: "packages/ui/"
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs,mts,cts}"
+      run: bunx --no-install oxlint {staged_files}
 
 pre-push:
   commands:

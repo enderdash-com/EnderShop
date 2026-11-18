@@ -12,7 +12,7 @@
     "db:generate": "drizzle-kit generate",
     "db:apply:local": "cf d1 migrations apply 3f150b65-5c7a-4abf-9320-cc3a42fd7559 --dir drizzle --local --persist-to .cloudflare/state",
     "db:apply:remote": "cf d1 migrations apply 3f150b65-5c7a-4abf-9320-cc3a42fd7559 --dir drizzle",
-    "lint": "bun run cf-typegen && oxlint --deny-warnings",
+    "lint": "bun run cf-typegen && oxlint",
     "typecheck": "bun run cf-typegen && tsc --noEmit",
     "test": "bun test src/lib/server src/lib/shop/input-schemas.test.ts"
   },

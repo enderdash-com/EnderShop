@@ -11,7 +11,12 @@
     "jsx-a11y",
     "effecttsgo"
   ],
-  "jsPlugins": ["@shadcn/lint"],
+  "jsPlugins": ["@shadcn/lint", "eslint-plugin-better-tailwindcss"],
+  "settings": {
+    "better-tailwindcss": {
+      "entryPoint": "../../packages/ui/src/styles/globals.css"
+    }
+  },
   "categories": {
     "correctness": "error",
     "suspicious": "error",
@@ -19,6 +24,8 @@
   },
   "options": {
     "typeAware": true,
+    "typeCheck": true,
+    "denyWarnings": true,
     "reportUnusedDisableDirectives": "error"
   },
   "env": {
@@ -37,14 +44,6 @@
   ],
   "overrides": [
     {
-      "files": ["**/*.test.ts", "**/*.test.tsx"],
-      "rules": {
-        "effecttsgo/multiple-effect-provide": "off",
-        "typescript/no-base-to-string": "off",
-        "typescript/no-floating-promises": "off"
-      }
-    },
-    {
       // The vendored Better Auth UI components in src/components/auth import
       // these plugins, and the plugins register those components. Breaking the
       // cycle needs changes to the vendored code.
@@ -57,22 +56,27 @@
       }
     },
     {
-      // TanStack route files export Route and keep their page components local.
-      "files": ["apps/web/src/routes/**"],
+      // Gateway methods read ShopSettings from the caller on purpose, so
+      // concurrent requests keep their own credentials and targets. The
+      // isolation tests in enderdash.test.ts cover this.
+      "files": [
+        "apps/web/src/lib/server/enderdash.ts",
+        "apps/web/src/lib/server/stripe-gateway.ts"
+      ],
       "rules": {
-        "react/only-export-components": "off"
+        "effecttsgo/leaking-requirements": "off"
       }
     }
   ],
   "rules": {
-    "eslint/no-underscore-dangle": "off",
+    "eslint/no-underscore-dangle": ["error", { "allow": ["_tag"] }],
     "eslint/no-var": "error",
     "eslint/prefer-const": "error",
     "import/first": "error",
     "import/no-commonjs": "error",
     "import/no-duplicates": "error",
-    "import/no-named-as-default": "off",
-    "jsx-a11y/prefer-tag-over-role": "off",
+    "import/no-named-as-default": "error",
+    "jsx-a11y/prefer-tag-over-role": "error",
     "react/react-in-jsx-scope": "off",
     "shadcn/no-arbitrary-values": [
       "error",
@@ -88,7 +92,7 @@
     ],
     "shadcn/no-inline-styles": "error",
     "shadcn/no-raw-colors": "error",
-    "shadcn/no-restyle": "off",
+    "shadcn/no-restyle": ["error", { "allow": ["layout"] }],
     "shadcn/no-unknown-classes": "error",
     "shadcn/require-static-classes": "error",
     "typescript/array-type": [
@@ -97,8 +101,20 @@
     ],
     "typescript/ban-ts-comment": [
       "error",
-      { "ts-expect-error": false, "ts-ignore": "allow-with-description" }
+      {
+        "ts-expect-error": "allow-with-description",
+        "ts-ignore": true,
+        "ts-nocheck": true,
+        "ts-check": false,
+        "minimumDescriptionLength": 10
+      }
     ],
+    "typescript/prefer-ts-expect-error": "error",
+    "unicorn/no-abusive-eslint-disable": "error",
+    "better-tailwindcss/no-conflicting-classes": "error",
+    "better-tailwindcss/no-duplicate-classes": "error",
+    "better-tailwindcss/no-deprecated-classes": "error",
+    "better-tailwindcss/enforce-canonical-classes": "error",
     "typescript/consistent-type-imports": [
       "error",
       { "prefer": "type-imports" }
@@ -107,11 +123,12 @@
     "typescript/no-namespace": "error",
     "typescript/no-unnecessary-condition": "error",
     "typescript/no-unnecessary-type-assertion": "error",
-    "typescript/no-unsafe-type-assertion": "off",
+    "typescript/no-unsafe-type-assertion": "error",
     "typescript/prefer-for-of": "error",
+    // toSorted needs the ES2023 lib, and the default Vite build target still
+    // includes Firefox 114, which lacks it.
     "unicorn/no-array-sort": "off",
     "effecttsgo/any-unknown-in-error-context": "off",
-    "effecttsgo/leaking-requirements": "off",
     "effecttsgo/strict-effect-provide": "off",
     "effecttsgo/unsafe-effect-type-assertion": "off",
     "typescript/restrict-plus-operands": "error",
@@ -155,6 +172,18 @@
     "react/no-danger": "error",
     "react/jsx-no-useless-fragment": "error",
     "react/no-unknown-property": "error",
-    "react/only-export-components": "error"
+    "react/only-export-components": "error",
+    "typescript/no-floating-promises": [
+      "error",
+      {
+        "allowForKnownSafeCalls": [
+          {
+            "from": "package",
+            "package": "node:test",
+            "name": ["test", "it", "describe", "suite"]
+          }
+        ]
+      }
+    ]
   }
 }
