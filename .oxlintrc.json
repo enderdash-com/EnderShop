@@ -14,7 +14,8 @@
   "jsPlugins": ["@shadcn/lint"],
   "categories": {
     "correctness": "error",
-    "suspicious": "error"
+    "suspicious": "error",
+    "perf": "error"
   },
   "options": {
     "typeAware": true,
@@ -41,6 +42,25 @@
         "effecttsgo/multiple-effect-provide": "off",
         "typescript/no-base-to-string": "off",
         "typescript/no-floating-promises": "off"
+      }
+    },
+    {
+      // The vendored Better Auth UI components in src/components/auth import
+      // these plugins, and the plugins register those components. Breaking the
+      // cycle needs changes to the vendored code.
+      "files": [
+        "apps/web/src/lib/auth/delete-user-plugin.ts",
+        "apps/web/src/lib/auth/theme-plugin.ts"
+      ],
+      "rules": {
+        "import/no-cycle": "off"
+      }
+    },
+    {
+      // TanStack route files export Route and keep their page components local.
+      "files": ["apps/web/src/routes/**"],
+      "rules": {
+        "react/only-export-components": "off"
       }
     }
   ],
@@ -93,6 +113,48 @@
     "effecttsgo/any-unknown-in-error-context": "off",
     "effecttsgo/leaking-requirements": "off",
     "effecttsgo/strict-effect-provide": "off",
-    "effecttsgo/unsafe-effect-type-assertion": "off"
+    "effecttsgo/unsafe-effect-type-assertion": "off",
+    "typescript/restrict-plus-operands": "error",
+    "typescript/prefer-promise-reject-errors": "error",
+    "typescript/return-await": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "typescript/prefer-optional-chain": "error",
+    "typescript/only-throw-error": [
+      "error",
+      {
+        "allow": [
+          {
+            "from": "package",
+            "name": ["Redirect", "NotFoundError"],
+            "package": "@tanstack/router-core"
+          }
+        ]
+      }
+    ],
+    "typescript/no-deprecated": "error",
+    "typescript/consistent-type-exports": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/no-explicit-any": "error",
+    "eslint/array-callback-return": "error",
+    "eslint/no-throw-literal": "error",
+    "eslint/no-self-compare": "error",
+    "eslint/no-fallthrough": "error",
+    "eslint/no-loop-func": "error",
+    "eslint/no-promise-executor-return": "error",
+    "eslint/eqeqeq": ["error", "always", { "null": "ignore" }],
+    "eslint/no-console": "error",
+    "eslint/no-await-in-loop": "off",
+    "import/no-cycle": "error",
+    "promise/catch-or-return": "error",
+    "unicorn/prefer-at": "error",
+    "unicorn/prefer-string-replace-all": "error",
+    "unicorn/prefer-node-protocol": "error",
+    "unicorn/prefer-top-level-await": "error",
+    "react/jsx-no-target-blank": "error",
+    "react/button-has-type": "error",
+    "react/no-danger": "error",
+    "react/jsx-no-useless-fragment": "error",
+    "react/no-unknown-property": "error",
+    "react/only-export-components": "error"
   }
 }
