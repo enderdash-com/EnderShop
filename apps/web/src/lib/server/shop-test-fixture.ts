@@ -15,6 +15,11 @@ import { StripeGateway } from "./stripe-gateway"
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] }
 
+const defaultUser: ShopUser = {
+  id: "customer",
+  email: "customer@example.test",
+}
+
 export async function shopFixture() {
   const worker = new Miniflare({
     workers: [
@@ -93,9 +98,7 @@ export async function shopFixture() {
     sessions: () => Effect.succeed([]),
     verify: () => Effect.die("Unexpected signature verification"),
   }
-  const layer = (
-    user: ShopUser | null = { id: "customer", email: "customer@example.test" }
-  ) =>
+  const layer = (user: ShopUser | null = defaultUser) =>
     Layer.mergeAll(
       Layer.succeed(ShopDatabase, database),
       Layer.succeed(ShopSettings, settings),

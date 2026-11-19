@@ -136,8 +136,9 @@ test("submitted Stripe mutations settle before cancellation returns", async () =
     start = resolve
   })
   const pending = new Promise<Response>((resolve) => {
-    finish = () =>
+    finish = () => {
       resolve(Response.json({ id: "cs_test", url: "https://checkout.example" }))
+    }
   })
   let calls = 0
   const gateway = makeStripeGateway(async () => {

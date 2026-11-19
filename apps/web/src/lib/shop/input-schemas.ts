@@ -1,6 +1,6 @@
 import { Schema } from "effect"
 
-const usernamePattern = /^[A-Za-z0-9_]{3,16}$/
+const usernamePattern = /^[A-Za-z0-9_]{3,16}$/u
 
 export const saveProfileSchema = Schema.Struct({
   minecraftUsername: Schema.Trim.check(

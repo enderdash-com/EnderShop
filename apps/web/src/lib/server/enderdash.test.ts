@@ -1,17 +1,24 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { Effect, Exit, Fiber, Layer, Result } from "effect"
+import { Effect, Exit, Fiber, Layer, Result, Schema } from "effect"
 import { TestClock } from "effect/testing"
 
 import { EnderdashGateway, makeEnderdashGateway } from "./enderdash"
 import { runFulfillmentCommands } from "./fulfillment"
 import { ShopConfigurationError, ShopSettings } from "./shop-services"
 
-function jsonBody(body: RequestInit["body"]) {
-  assert(typeof body === "string")
+function jsonBody(body: RequestInit["body"]): unknown {
+  assert.ok(typeof body === "string")
   return JSON.parse(body)
 }
+
+const decodeCommandBody = Schema.decodeUnknownSync(
+  Schema.Struct({ command: Schema.String })
+)
+const decodeTargetBody = Schema.decodeUnknownSync(
+  Schema.Struct({ organizationId: Schema.String })
+)
 
 const settings = Layer.succeed(ShopSettings, {
   require: (name: string) =>
@@ -119,7 +126,7 @@ test("a lost command acknowledgement is classified as uncertain and never retrie
   })
   const outcome = await run(Effect.result(gateway.execute(command)))
   assert.equal(attempts, 1)
-  assert(Result.isFailure(outcome))
+  assert.ok(Result.isFailure(outcome))
   assert.equal(outcome.failure._tag, "EnderdashError")
   assert.equal(outcome.failure.uncertain, true)
 })
@@ -232,7 +239,7 @@ test("oversized responses are rejected and close their reader", async () => {
 test("sequential command failure records completed commands without submitting later commands", async () => {
   const commands: Array<string> = []
   const gateway = makeEnderdashGateway((_url, init) => {
-    const input = jsonBody(init.body)
+    const input = decodeCommandBody(jsonBody(init.body))
     commands.push(input.command)
     return Promise.resolve(
       Response.json({
@@ -373,7 +380,7 @@ test("concurrent programs keep their Enderdash credentials and targets isolated"
   const gateway = makeEnderdashGateway((_url, init) => {
     received.push({
       key: new Headers(init.headers).get("X-API-Key"),
-      organizationId: jsonBody(init.body).organizationId,
+      organizationId: decodeTargetBody(jsonBody(init.body)).organizationId,
     })
     return Promise.resolve(Response.json({ ...envelope, lookup: null }))
   })
@@ -457,7 +464,7 @@ for (const phase of ["headers", "body"]) {
       assert.equal(aborted, false)
       yield* TestClock.adjust("1 second")
       const outcome = yield* Fiber.join(fiber)
-      assert(Result.isFailure(outcome))
+      assert.ok(Result.isFailure(outcome))
       assert.equal(outcome.failure._tag, "EnderdashError")
       assert.equal(outcome.failure.reason, "transport")
       assert.equal(outcome.failure.uncertain, true)
@@ -479,7 +486,7 @@ test("an empty successful command response remains an uncertain response failure
   })
   const outcome = await run(Effect.result(gateway.execute(command)))
   assert.equal(attempts, 1)
-  assert(Result.isFailure(outcome))
+  assert.ok(Result.isFailure(outcome))
   assert.equal(outcome.failure._tag, "EnderdashError")
   assert.equal(outcome.failure.reason, "response")
   assert.equal(outcome.failure.uncertain, true)

@@ -112,7 +112,7 @@ test("checkout composes rank eligibility and product metadata before a single St
     )
     assert.equal(inputs.length, 1)
     const [input] = inputs
-    assert(input)
+    assert.ok(input)
     assert.equal(input.mode, "payment")
     assert.deepEqual(input.metadata, {
       minecraftUsername: "Player",
@@ -215,7 +215,9 @@ test("a submitted D1 operation settles before cancellation returns", async () =>
     start = resolve
   })
   const pending = new Promise<string>((resolve) => {
-    finish = () => resolve("written")
+    finish = () => {
+      resolve("written")
+    }
   })
   const controller = new AbortController()
   const database = makeShopDatabase(() => fixture.db)
@@ -305,7 +307,7 @@ test("subscription checkout retains Stripe subscription metadata and existing cu
       beginShopCheckout("prime_ultra", new Request("https://shop.example"))
     )
     const [input] = inputs
-    assert(input)
+    assert.ok(input)
     assert.equal(input.mode, "subscription")
     assert.equal(input.customer, "cus_customer")
     assert.equal(input.customer_email, undefined)

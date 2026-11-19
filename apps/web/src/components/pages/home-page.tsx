@@ -228,7 +228,9 @@ export function App() {
               <Input
                 className="h-10 w-full min-w-0"
                 id="minecraft-username"
-                onChange={(event) => setProfileDraft(event.target.value)}
+                onChange={(event) => {
+                  setProfileDraft(event.target.value)
+                }}
                 placeholder="SteveAdmin"
                 value={profileDraft}
               />
@@ -277,7 +279,9 @@ export function App() {
                 key={tier}
                 label={label}
                 onBuy={handleBuy}
-                onManage={() => portalMutation.mutate()}
+                onManage={() => {
+                  portalMutation.mutate()
+                }}
                 portalPending={portalMutation.isPending}
                 tier={tier}
               />
@@ -484,7 +488,9 @@ function BaseCard({
               className="w-full"
               disabled={disabled || busyUpgradeId === upgrade.id}
               key={upgrade.id}
-              onClick={() => onBuy(upgrade.id)}
+              onClick={() => {
+                onBuy(upgrade.id)
+              }}
               variant="default"
             >
               {busyUpgradeId === upgrade.id
@@ -502,7 +508,9 @@ function BaseCard({
         <Button
           className="w-full"
           disabled={disabled || busy || !eligible}
-          onClick={() => onBuy(product.id)}
+          onClick={() => {
+            onBuy(product.id)
+          }}
         >
           {busy ? "Redirecting…" : `Buy for ${product.priceLabel}`}
         </Button>
@@ -578,7 +586,9 @@ function UltraCard({
         <Button
           className="w-full"
           disabled={disabled || busy}
-          onClick={() => onBuy(product.id)}
+          onClick={() => {
+            onBuy(product.id)
+          }}
         >
           {busy ? "Redirecting…" : "Subscribe"}
         </Button>

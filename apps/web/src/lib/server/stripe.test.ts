@@ -108,7 +108,7 @@ test("failed fulfillment releases its marker so Stripe can replay the event", as
   const event = await checkoutEvent()
   try {
     const failed = await run(Effect.result(processStripeEvent(event)))
-    assert(Result.isFailure(failed))
+    assert.ok(Result.isFailure(failed))
     assert.equal(failed.failure._tag, "WebhookProcessingError")
     assert.equal((await marker(event.id)).length, 0)
     fixture.enderdash.execute = original
@@ -244,9 +244,9 @@ test("failed claim release retains both the processing and cleanup failure", asy
         )
       )
     )
-    assert(Result.isFailure(outcome))
+    assert.ok(Result.isFailure(outcome))
     assert.equal(outcome.failure._tag, "WebhookProcessingError")
-    assert(outcome.failure.releaseFailure instanceof ShopStoreError)
+    assert.ok(outcome.failure.releaseFailure instanceof ShopStoreError)
     assert.equal((await marker(event.id)).length, 1)
   } finally {
     fixture.enderdash.execute = original

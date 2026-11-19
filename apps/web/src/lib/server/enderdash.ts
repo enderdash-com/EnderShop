@@ -128,14 +128,18 @@ export function makeEnderdashGateway(
           (controller) =>
             Effect.gen(function* () {
               yield* Effect.sleep("10 seconds").pipe(
-                Effect.andThen(Effect.sync(() => controller.abort())),
+                Effect.andThen(
+                  Effect.sync(() => {
+                    controller.abort()
+                  })
+                ),
                 Effect.interruptible,
                 Effect.forkScoped
               )
               const result = yield* Effect.tryPromise({
                 try: async () => {
                   const fetched = await fetcher(
-                    `${baseUrl.replace(/\/$/, "")}/api/http/servers/${operation}`,
+                    `${baseUrl.replace(/\/$/u, "")}/api/http/servers/${operation}`,
                     {
                       method: "POST",
                       headers: {
@@ -147,7 +151,7 @@ export function makeEnderdashGateway(
                     }
                   )
                   if (controller.signal.aborted) {
-                    await fetched.body?.cancel().catch(() => undefined)
+                    await fetched.body?.cancel().catch(() => {})
                     controller.signal.throwIfAborted()
                   }
                   return fetched
@@ -156,9 +160,11 @@ export function makeEnderdashGateway(
               })
               return yield* Effect.acquireUseRelease(
                 Effect.sync(() => {
-                  const reader = result.body?.getReader()
+                  const reader:
+                    | ReadableStreamDefaultReader<Uint8Array>
+                    | undefined = result.body?.getReader()
                   const abort = () => {
-                    void reader?.cancel().catch(() => undefined)
+                    void reader?.cancel().catch(() => {})
                   }
                   controller.signal.addEventListener("abort", abort, {
                     once: true,
@@ -168,7 +174,9 @@ export function makeEnderdashGateway(
                 ({ reader }) =>
                   Effect.gen(function* () {
                     yield* Effect.try({
-                      try: () => controller.signal.throwIfAborted(),
+                      try: () => {
+                        controller.signal.throwIfAborted()
+                      },
                       catch: failure,
                     })
                     if (!result.ok) {
@@ -194,7 +202,9 @@ export function makeEnderdashGateway(
                           catch: failure,
                         })
                         yield* Effect.try({
-                          try: () => controller.signal.throwIfAborted(),
+                          try: () => {
+                            controller.signal.throwIfAborted()
+                          },
                           catch: failure,
                         })
                         if (chunk.done) break
@@ -236,12 +246,15 @@ export function makeEnderdashGateway(
                 ({ reader, abort }) =>
                   Effect.promise(async () => {
                     controller.signal.removeEventListener("abort", abort)
-                    await reader?.cancel().catch(() => undefined)
+                    await reader?.cancel().catch(() => {})
                     reader?.releaseLock()
                   })
               )
             }),
-          (controller) => Effect.sync(() => controller.abort())
+          (controller) =>
+            Effect.sync(() => {
+              controller.abort()
+            })
         )
       )
       // Commands may have succeeded despite a lost acknowledgement. Finish the

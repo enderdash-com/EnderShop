@@ -20,7 +20,8 @@
   "categories": {
     "correctness": "error",
     "suspicious": "error",
-    "perf": "error"
+    "perf": "error",
+    "pedantic": "error"
   },
   "options": {
     "typeAware": true,
@@ -69,6 +70,26 @@
     }
   ],
   "rules": {
+    // Pedantic rules turned off: size metrics, comment style, opinion, and
+    // duplicates. eslint/require-await duplicates typescript/require-await.
+    // typescript/strict-boolean-expressions conflicts with the
+    // prefer-nullish-coalescing ignorePrimitives setup.
+    "typescript/prefer-readonly-parameter-types": "off",
+    "eslint/max-lines": "off",
+    "eslint/max-lines-per-function": "off",
+    "eslint/max-depth": "off",
+    "eslint/max-nested-callbacks": "off",
+    "eslint/max-classes-per-file": "off",
+    "import/max-dependencies": "off",
+    "eslint/no-inline-comments": "off",
+    "eslint/no-warning-comments": "off",
+    "eslint/no-negated-condition": "off",
+    "unicorn/no-negated-condition": "off",
+    "eslint/require-await": "off",
+    "typescript/strict-boolean-expressions": "off",
+    // Some functions take a required `T | undefined` parameter so callers
+    // must pass the value on purpose, so explicit `undefined` arguments stay.
+    "unicorn/no-useless-undefined": ["error", { "checkArguments": false }],
     "eslint/no-underscore-dangle": ["error", { "allow": ["_tag"] }],
     "eslint/no-var": "error",
     "eslint/prefer-const": "error",
