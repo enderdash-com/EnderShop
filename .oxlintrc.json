@@ -45,6 +45,19 @@
   ],
   "overrides": [
     {
+      // Vite targets Safari 16.4, which lacks the static Response.json method.
+      "files": [
+        "apps/web/src/**/*.tsx",
+        "apps/web/src/components/**",
+        "apps/web/src/lib/auth-client.ts",
+        "apps/web/src/lib/shop/**",
+        "packages/ui/src/**"
+      ],
+      "rules": {
+        "unicorn/prefer-response-static-json": "off"
+      }
+    },
+    {
       // Oxlint mistakes Schema.TaggedError class factories for thrown errors.
       "files": [
         "apps/web/src/lib/server/enderdash.ts",
