@@ -45,6 +45,27 @@
   ],
   "overrides": [
     {
+      // Oxlint mistakes Schema.TaggedError class factories for thrown errors.
+      "files": [
+        "apps/web/src/lib/server/enderdash.ts",
+        "apps/web/src/lib/server/fulfillment.ts",
+        "apps/web/src/lib/server/shop-services.ts",
+        "apps/web/src/lib/server/shop-workflows.ts",
+        "apps/web/src/lib/server/stripe-gateway.ts",
+        "apps/web/src/lib/server/stripe.ts"
+      ],
+      "rules": {
+        "unicorn/throw-new-error": "off"
+      }
+    },
+    {
+      // HTML requires the UTF-8 label for the document charset metadata.
+      "files": ["apps/web/src/routes/__root.tsx"],
+      "rules": {
+        "unicorn/text-encoding-identifier-case": "off"
+      }
+    },
+    {
       // The vendored Better Auth UI components in src/components/auth import
       // these plugins, and the plugins register those components. Breaking the
       // cycle needs changes to the vendored code.
@@ -70,6 +91,48 @@
     }
   ],
   "rules": {
+    "typescript/use-unknown-in-catch-callback-variable": "error",
+    "typescript/no-invalid-void-type": "error",
+    "typescript/no-redundant-type-constituents": "error",
+    "typescript/no-misused-spread": "error",
+    "typescript/no-dynamic-delete": "error",
+    "typescript/no-import-type-side-effects": "error",
+    "unicorn/error-message": "error",
+    "unicorn/throw-new-error": "error",
+    "unicorn/no-document-cookie": "error",
+    "unicorn/numeric-separators-style": "error",
+    "unicorn/prefer-string-raw": "error",
+    "unicorn/prefer-structured-clone": "error",
+    "unicorn/prefer-response-static-json": "error",
+    "unicorn/prefer-optional-catch-binding": "error",
+    "unicorn/text-encoding-identifier-case": "error",
+    "eslint/no-param-reassign": "error",
+    "eslint/no-shadow": "error",
+    "eslint/prefer-object-has-own": "error",
+    "eslint/no-alert": "error",
+    "eslint/no-script-url": "error",
+    "eslint/object-shorthand": "error",
+    "eslint/prefer-template": "error",
+    "eslint/logical-assignment-operators": "error",
+    "react/self-closing-comp": "error",
+    "react/jsx-boolean-value": "error",
+    "react/jsx-curly-brace-presence": "error",
+    "react/jsx-fragments": "error",
+    "react/hook-use-state": "error",
+    "oxc/no-map-spread": "error",
+    "oxc/no-barrel-file": "error",
+    "effecttsgo/global-date-in-effect": "error",
+    "effecttsgo/global-json-in-effect": "error",
+    "effecttsgo/process-env-in-effect": "error",
+    "effecttsgo/crypto-random-uuid-in-effect": "error",
+    "effecttsgo/global-console-in-effect": "error",
+    "effecttsgo/global-random-in-effect": "error",
+    "effecttsgo/global-fetch-in-effect": "error",
+    "effecttsgo/global-timers-in-effect": "error",
+    "effecttsgo/prefer-schema-over-json": "error",
+    "effecttsgo/prefer-schema-tagged-error": "error",
+    "effecttsgo/extends-native-error": "error",
+    "effecttsgo/yield-in-call-argument": "error",
     // Pedantic rules turned off: size metrics, comment style, opinion, and
     // duplicates. eslint/require-await duplicates typescript/require-await.
     // typescript/strict-boolean-expressions conflicts with the

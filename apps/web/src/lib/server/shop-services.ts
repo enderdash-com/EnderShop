@@ -1,30 +1,37 @@
-import { Context, Data, Effect } from "effect"
+import { Context, Effect, Schema } from "effect"
 
 import type { getDb } from "./db"
 
-export class ShopConfigurationError extends Data.TaggedError(
-  "ShopConfigurationError"
-)<{
-  readonly binding: string
-  readonly cause: unknown
-}> {
+export class ShopConfigurationError extends Schema.TaggedError<
+  ShopConfigurationError,
+  { readonly brand: unique symbol }
+>()("ShopConfigurationError", {
+  binding: Schema.String,
+  cause: Schema.Unknown,
+}) {
   override get message() {
     return `Missing required Worker binding: ${this.binding}`
   }
 }
 
-export class ShopStoreError extends Data.TaggedError("ShopStoreError")<{
-  readonly operation: string
-  readonly cause: unknown
-}> {
+export class ShopStoreError extends Schema.TaggedError<
+  ShopStoreError,
+  { readonly brand: unique symbol }
+>()("ShopStoreError", {
+  operation: Schema.String,
+  cause: Schema.Unknown,
+}) {
   override get message() {
     return "Shop storage is unavailable. Try again shortly."
   }
 }
 
-export class ShopInputError extends Data.TaggedError("ShopInputError")<{
-  readonly message: string
-}> {}
+export class ShopInputError extends Schema.TaggedError<
+  ShopInputError,
+  { readonly brand: unique symbol }
+>()("ShopInputError", {
+  message: Schema.String,
+}) {}
 
 export class ShopSettings extends Context.Service<
   ShopSettings,

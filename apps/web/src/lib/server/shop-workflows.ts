@@ -1,4 +1,4 @@
-import { Context, Data, Effect } from "effect"
+import { Context, Effect, Schema } from "effect"
 
 import { shopCatalog } from "@/lib/shop/catalog"
 import type {
@@ -31,9 +31,12 @@ export interface ShopUser {
   email?: string | null
   isAnonymous?: boolean | null
 }
-export class ShopSessionError extends Data.TaggedError("ShopSessionError")<{
-  readonly cause: unknown
-}> {
+export class ShopSessionError extends Schema.TaggedError<
+  ShopSessionError,
+  { readonly brand: unique symbol }
+>()("ShopSessionError", {
+  cause: Schema.Unknown,
+}) {
   override get message() {
     return "Could not load your session. Try again shortly."
   }

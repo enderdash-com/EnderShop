@@ -1,5 +1,4 @@
-import { Data, Effect, Exit, Result } from "effect"
-import type { Cause } from "effect"
+import { DateTime, Effect, Exit, Result, Schema } from "effect"
 import type Stripe from "stripe"
 
 import {
@@ -240,25 +239,27 @@ const applySubscriptionState = Effect.fn("Shop.applySubscriptionState")(
   }
 )
 
-export class SubscriptionRevocationError extends Data.TaggedError(
-  "SubscriptionRevocationError"
-)<{
-  readonly subscriptionId: string
-  readonly group: string
-  readonly cause: unknown
-}> {
+export class SubscriptionRevocationError extends Schema.TaggedError<
+  SubscriptionRevocationError,
+  { readonly brand: unique symbol }
+>()("SubscriptionRevocationError", {
+  subscriptionId: Schema.String,
+  group: Schema.String,
+  cause: Schema.Unknown,
+}) {
   override get message() {
     return `Cancelled Stripe subscription ${this.subscriptionId} but failed to remove ultra group ${this.group}.`
   }
 }
 
-export class WebhookProcessingError extends Data.TaggedError(
-  "WebhookProcessingError"
-)<{
-  readonly eventId: string
-  readonly cause: Cause.Cause<unknown>
-  readonly releaseFailure?: unknown
-}> {
+export class WebhookProcessingError extends Schema.TaggedError<
+  WebhookProcessingError,
+  { readonly brand: unique symbol }
+>()("WebhookProcessingError", {
+  eventId: Schema.String,
+  cause: Schema.Cause(Schema.Unknown, Schema.Unknown),
+  releaseFailure: Schema.optionalKey(Schema.Unknown),
+}) {
   override get message() {
     return "Webhook processing failed."
   }
@@ -371,7 +372,9 @@ export const listCustomerPurchases = Effect.fn("Shop.listCustomerPurchases")(
       if (!productId) continue
       const product = getShopProduct(productId)
       if (!product) continue
-      const createdAt = new Date(session.created * 1000).toISOString()
+      const createdAt = DateTime.formatIso(
+        DateTime.makeUnsafe(session.created * 1000)
+      )
       records.push({
         id: session.id,
         productId,
@@ -394,7 +397,9 @@ export const listCustomerPurchases = Effect.fn("Shop.listCustomerPurchases")(
       if (!productId) continue
       const product = getShopProduct(productId)
       if (!product) continue
-      const createdAt = new Date(subscription.created * 1000).toISOString()
+      const createdAt = DateTime.formatIso(
+        DateTime.makeUnsafe(subscription.created * 1000)
+      )
       const item = subscription.items.data.at(0)
       const amount = item?.price.unit_amount ?? null
       const currency = item?.price.currency ?? null

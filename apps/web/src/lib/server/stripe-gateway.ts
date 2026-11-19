@@ -1,4 +1,4 @@
-import { Context, Data, Effect } from "effect"
+import { Context, Effect, Schema } from "effect"
 import { Stripe } from "stripe"
 
 import { setting } from "./shop-services"
@@ -9,21 +9,23 @@ const requestOptions = {
   apiVersion: "2026-03-25.dahlia",
 } satisfies Stripe.RequestOptions
 
-export class StripeOperationError extends Data.TaggedError(
-  "StripeOperationError"
-)<{
-  readonly operation: string
-  readonly cause: unknown
-}> {
+export class StripeOperationError extends Schema.TaggedError<
+  StripeOperationError,
+  { readonly brand: unique symbol }
+>()("StripeOperationError", {
+  operation: Schema.String,
+  cause: Schema.Unknown,
+}) {
   override get message() {
     return "Stripe could not complete the request. Try again shortly."
   }
 }
-export class WebhookSignatureError extends Data.TaggedError(
-  "WebhookSignatureError"
-)<{
-  readonly cause: unknown
-}> {
+export class WebhookSignatureError extends Schema.TaggedError<
+  WebhookSignatureError,
+  { readonly brand: unique symbol }
+>()("WebhookSignatureError", {
+  cause: Schema.Unknown,
+}) {
   override get message() {
     return this.cause instanceof Error
       ? this.cause.message

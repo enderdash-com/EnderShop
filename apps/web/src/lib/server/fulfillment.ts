@@ -1,4 +1,4 @@
-import { Data, Effect } from "effect"
+import { Effect, Schema } from "effect"
 
 import type { RankTier } from "@/lib/shop/types"
 
@@ -12,11 +12,14 @@ interface FulfillmentTarget {
   username: string
 }
 
-export class FulfillmentError extends Data.TaggedError("FulfillmentError")<{
-  readonly commandIndex: number
-  readonly completedCommands: number
-  readonly cause: unknown
-}> {
+export class FulfillmentError extends Schema.TaggedError<
+  FulfillmentError,
+  { readonly brand: unique symbol }
+>()("FulfillmentError", {
+  commandIndex: Schema.Finite,
+  completedCommands: Schema.Finite,
+  cause: Schema.Unknown,
+}) {
   override get message() {
     return `Fulfillment failed after ${this.completedCommands} completed commands. The failed command may require reconciliation.`
   }

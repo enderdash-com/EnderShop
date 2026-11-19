@@ -1,4 +1,4 @@
-import { Context, Data, Effect, Schema } from "effect"
+import { Context, Effect, Schema } from "effect"
 
 import { setting } from "./shop-services"
 import type { ShopConfigurationError, ShopSettings } from "./shop-services"
@@ -58,13 +58,20 @@ export type LuckPermsSnapshotUser = NonNullable<
   (typeof snapshotSchema.Type)["user"]
 >
 
-export class EnderdashError extends Data.TaggedError("EnderdashError")<{
-  readonly operation: string
-  readonly reason: "transport" | "rejected" | "response"
-  readonly message: string
-  readonly uncertain?: boolean
-  readonly cause?: unknown
-}> {}
+const encodeRequestBody = Schema.encodeSync(
+  Schema.fromJsonString(Schema.Unknown)
+)
+
+export class EnderdashError extends Schema.TaggedError<
+  EnderdashError,
+  { readonly brand: unique symbol }
+>()("EnderdashError", {
+  operation: Schema.String,
+  reason: Schema.Literals(["transport", "rejected", "response"]),
+  message: Schema.String,
+  uncertain: Schema.optionalKey(Schema.Boolean),
+  cause: Schema.optionalKey(Schema.Unknown),
+}) {}
 
 type GatewayFailure = EnderdashError | ShopConfigurationError
 export class EnderdashGateway extends Context.Service<
@@ -146,7 +153,7 @@ export function makeEnderdashGateway(
                         "Content-Type": "application/json",
                         "X-API-Key": apiKey,
                       },
-                      body: JSON.stringify(input),
+                      body: encodeRequestBody(input),
                       signal: controller.signal,
                     }
                   )
@@ -219,18 +226,9 @@ export function makeEnderdashGateway(
                           })
                         text += decoder.decode(chunk.value, { stream: true })
                       }
-                    const body = yield* Effect.try({
-                      try: () => JSON.parse(text + decoder.decode()) as unknown,
-                      catch: (cause) =>
-                        new EnderdashError({
-                          operation,
-                          reason: "response",
-                          uncertain: submitted,
-                          message: "Enderdash returned an invalid response.",
-                          cause,
-                        }),
-                    })
-                    return yield* Schema.decodeUnknownEffect(schema)(body).pipe(
+                    return yield* Schema.decodeEffect(
+                      Schema.fromJsonString(schema)
+                    )(text + decoder.decode()).pipe(
                       Effect.mapError(
                         (cause) =>
                           new EnderdashError({
