@@ -73,16 +73,20 @@ export function isProductEligible(
   state: RankStateSnapshot
 ): boolean {
   switch (product.kind) {
-    case "base_rank":
+    case "base_rank": {
       return state.currentTier === null
-    case "rank_upgrade":
+    }
+    case "rank_upgrade": {
       if (!product.fromTier) return false
       if (state.currentTier !== product.fromTier) return false
       return TIER_RANK[product.tier] > TIER_RANK[product.fromTier]
-    case "ultra_subscription":
+    }
+    case "ultra_subscription": {
       return state.currentTier === product.tier && state.activeUltra === null
-    default:
+    }
+    default: {
       return false
+    }
   }
 }
 

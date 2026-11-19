@@ -17,7 +17,7 @@ export type UseThemeHook = () => {
   themes?: Array<string>
 }
 
-type CommonThemeOptions = {
+interface CommonThemeOptions {
   /**
    * Override the plugin's default localization strings.
    * @remarks `ThemeLocalization`

@@ -276,13 +276,15 @@ export const processStripeEvent = Effect.fn("Shop.processStripeEvent")(
       Effect.gen(function* () {
         // oxlint-disable-next-line typescript/switch-exhaustiveness-check -- Stripe.Event has hundreds of types and this webhook handles only these.
         switch (event.type) {
-          case "checkout.session.completed":
+          case "checkout.session.completed": {
             yield* applyCheckoutSession(event.data.object)
             break
+          }
           case "customer.subscription.updated":
-          case "customer.subscription.deleted":
+          case "customer.subscription.deleted": {
             yield* applySubscriptionState(event.data.object)
             break
+          }
         }
       })
     )
