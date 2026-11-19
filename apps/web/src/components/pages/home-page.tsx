@@ -75,13 +75,15 @@ export function App() {
 
   const shopState = shopStateQuery.data ?? null
 
-  const [profileDraft, setProfileDraft] = useState("")
-  useEffect(() => {
-    if (shopState?.profile.minecraftUsername) {
-      // oxlint-disable-next-line react/set-state-in-effect -- seeds the editable draft from loaded server state
-      setProfileDraft(shopState.profile.minecraftUsername)
+  const savedUsername = shopState?.profile.minecraftUsername
+  const [previousUsername, setPreviousUsername] = useState(savedUsername)
+  const [profileDraft, setProfileDraft] = useState(savedUsername ?? "")
+  if (savedUsername !== previousUsername) {
+    setPreviousUsername(savedUsername)
+    if (savedUsername) {
+      setProfileDraft(savedUsername)
     }
-  }, [shopState?.profile.minecraftUsername])
+  }
 
   const saveProfileMutation = useMutation({
     mutationFn: (minecraftUsername: string) =>
