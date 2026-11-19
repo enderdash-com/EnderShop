@@ -5,6 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": ["CLOUDFLARE_PREVIEW_BUILD"],
       "outputs": [".output/**", ".cloudflare/output/**"]
     },
     "lint": {
