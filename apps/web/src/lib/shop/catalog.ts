@@ -1,4 +1,4 @@
-import type { RankTier, ShopProduct } from "@/lib/shop/types"
+import type { ShopProduct } from "@/lib/shop/types"
 
 export const shopCatalog: Array<ShopProduct> = [
   {
@@ -125,32 +125,4 @@ export const shopCatalog: Array<ShopProduct> = [
 
 export function getShopProduct(productId: string) {
   return shopCatalog.find((product) => product.id === productId) ?? null
-}
-
-export function getBaseRankProduct(tier: RankTier) {
-  return (
-    shopCatalog.find(
-      (product) => product.kind === "base_rank" && product.tier === tier
-    ) ?? null
-  )
-}
-
-export function getUltraProduct(tier: RankTier) {
-  return (
-    shopCatalog.find(
-      (product) =>
-        product.kind === "ultra_subscription" && product.tier === tier
-    ) ?? null
-  )
-}
-
-export function getUpgradeProduct(fromTier: RankTier, toTier: RankTier) {
-  return (
-    shopCatalog.find(
-      (product) =>
-        product.kind === "rank_upgrade" &&
-        product.fromTier === fromTier &&
-        product.tier === toTier
-    ) ?? null
-  )
 }

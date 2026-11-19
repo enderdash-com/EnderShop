@@ -7,7 +7,7 @@ import { useMemo } from "react"
 import { ProviderButton } from "./provider-button"
 
 export type ProviderButtonsProps = {
-  socialLayout?: SocialLayout
+  socialLayout?: SocialLayout | undefined
   view?: AuthView
 }
 

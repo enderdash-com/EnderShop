@@ -174,7 +174,7 @@ export function checkoutEvent(id?: string) {
 // oxlint-disable-next-line effecttsgo/lazy-effect -- assigned as a service method that callers invoke
 export const unavailableEnderdash = () =>
   Effect.fail(
-    new EnderdashError({
+    EnderdashError.make({
       operation: "rank-snapshot",
       reason: "transport",
       message: "Enderdash is unavailable. Try again shortly.",

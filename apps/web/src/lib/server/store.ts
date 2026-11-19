@@ -1,14 +1,12 @@
 import { and, eq, ne, sql } from "drizzle-orm"
-import { Effect } from "effect"
+import { DateTime, Effect } from "effect"
 
 import { customerProfile, stripeEvent } from "@/lib/server/schema"
 import type { CustomerProfile } from "@/lib/shop/types"
 
 import { ShopInputError, databaseOperation } from "./shop-services"
 
-function nowIso() {
-  return new Date().toISOString()
-}
+const nowIso = Effect.map(DateTime.now, DateTime.formatIso)
 
 function mapProfileRow(
   row:
@@ -55,7 +53,7 @@ export const ensureCustomerProfile = Effect.fn(
     return existing
   }
 
-  const timestamp = nowIso()
+  const timestamp = yield* nowIso
 
   yield* databaseOperation("create-profile", (db) =>
     db
@@ -97,13 +95,13 @@ export const updateCustomerProfile = Effect.fn(
   )
 
   if (conflicts.length > 0) {
-    return yield* new ShopInputError({
+    return yield* ShopInputError.make({
       message:
         "That Minecraft account is already linked to another shop account.",
     })
   }
 
-  const timestamp = nowIso()
+  const timestamp = yield* nowIso
 
   yield* databaseOperation("update-profile", (db) =>
     db
@@ -123,12 +121,13 @@ export const setStripeCustomerId = Effect.fn("ShopStore.setStripeCustomerId")(
   function* (input: { stripeCustomerId: string; userId: string }) {
     yield* ensureCustomerProfile(input.userId)
 
+    const timestamp = yield* nowIso
     yield* databaseOperation("set-stripe-customer", (db) =>
       db
         .update(customerProfile)
         .set({
           stripeCustomerId: input.stripeCustomerId,
-          updatedAt: nowIso(),
+          updatedAt: timestamp,
         })
         .where(eq(customerProfile.userId, input.userId))
     )
@@ -152,6 +151,7 @@ export const reassignAnonymousUserData = Effect.fn(
   // profile in the same batch, so the unique UUID index never blocks transfer
   // and a failed publication restores the previous profile.
   const createdAt = previous.updatedAt
+  const timestamp = yield* nowIso
   yield* databaseOperation("transfer-profile", (db) =>
     db.batch([
       db
@@ -162,7 +162,7 @@ export const reassignAnonymousUserData = Effect.fn(
         .values({
           userId: input.newUserId,
           createdAt,
-          updatedAt: nowIso(),
+          updatedAt: timestamp,
           minecraftUsername: previous.minecraftUsername,
           minecraftUuid: previous.minecraftUuid,
           stripeCustomerId: previous.stripeCustomerId,
@@ -173,7 +173,7 @@ export const reassignAnonymousUserData = Effect.fn(
             minecraftUsername: sql`coalesce(${customerProfile.minecraftUsername}, excluded.minecraft_username)`,
             minecraftUuid: sql`coalesce(${customerProfile.minecraftUuid}, excluded.minecraft_uuid)`,
             stripeCustomerId: sql`coalesce(${customerProfile.stripeCustomerId}, excluded.stripe_customer_id)`,
-            updatedAt: nowIso(),
+            updatedAt: timestamp,
           },
         }),
     ])
@@ -182,12 +182,13 @@ export const reassignAnonymousUserData = Effect.fn(
 
 export const recordStripeEvent = Effect.fn("ShopStore.recordStripeEvent")(
   function* (input: { id: string; type: string }) {
+    const timestamp = yield* nowIso
     const inserted = yield* databaseOperation("claim-stripe-event", (db) =>
       db
         .insert(stripeEvent)
         .values({
           id: input.id,
-          processedAt: nowIso(),
+          processedAt: timestamp,
           type: input.type,
         })
         .onConflictDoNothing({ target: stripeEvent.id })

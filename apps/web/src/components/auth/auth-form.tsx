@@ -99,28 +99,13 @@ export function clearAuthFormFieldServerError(
   const fieldMeta = form.getFieldMeta(fieldName as never)
   if (!fieldMeta?.errorMap.onServer) return
 
-  form.setFieldMeta(fieldName as never, (current = fieldMeta) => ({
-    ...current,
-    errorMap: { ...current.errorMap, onServer: undefined },
-    errorSourceMap: { ...current.errorSourceMap, onServer: undefined },
-  }))
-}
-
-export async function runAuthFormAction(
-  form: AnyFormApi,
-  action: () => Promise<unknown>,
-  serverErrorMessage = DEFAULT_AUTH_FORM_SERVER_ERROR
-) {
-  clearAuthFormServerError(form)
-  try {
-    await action()
-    return true
-  } catch (error) {
-    if (!form.state.errorMap.onServer) {
-      setAuthFormServerError(form, error, serverErrorMessage)
-    }
-    return false
-  }
+  form.setFieldMeta(fieldName as never, (current = fieldMeta) => {
+    const errorMap = { ...current.errorMap }
+    const errorSourceMap = { ...current.errorSourceMap }
+    delete errorMap.onServer
+    delete errorSourceMap.onServer
+    return { ...current, errorMap, errorSourceMap }
+  })
 }
 
 export async function submitAuthForm(
@@ -330,13 +315,14 @@ export function getAuthAdditionalFieldValidators(
   return {
     onChange: ({ value }: { value: AdditionalFieldFormValue }) =>
       validateAdditionalFieldRequired(field, value, requiredMessage),
-    onChangeAsync: field.validate
-      ? ({ value }: { value: AdditionalFieldFormValue }) =>
-          validateAdditionalFieldValue(field, value)
-      : undefined,
-    onChangeAsyncDebounceMs: field.validate
-      ? (field.validateDebounceMs ??
-        DEFAULT_ADDITIONAL_FIELD_VALIDATION_DEBOUNCE_MS)
-      : undefined,
+    ...(field.validate
+      ? {
+          onChangeAsync: ({ value }: { value: AdditionalFieldFormValue }) =>
+            validateAdditionalFieldValue(field, value),
+          onChangeAsyncDebounceMs:
+            field.validateDebounceMs ??
+            DEFAULT_ADDITIONAL_FIELD_VALIDATION_DEBOUNCE_MS,
+        }
+      : {}),
   }
 }

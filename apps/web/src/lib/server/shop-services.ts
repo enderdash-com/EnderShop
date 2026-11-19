@@ -40,7 +40,7 @@ export class ShopSettings extends Context.Service<
       name: string
     ) => Effect.Effect<string, ShopConfigurationError>
   }
->()("endershop/ShopSettings") {}
+>()("web/lib/server/shop-services/ShopSettings") {}
 
 export const setting = (name: string) =>
   Effect.flatMap(ShopSettings, (settings) => settings.require(name))
@@ -55,7 +55,7 @@ export class ShopDatabase extends Context.Service<
       execute: (db: ShopDb) => PromiseLike<TValue>
     ) => Effect.Effect<TValue, ShopStoreError>
   }
->()("endershop/ShopDatabase") {}
+>()("web/lib/server/shop-services/ShopDatabase") {}
 
 export function makeShopDatabase(
   resolve: () => ShopDb
@@ -66,7 +66,7 @@ export function makeShopDatabase(
     run: (operation, execute) =>
       Effect.tryPromise({
         try: async () => execute(resolve()),
-        catch: (cause) => new ShopStoreError({ operation, cause }),
+        catch: (cause) => ShopStoreError.make({ operation, cause }),
       }).pipe(Effect.uninterruptible),
   }
 }

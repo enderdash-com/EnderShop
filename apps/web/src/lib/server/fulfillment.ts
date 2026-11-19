@@ -35,13 +35,12 @@ export const runFulfillmentCommands = Effect.fn("Shop.runFulfillmentCommands")(
         organizationId,
         serverId,
       }).pipe(
-        Effect.mapError(
-          (cause) =>
-            new FulfillmentError({
-              commandIndex,
-              completedCommands: commandIndex,
-              cause,
-            })
+        Effect.mapError((cause) =>
+          FulfillmentError.make({
+            commandIndex,
+            completedCommands: commandIndex,
+            cause,
+          })
         )
       )
     }

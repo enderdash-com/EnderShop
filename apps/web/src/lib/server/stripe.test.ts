@@ -98,7 +98,7 @@ test("failed fulfillment releases its marker so Stripe can replay the event", as
   const original = fixture.enderdash.execute
   fixture.enderdash.execute = () =>
     Effect.fail(
-      new EnderdashError({
+      EnderdashError.make({
         operation: "executeConsoleCommand",
         reason: "transport",
         uncertain: true,
@@ -220,7 +220,7 @@ test("failed claim release retains both the processing and cleanup failure", asy
   const original = fixture.enderdash.execute
   fixture.enderdash.execute = () =>
     Effect.fail(
-      new EnderdashError({
+      EnderdashError.make({
         operation: "execute",
         reason: "rejected",
         message: "offline",
@@ -233,7 +233,7 @@ test("failed claim release retains both the processing and cleanup failure", asy
       execute: Parameters<typeof fixture.database.run<TValue>>[1]
     ) =>
       operation === "release-stripe-event"
-        ? Effect.fail(new ShopStoreError({ operation, cause: "unavailable" }))
+        ? Effect.fail(ShopStoreError.make({ operation, cause: "unavailable" }))
         : fixture.database.run(operation, execute),
   }
   try {
@@ -261,7 +261,7 @@ test("missing webhook configuration is an operational failure rather than a sign
     Effect.provideService(ShopSettings, {
       require: (binding) =>
         Effect.fail(
-          new ShopConfigurationError({
+          ShopConfigurationError.make({
             binding,
             cause: new Error("configuration unavailable"),
           })

@@ -98,11 +98,11 @@ export const requireEligibleProduct = Effect.fn("Shop.requireEligibleProduct")(
   function* (productId: string, state: RankStateSnapshot) {
     const product = getShopProduct(productId)
     if (!product) {
-      return yield* new ShopInputError({ message: "Unknown product" })
+      return yield* ShopInputError.make({ message: "Unknown product" })
     }
 
     if (!isProductEligible(product, state)) {
-      return yield* new ShopInputError({
+      return yield* ShopInputError.make({
         message: "This rank is not available for your current account state.",
       })
     }

@@ -280,7 +280,7 @@ test("configuration failures occur before contacting Enderdash", async () => {
     Effect.provideService(ShopSettings, {
       require: (binding) =>
         Effect.fail(
-          new ShopConfigurationError({ binding, cause: new Error("missing") })
+          ShopConfigurationError.make({ binding, cause: new Error("missing") })
         ),
     })
   )
@@ -470,7 +470,7 @@ for (const phase of ["headers", "body"]) {
       assert.equal(outcome.failure.uncertain, true)
     })
     await Effect.runPromise(
-      program.pipe(Effect.provide(Layer.mergeAll(settings, TestClock.layer())))
+      program.pipe(Effect.provide([settings, TestClock.layer()]))
     )
     assert.equal(requests, 1)
     assert.equal(aborted, true)

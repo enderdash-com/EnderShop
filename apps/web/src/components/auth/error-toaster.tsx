@@ -82,8 +82,16 @@ export function ErrorToaster() {
     }
 
     return () => {
-      queryCache.config.onError = previousQueryOnError
-      mutationCache.config.onError = previousMutationOnError
+      if (previousQueryOnError === undefined) {
+        delete queryCache.config.onError
+      } else {
+        queryCache.config.onError = previousQueryOnError
+      }
+      if (previousMutationOnError === undefined) {
+        delete mutationCache.config.onError
+      } else {
+        mutationCache.config.onError = previousMutationOnError
+      }
     }
   }, [queryClient, localization])
 

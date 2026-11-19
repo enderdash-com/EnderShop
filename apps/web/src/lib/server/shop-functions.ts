@@ -19,8 +19,6 @@ import {
   saveShopProfile,
 } from "./shop-workflows"
 
-export type { ShopStatePayload } from "./shop-workflows"
-
 function runSessionEffect<TValue, TError>(
   program: Effect.Effect<TValue, TError, ShopServices | ShopSession>
 ) {
@@ -31,7 +29,7 @@ function runSessionEffect<TValue, TError>(
         current: Effect.tryPromise({
           try: async () =>
             (await getSessionFromHeaders(request.headers))?.user ?? null,
-          catch: (cause) => new ShopSessionError({ cause }),
+          catch: (cause) => ShopSessionError.make({ cause }),
         }),
       })
     ),

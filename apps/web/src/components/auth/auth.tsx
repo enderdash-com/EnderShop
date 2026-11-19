@@ -127,9 +127,9 @@ export function Auth({
 
     return (
       <PluginView
-        className={className}
-        socialLayout={socialLayout}
-        socialPosition={socialPosition}
+        {...(className === undefined ? {} : { className })}
+        {...(socialLayout === undefined ? {} : { socialLayout })}
+        {...(socialPosition === undefined ? {} : { socialPosition })}
       />
     )
   }
@@ -145,9 +145,9 @@ export function Auth({
     if (Fallback) {
       return (
         <Fallback
-          className={className}
-          socialLayout={socialLayout}
-          socialPosition={socialPosition}
+          {...(className === undefined ? {} : { className })}
+          {...(socialLayout === undefined ? {} : { socialLayout })}
+          {...(socialPosition === undefined ? {} : { socialPosition })}
         />
       )
     }
@@ -163,9 +163,9 @@ export function Auth({
 
   return (
     <AuthView
-      className={className}
-      socialLayout={socialLayout}
-      socialPosition={socialPosition}
+      {...(className === undefined ? {} : { className })}
+      {...(socialLayout === undefined ? {} : { socialLayout })}
+      {...(socialPosition === undefined ? {} : { socialPosition })}
     />
   )
 }

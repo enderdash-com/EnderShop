@@ -57,11 +57,11 @@ export type AdditionalFieldProps = {
   value: AdditionalFieldFormValue
   onBlur: () => void
   onChange: (value: AdditionalFieldFormValue) => void
-  isInvalid?: boolean
-  errors?: Array<unknown>
-  isPending?: boolean
+  isInvalid?: boolean | undefined
+  errors?: Array<unknown> | undefined
+  isPending?: boolean | undefined
   /** Complete suffix appended to labels for fields that are not required. */
-  optionalLabel?: string
+  optionalLabel?: string | undefined
 }
 
 function valueToString(value: AdditionalFieldFormValue) {
@@ -95,7 +95,7 @@ function CopyButton({
   isDisabled,
 }: {
   getValue: () => string | undefined
-  isDisabled?: boolean
+  isDisabled?: boolean | undefined
 }) {
   const { localization } = useAuth()
   const { copied, copy } = useCopyToClipboard({
@@ -621,7 +621,7 @@ function DateInput({
             <Calendar
               mode="single"
               selected={date}
-              defaultMonth={date}
+              {...(date === undefined ? {} : { defaultMonth: date })}
               captionLayout="dropdown"
               onSelect={(value) => {
                 if (!value) {

@@ -40,7 +40,7 @@ import { OpenEmailButton } from "../../open-email-button"
 import { PasswordStrengthMeter } from "../../password-strength-meter"
 
 export type ChangePasswordProps = {
-  className?: string
+  className?: string | undefined
 }
 
 /**
@@ -76,7 +76,7 @@ export function ChangePassword({ className }: ChangePasswordProps) {
   )
 }
 
-function SetPassword({ className }: { className?: string }) {
+function SetPassword({ className }: { className?: string | undefined }) {
   const {
     authClient,
     basePaths,
@@ -201,7 +201,7 @@ function ChangePasswordForm({
   localization,
   session,
 }: {
-  className?: string
+  className?: string | undefined
   emailAndPassword: ReturnType<typeof useAuth>["emailAndPassword"]
   localization: ReturnType<typeof useAuth>["localization"]
   session: ReturnType<typeof useSession>["data"]

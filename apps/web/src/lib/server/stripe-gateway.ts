@@ -99,7 +99,7 @@ export class StripeGateway extends Context.Service<
       ShopSettings
     >
   }
->()("endershop/StripeGateway") {}
+>()("web/lib/server/stripe-gateway/StripeGateway") {}
 
 export function makeStripeGateway(
   fetcher?: Parameters<typeof Stripe.createFetchHttpClient>[0]
@@ -124,7 +124,7 @@ export function makeStripeGateway(
       // before the enclosing program settles or starts recovery.
       return yield* Effect.tryPromise({
         try: async () => execute(stripe),
-        catch: (cause) => new StripeOperationError({ operation, cause }),
+        catch: (cause) => StripeOperationError.make({ operation, cause }),
       }).pipe(Effect.uninterruptible)
     })
 
@@ -166,7 +166,7 @@ export function makeStripeGateway(
               undefined,
               Stripe.createSubtleCryptoProvider()
             ),
-          catch: (cause) => new WebhookSignatureError({ cause }),
+          catch: (cause) => WebhookSignatureError.make({ cause }),
         })
       }),
   }

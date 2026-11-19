@@ -29,7 +29,7 @@ import {
 export interface ShopUser {
   id: string
   email?: string | null
-  isAnonymous?: boolean | null
+  isAnonymous?: boolean | null | undefined
 }
 export class ShopSessionError extends Schema.TaggedError<
   ShopSessionError,
@@ -46,7 +46,7 @@ export class ShopSession extends Context.Service<
   {
     readonly current: Effect.Effect<ShopUser | null, ShopSessionError>
   }
->()("endershop/ShopSession") {}
+>()("web/lib/server/shop-workflows/ShopSession") {}
 
 export interface ShopStatePayload {
   profile: CustomerProfile
@@ -61,9 +61,9 @@ const requireUser = Effect.fn("Shop.requireUser")(function* (
 ) {
   const session = yield* ShopSession
   const user = yield* session.current
-  if (!user) return yield* new ShopInputError({ message: "Unauthorized" })
+  if (!user) return yield* ShopInputError.make({ message: "Unauthorized" })
   if (registered && user.isAnonymous)
-    return yield* new ShopInputError({
+    return yield* ShopInputError.make({
       message: "Create an account before purchasing.",
     })
   return user
@@ -94,16 +94,15 @@ export const saveShopProfile = Effect.fn("Shop.saveShopProfile")(function* (
 ) {
   const user = yield* requireUser()
   const lookup = yield* resolveMinecraftUsername(minecraftUsername).pipe(
-    Effect.mapError(
-      () =>
-        new ShopInputError({
-          message:
-            "Could not verify that Minecraft username right now. Try again shortly.",
-        })
+    Effect.mapError(() =>
+      ShopInputError.make({
+        message:
+          "Could not verify that Minecraft username right now. Try again shortly.",
+      })
     )
   )
   if (!lookup?.found || !lookup.uuid)
-    return yield* new ShopInputError({
+    return yield* ShopInputError.make({
       message: "That Minecraft username could not be found on the server.",
     })
   return yield* updateCustomerProfile({
@@ -120,7 +119,7 @@ export const beginShopCheckout = Effect.fn("Shop.beginShopCheckout")(function* (
   const user = yield* requireUser(true)
   const profile = yield* getCustomerProfile(user.id)
   if (!profile.minecraftUsername || !profile.minecraftUuid)
-    return yield* new ShopInputError({
+    return yield* ShopInputError.make({
       message: "Link your Minecraft username before checkout.",
     })
   const rankState = yield* getRankStateByUuid(profile.minecraftUuid)

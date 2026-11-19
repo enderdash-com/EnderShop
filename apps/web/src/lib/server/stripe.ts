@@ -84,12 +84,13 @@ export const createCheckoutSession = Effect.fn("Shop.createCheckoutSession")(
       allow_promotion_codes: true,
       cancel_url: `${origin}/checkout/cancel`,
       client_reference_id: input.user.id,
-      customer: profile.stripeCustomerId ?? undefined,
-      customer_creation: profile.stripeCustomerId ? undefined : "always",
-      customer_email:
-        profile.stripeCustomerId || !input.user.email
-          ? undefined
-          : input.user.email,
+      ...(profile.stripeCustomerId === null
+        ? {}
+        : { customer: profile.stripeCustomerId }),
+      ...(profile.stripeCustomerId ? {} : { customer_creation: "always" }),
+      ...(profile.stripeCustomerId || !input.user.email
+        ? {}
+        : { customer_email: input.user.email }),
       line_items: [
         {
           price: config.priceId,
@@ -98,14 +99,14 @@ export const createCheckoutSession = Effect.fn("Shop.createCheckoutSession")(
       ],
       metadata,
       mode: isSubscriptionProduct(input.product) ? "subscription" : "payment",
-      subscription_data: isSubscriptionProduct(input.product)
-        ? { metadata }
-        : undefined,
+      ...(isSubscriptionProduct(input.product)
+        ? { subscription_data: { metadata } }
+        : {}),
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
     })
 
     if (!session.url) {
-      return yield* new ShopInputError({
+      return yield* ShopInputError.make({
         message: "Stripe did not return a checkout URL.",
       })
     }
@@ -119,7 +120,7 @@ export const createBillingPortalSession = Effect.fn(
 )(function* (input: { request: Request; userId: string }) {
   const profile = yield* getCustomerProfile(input.userId)
   if (!profile.stripeCustomerId) {
-    return yield* new ShopInputError({
+    return yield* ShopInputError.make({
       message: "No billing account is linked to your account yet.",
     })
   }
@@ -158,13 +159,12 @@ const cancelActiveUltraSubscriptions = Effect.fn(
 
     if (tier) {
       yield* revokeUltraGroup({ target: input.target, tier }).pipe(
-        Effect.mapError(
-          (cause) =>
-            new SubscriptionRevocationError({
-              subscriptionId: subscription.id,
-              group: ULTRA_TIER_GROUPS[tier],
-              cause,
-            })
+        Effect.mapError((cause) =>
+          SubscriptionRevocationError.make({
+            subscriptionId: subscription.id,
+            group: ULTRA_TIER_GROUPS[tier],
+            cause,
+          })
         )
       )
     }
@@ -291,7 +291,7 @@ export const processStripeEvent = Effect.fn("Shop.processStripeEvent")(
     )
     if (Exit.isFailure(outcome)) {
       const released = yield* Effect.result(forgetStripeEvent(event.id))
-      return yield* new WebhookProcessingError({
+      return yield* WebhookProcessingError.make({
         eventId: event.id,
         cause: outcome.cause,
         ...(Result.isFailure(released)
@@ -312,7 +312,7 @@ export const handleStripeWebhook = Effect.fn("Shop.handleStripeWebhook")(
     const payload = yield* Effect.tryPromise({
       try: () => request.text(),
       catch: () =>
-        new ShopInputError({ message: "Could not read webhook payload." }),
+        ShopInputError.make({ message: "Could not read webhook payload." }),
     })
     const verified = yield* stripe
       .verify(payload, request.headers.get("stripe-signature") ?? "")

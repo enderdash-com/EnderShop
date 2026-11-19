@@ -77,7 +77,7 @@ function renderUserLink(
   return (
     <DropdownMenuItem
       key={href}
-      variant={variant}
+      {...(variant === undefined ? {} : { variant })}
       onClick={() => navigate({ to: href })}
     >
       {icon}

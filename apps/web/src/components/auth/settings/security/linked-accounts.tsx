@@ -89,7 +89,9 @@ export function LinkedAccounts({ className }: LinkedAccountsProps) {
                   <Fragment key={row.key}>
                     {index > 0 && <ItemSeparator />}
                     <LinkedAccount
-                      account={row.account}
+                      {...(row.account === undefined
+                        ? {}
+                        : { account: row.account })}
                       canUnlink={canUnlink}
                       provider={row.provider}
                     />

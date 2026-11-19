@@ -53,10 +53,6 @@ const snapshotResponseSchema = Schema.Struct({
   result: Schema.NullOr(snapshotSchema),
 })
 export type LuckPermsLookup = typeof lookupSchema.Type
-export type LuckPermsSnapshotGroup = typeof groupSchema.Type
-export type LuckPermsSnapshotUser = NonNullable<
-  (typeof snapshotSchema.Type)["user"]
->
 
 const encodeRequestBody = Schema.encodeSync(
   Schema.fromJsonString(Schema.Unknown)
@@ -96,7 +92,7 @@ export class EnderdashGateway extends Context.Service<
       ShopSettings
     >
   }
->()("endershop/EnderdashGateway") {}
+>()("web/lib/server/enderdash/EnderdashGateway") {}
 
 const target = Effect.gen(function* () {
   return {
@@ -122,7 +118,7 @@ export function makeEnderdashGateway(
       const failure = (cause: unknown) =>
         cause instanceof EnderdashError
           ? cause
-          : new EnderdashError({
+          : EnderdashError.make({
               operation,
               reason: "transport",
               uncertain: submitted,
@@ -190,7 +186,7 @@ export function makeEnderdashGateway(
                       const uncertain =
                         submitted &&
                         (result.status >= 500 || result.status === 408)
-                      return yield* new EnderdashError({
+                      return yield* EnderdashError.make({
                         operation,
                         reason: uncertain ? "transport" : "rejected",
                         uncertain,
@@ -217,7 +213,7 @@ export function makeEnderdashGateway(
                         if (chunk.done) break
                         bytes += chunk.value.byteLength
                         if (bytes > 1024 * 1024)
-                          return yield* new EnderdashError({
+                          return yield* EnderdashError.make({
                             operation,
                             reason: "response",
                             uncertain: submitted,
@@ -229,15 +225,14 @@ export function makeEnderdashGateway(
                     return yield* Schema.decodeEffect(
                       Schema.fromJsonString(schema)
                     )(text + decoder.decode()).pipe(
-                      Effect.mapError(
-                        (cause) =>
-                          new EnderdashError({
-                            operation,
-                            reason: "response",
-                            uncertain: submitted,
-                            message: "Enderdash returned an invalid response.",
-                            cause,
-                          })
+                      Effect.mapError((cause) =>
+                        EnderdashError.make({
+                          operation,
+                          reason: "response",
+                          uncertain: submitted,
+                          message: "Enderdash returned an invalid response.",
+                          cause,
+                        })
                       )
                     )
                   }),
@@ -265,7 +260,7 @@ export function makeEnderdashGateway(
         Effect.filterOrFail(
           (result) => result.success,
           (result) =>
-            new EnderdashError({
+            EnderdashError.make({
               operation: "executeConsoleCommand",
               reason: result.commandResult === 2 ? "rejected" : "response",
               uncertain: result.commandResult !== 2,
@@ -283,7 +278,7 @@ export function makeEnderdashGateway(
           false
         )
         if (!result.success)
-          return yield* new EnderdashError({
+          return yield* EnderdashError.make({
             operation: "resolveLuckPermsUsername",
             reason: "rejected",
             message: result.error || "Could not resolve Minecraft username",
@@ -305,7 +300,7 @@ export function makeEnderdashGateway(
           false
         )
         if (!result.success)
-          return yield* new EnderdashError({
+          return yield* EnderdashError.make({
             operation: "getLuckPermsSnapshot",
             reason: "rejected",
             message: result.error || "Could not load LuckPerms snapshot",

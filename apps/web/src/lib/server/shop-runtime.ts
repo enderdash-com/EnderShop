@@ -26,7 +26,7 @@ const shopLayer = Layer.mergeAll(
     require: (name) =>
       Effect.try({
         try: () => requireStringEnv(name),
-        catch: (cause) => new ShopConfigurationError({ binding: name, cause }),
+        catch: (cause) => ShopConfigurationError.make({ binding: name, cause }),
       }),
   }),
   Layer.succeed(EnderdashGateway, makeEnderdashGateway()),

@@ -7,7 +7,7 @@ import { publicShopEffect } from "./shop-boundary"
 import { ShopInputError, ShopStoreError } from "./shop-services"
 
 test("framework errors preserve public messages without transporting typed causes", async () => {
-  const internal = new ShopStoreError({
+  const internal = ShopStoreError.make({
     operation: "profile-write",
     cause: new Error("SQL parameters contain private credentials"),
   })
@@ -40,7 +40,7 @@ test("input failures retain their public text at the framework boundary", async 
     Effect.runPromise(
       publicShopEffect(
         Effect.fail(
-          new ShopInputError({
+          ShopInputError.make({
             message: "Create an account before purchasing.",
           })
         )

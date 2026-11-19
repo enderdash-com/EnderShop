@@ -18,15 +18,12 @@
     "noEmit": true,
     "skipLibCheck": true,
     "strict": true,
+    "exactOptionalPropertyTypes": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "noUncheckedIndexedAccess": true,
-    // exactOptionalPropertyTypes stays off. Most of its errors are in the
-    // vendored Better Auth UI and shadcn/ui components, and some come from
-    // library types that conflict under the flag (TanStack Form field meta,
-    // next-themes and Better Auth UI theme hooks).
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noImplicitOverride": true,

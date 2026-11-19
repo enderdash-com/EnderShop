@@ -75,7 +75,7 @@ export const resolveProductConfig = Effect.fn("Shop.resolveProductConfig")(
   function* (productId: string) {
     const product = getShopProduct(productId)
     if (!product) {
-      return yield* new ShopInputError({
+      return yield* ShopInputError.make({
         message: `Unknown product: ${productId}`,
       })
     }
@@ -83,7 +83,7 @@ export const resolveProductConfig = Effect.fn("Shop.resolveProductConfig")(
     const commands = yield* Effect.try({
       try: () => buildCommands(product),
       catch: () =>
-        new ShopInputError({
+        ShopInputError.make({
           message: `Missing Stripe price mapping for product ${product.id}`,
         }),
     })
